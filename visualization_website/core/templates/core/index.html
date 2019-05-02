@@ -1,0 +1,203 @@
+{% extends 'core/layout/base.html' %}
+{% load util %}
+
+
+{% block content %}
+    <div class="ui grid" >
+        <div class="sixteen wide column ">
+            <form method="post" action="" class="ui form">
+            {% csrf_token %}
+
+                <div class="ui grid stackable">
+                    <div class="ui five wide column grid">
+                        <div class="ui sixteen wide column">
+                        <div class="ui row">
+                            <h4 class="ui dividing header">Choisir des champs a étudier</h4>
+                            <select name="select_columns" multiple="" id="select_columns" class="ui fluid dropdown">
+                                {% for cle, val in fields.items %}
+                                    <option value="{{ cle }}">
+                                        {{ val }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        </div>
+                        <div class="ui sixteen wide column">
+                            <div class="ui form">
+                              <div class="field">
+                                <label for="fruit">Calculer: </label>
+                                  <div class="ui radio checkbox">
+                                    <input type="radio" name="op" value="count" checked="true" tabindex="0" class="hidden">
+                                        <label>Nombre</label>
+                                  </div>
+                                <div class="field">
+                                  <div class="ui radio checkbox">
+                                    <input type="radio" name="op" value="sum" tabindex="0" class="hidden">
+                                        <label>Somme</label>
+                                  </div>
+                                </div>
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input type="radio" name="op" value="mean" tabindex="0" class="hidden">
+                                        <label>Moyenne</label>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="ui sixteen wide column">
+                            <select name="calc_column" id="calc_column" class="ui fluid dropdown">
+
+                            </select>
+                        </div>
+                        <div class="ui sixteen wide column">
+                                <div class="ui form">
+                                <div class="field">
+                                <label>Type de graphique: </label>
+                                      <div class="ui radio checkbox">
+                                        <input type="radio" name="kind" value="bar" checked="true" tabindex="0" class="hidden">
+                                            <label>Bandes</label>
+                                      </div>
+                                    <div class="field">
+                                      <div class="ui radio checkbox">
+                                        <input type="radio" name="kind" value="pie" tabindex="0" class="hidden">
+                                            <label>Secteurs</label>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui sixteen wide column">
+                            <div class="ui form">
+                                <div class="field">
+                                    <label >Titre de graph</label>
+                                    <input type="text" name="titre" placeholder="Titre de graph (Optionnel)">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="ui sixteen wide column">
+                            <div class="ui form">
+                                <div class="field">
+                                    <button class="ui primary basic large button">Tracer!</button>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                    <div class="ui three wide column grid"></div>
+
+                    {#                FILTERS                   #}
+
+                    <div class="ui seven wide column grid">
+                        <h4 class="ui dividing header">
+                            Filtrer
+                        </h4>
+
+                    <div class="ui grid">
+                        <div class="ui eight wide column ui input left labeled">
+                            <div class="field">
+                                <label >Année</label>
+                                <input type="text" name="flt-anneecandidature" placeholder="Année">
+                            </div>
+                        </div>
+                        <div class="ui eight wide column">
+                            <div class="field">
+                                <label >Ville</label>
+                                <input type="text" name="flt-residence" placeholder="Ville">
+                            </div>
+                        </div>
+                        <div class="ui eight wide column">
+                            <div class="field">
+                                <label >Age</label>
+                                <input type="text" name="flt-age" placeholder="Age">
+                            </div>
+                        </div>
+                        <div class="ui eight wide column">
+                            <div class="field">
+                                <label>Type de bac</label>
+                                <select name="flt-typebac" class="ui fluid dropdown">
+                                    <option value="-1"> Tous </option>
+                                    {% for typebac in filters.types_bac  %}
+                                        {% if typebac.typebac is not None %}
+                                            <option value="{{ typebac.typebac }}">{{ typebac.typebac }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ui eight wide column">
+                            <div class="field">
+                                <label >Mention BAC</label>
+                                <select name="flt-mentionbac" class="ui fluid dropdown">
+                                    <option value="-1">Tous</option>
+                                    {% for mentionbac in filters.mentions_bac  %}
+                                        {% if mentionbac.mentionbac is not None %}
+                                            <option value="{{ mentionbac.mentionbac }}">{{ mentionbac.mentionbac }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ui eight wide column">
+                            <div class="field">
+                                <label>Durée de formation</label>
+                                <select name="flt-dureeformation" class="ui fluid dropdown">
+
+                                    <option value="">Durée de formation</option>
+                                    <option value="-1">Tous</option>
+                                    <option value="Normale">
+                                        Normale
+                                    </option>
+                                    <option value="redoublant 1 an">
+                                        Redoublant 1 an
+                                    </option>
+                                    <option value="redoublant 2 ans ou plus">
+                                        Redoublant 2 ans ou plus
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ui eight wide column">
+                            <div class="field">
+                                <label>Genre</label>
+                                <select name="flt-genre" class="ui fluid dropdown">
+                                    <option value="-1">Tous</option>
+                                    <option value="Homme">Homme</option>
+                                    <option value="Femme">Femme</option>
+                                </select>
+                            </div>
+                        </div>
+                            <div class="ui eight wide column">
+                                <div class="field">
+                                    <label>Diplome: </label>
+                                    <select name="flt-libelle" class="ui fluid dropdown">
+                                        <option value="-1"> Tous </option>
+                                        {% for diplome in filters.diplomes  %}
+                                            {% if diplome.libelle is not None %}
+                                                <option value="{{ diplome.libelle }}">{{ diplome.libelle }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </form>
+            
+        </div>
+    </div>
+    
+    <div class="ui grid">
+        <div class="ui sixteen wide column">
+            {% if fig %}
+                <img class="ui fluid image" id="image_stat" src="{{ fig }}">
+
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
