@@ -26,19 +26,19 @@ def create_sql_candidats(columns, filters):
     return sql
 
 
-def create_sql(columns, filters, count_column, table, op):
+def create_aggregation_sql(columns, filters, count_column, table, op):
     select_cols = ','.join(columns)
 
     sql = "SELECT " + select_cols + (',' if len(columns) != 0 else '')
     if op == 'count':
-        sql += 'COUNT(DISTINCT ' + count_column + ') as count '
+        sql += 'COUNT(DISTINCT ' + count_column + ') as ' + count_column
     elif op == 'avg':
-        sql += 'AVG(' + count_column + ') as n '
+        sql += 'AVG(' + count_column + ') as ' + count_column
     else:
-        sql += count_column + ' as n '
+        sql += count_column + ' as ' + count_column
 
     sql += " FROM " + table + \
-            ('' if len(filters) == 0 else "WHERE "
+            ('' if len(filters) == 0 else " WHERE "
                                                 + ''.join(' AND '.join(k + v if contains_operator(v)
                                                                else k + " ILIKE '%" + v + "%' " for k, v in
                                                                filters.items())))
@@ -69,9 +69,9 @@ class StatisticView(APIView):
         filters = request.data['filters']
 
         try:
-            count_column = request.data['count_column']
+            count_column = request.data['operation_column']
             columns.remove(count_column)
-            sql = create_sql(columns, filters, count_column, 'donneescandidat()', 'count')
+            sql = create_aggregation_sql(columns, filters, count_column, 'donneescandidat()', 'count')
         except Exception as e:
             sql = create_sql_candidats(columns, filters)
             print("Exception: " + str(e))
@@ -90,34 +90,41 @@ class StatisticView(APIView):
         )
 
 
-class EtudiantStatistics(APIView):
+class ModuleStatisticsView(APIView):
     def get(self, request):
-        modules = Module.objects.all()
-        return Response(modules)
+        modules = [{ 'codemodule': module.codemodule, 'libellemodule': module.libellemodule}
+                   for module in Module.objects.order_by('codemodule').distinct('codemodule', 'libellemodule')]
+
+        return Response({'modules': modules})
 
     def post(self, request):
-        columns = request.data['selected_columns']
+        codemodule = request.data['column']
+        target = request.data['target']
         filters = request.data['filters']
 
-        # Hard coded module to be removed and added to the front end
-        operation_column = 'notemodule'
+        if target == 'moyennesemestre':
+            target_table = 'resultatsemestre'
+        elif target == 'moyenneannee':
+            target_table = 'resultatannee'
 
-        if len(columns) == 1 and columns[0] == 'codecandidat':
-            op = ''
-
-        else:
-            op = 'avg'
-        #
-        sql = create_sql(columns, filters, operation_column, 'notesmodules()', op)
+        sql = create_notes_select(codemodule, target, target_table)
+        sql += create_filters(filters)
 
         cursor = connection.cursor()
         cursor.execute(sql)
         rows = dictfetchall(cursor)
-        labels, values = format_data(rows, 'n')
+
+        notes = [{'x': row[codemodule], 'y': row[target]} for row in rows]
+        sql = create_corr_select(codemodule, target, target_table)
+
+        sql += create_filters(filters)
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        corr = cursor.fetchone()
 
         return Response({
-            'labels': labels,
-            'values': values
+            'notes': notes,
+            'corr': corr
         })
 
 
@@ -135,4 +142,26 @@ class FiltersData(APIView):
         return Response(data)
 
 
+def create_notes_select(column, target_column, target_table):
+    sql = "SELECT " + column + ", "
+    sql += target_column + ' as ' + target_column
+    sql += " FROM modules_candidat() mc " +\
+            ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
+    return sql
 
+
+def create_corr_select(column, target_column, target_table):
+    sql = "SELECT corr(" + column + ", " + target_column + ") as corr "
+
+    sql += " FROM modules_candidat() mc " + \
+           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
+
+
+    return sql
+
+
+def create_filters(filters):
+    return ('' if len(filters) == 0 else " WHERE "
+                                                + ''.join(' AND '.join(k + v if contains_operator(v)
+                                                               else k + " ILIKE '%" + v + "%' " for k, v in
+                                                               filters.items())))

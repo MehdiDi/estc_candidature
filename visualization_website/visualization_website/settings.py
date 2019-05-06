@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'visualization_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'est_candidatures',
+        'NAME': 'estc_candidatures',
         'USER': 'postgres',
         'PASSWORD': '123123',
         'HOST': '127.0.0.1',

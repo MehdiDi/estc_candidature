@@ -1,124 +1,67 @@
 import React, {Component} from 'react';
-import SelectOptions from "./SelectOptions";
-import {Button, Dimmer, Form, Grid, Header, Icon, Loader, Radio, Segment, Statistic} from "semantic-ui-react";
+import Form from "semantic-ui-react/dist/commonjs/collections/Form";
+import axios from "axios";
+import Segment from "semantic-ui-react/dist/commonjs/elements/Segment";
+import Radio from "semantic-ui-react/dist/commonjs/addons/Radio";
+import Header from "semantic-ui-react/dist/commonjs/elements/Header";
+import Button from "semantic-ui-react/dist/commonjs/elements/Button";
 import Filters from "./Filters";
-import axios from "axios"
-import Chart from 'chart.js'
+import Grid from "semantic-ui-react/dist/commonjs/collections/Grid";
+import Graph from "./Graph";
+import Chart from "chart.js";
+import Statistic from "semantic-ui-react/dist/commonjs/views/Statistic";
 
-const column_choices = [
-    {
-        key: -1,
-        text: 'Etudiant',
-        value: 'codecandidat'
-    },
-    {
-        key: 0,
-        text: 'Diplome',
-        value: 'libelle'
-    },
-    {
-        key: 1,
-        text: 'Mentin de BAC',
-        value: 'mentionbac'
-    },
-    {
-        key: 2,
-        text: 'Type de BAC',
-        value: 'typebac'
-    },
-    {
-        key: 3,
-        text: 'Ville',
-        value: 'residence'
-    },
-    {
-        key: 4,
-        text: 'Promotion',
-        value: 'anneecandidature'
-    },
-    {
-        key: 5,
-        text: 'Durée de formation',
-        value: 'dureeformation'
-    },
-    {
-        key: 6,
-        text: 'Genre',
-        value: 'genre'
-    }
-
-];
-
-const styleStats = {
-    textAlign: 'center !important',
-    margin: '0 auto'
-};
 
 class EtudiantStatistics extends Component {
+
     constructor(props) {
         super(props);
+
         this.state = {
-            selected_columns: [],
-            group_columns: [],
+            column: 'notemodule',
+            modules: [],
+            target: null,
+            filters: {},
             typesbac: [],
             diplomes: [],
-            filters: {},
-            loading: false,
-            kind: 'line',
             chart: {chart: null, number: null},
-            tb: 'notesmodules()',
-            operation_column: null,
-            modules: [],
-
+            corr: null,
+            loading: false
 
         }
     }
 
     async componentDidMount() {
-        const {data} = await axios.get('http://localhost:8000/filters/');
+        const data = await axios.get('http://localhost:8000/modules/');
 
-        this.setState({typesbac: data.typesbac, diplomes: data.diplomes, modules: data.modules });
+
+        this.setState({ modules: data.data.modules });
+
+        const filterdata = await axios.get('http://localhost:8000/filters/');
+
+        this.setState({typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes});
     }
 
 
-    onOptionChange = (ev, el) => {
-      this.setState({[el.name]: el.value},() =>{
-
-      if(el.name === 'selected_columns') {
-
-          const options = el.options;
-
-          this.state.group_columns.length = 1;
-
-          let opts = [
-              {
-                  key: -1,
-                  text: "Aucun",
-                  value: "-1"
-              }
-          ];
-
-
-          if(this.state.selected_columns.indexOf(this.state.count_column) === -1) {
-              this.setState({count_column: null});
-          }
-
-          options.map(opt => {
-
-              if(this.state.selected_columns.indexOf(opt.value)>-1){
-                  opts.push(
-                      {
-                          key: opt.value,
-                          text: opt.text,
-                          value: opt.value
-                      }
-                  );
-              }
-          });
-        this.setState({ group_columns: opts });
+    onTargetClick = (el, { name, value } ) => {
+        this.setState({ target: value });
+        if(value !== 'moyennesemestre') {
+            const filters = Object.assign({}, this.state.filters);
+            delete filters['idsession'];
+            delete filters['idsemestre'];
+            this.setState({filters: filters});
         }
-      });
+        else {
+            const filters = Object.assign({}, this.state.filters);
+            filters['idsession'] = filters.module_session;
+            this.setState({filters: filters});
+        }
 
+
+    };
+    onChange = (el, {name, value}) => {
+
+        this.setState({[name]: value})
     };
 
     onFiltersChange = (e, el) => {
@@ -132,165 +75,188 @@ class EtudiantStatistics extends Component {
         else
             filters[el.name] = val;
 
+        if(el.name === 'module_session') {
+            filters['idsession'] = val;
+        }
+
         this.setState({ filters: filters} );
 
+
     };
 
-    randomizeColors = (n) =>{
-        let colors = [];
-        var letters = '0123456789ABCDEF'.split('');
+    async onSubmit(e) {
 
-        for(let i = 0; i< n; i++) {
-            colors[i] = '#';
-            for (let j = 0; j < 6; j++ ) {
-                colors[i] += letters[Math.floor(Math.random() * 16)];
-
-            }
-        }
-
-        return colors;
-    };
-
-    handleKindChange = (e, { value }) => this.setState({kind: value});
-
-    formatOptions  = (el) => {
-        if(el == null)
-            return;
-
-        return el.map(value => (
-            {
-                key: value.codemodule,
-                value: value.codemodule,
-                text: value.libellemodule
-            }
-        ));
-    };
-
-
-
-    async onSubmit (e)  {
-        e.preventDefault();
-
+        const postData = {column: this.state.column, target: this.state.target, filters: this.state.filters};
         this.setState({loading: true});
-        const postData = {
-            selected_columns: this.state.selected_columns,
-            filters: this.state.filters,
-            kind: this.state.kind,
-            table: this.state.tb,
+        try {
+            const {data} = await axios.post('http://localhost:8000/modules/', postData);
 
-        };
-        if(this.state.operation_column) {
-            postData['operation_column'] = this.state.operation_column;
-        }
 
-        const { data }= await axios.post("http://localhost:8000/etudiants/", postData);
-        const ctx = document.getElementById("chart").getContext('2d');
+            const ctx = document.getElementById("chart_etudiants").getContext('2d');
 
-        let crt = this.state.chart;
-        if(crt.chart !== null) {
-            crt.chart.destroy();
-        }
+            this.setState({corr: data.corr, loading: false});
+            let crt = this.state.chart;
+            if (crt.chart !== null) {
+                crt.chart.clear();
+                crt.chart.destroy();
 
-        const chart = new Chart(ctx, {
-            type: this.state.kind,
-            data: {
-                labels: data.labels,
-                datasets: [{
-
-                    data: data.values,
-                    backgroundColor: this.randomizeColors(data.values.length)
-
-                }]
             }
-        });
-        crt.chart = chart;
-        crt.number = (function()  {
-          let n = 0;
-          for(let i=0; i < data.values.length; i++)
-              n += data.values[i];
-          return n;
-        })();
+            var options = {
+                responsive: true, // Instruct chart js to respond nicely.
+                maintainAspectRatio: false,
+                scales: {
+                    xAxes: [{
+                        ticks: {beginAtZero: true}
+                    }],
+                    yAxes: [{
+                        ticks: {beginAtZero: true}
+                    }]
+                },
+                legend: {
+    labels: {
+        fontSize: 0
+    }
+}
+            };
+            let chartData = {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            data: data.notes,
+                            borderColor: '#2196f3',
+                            backgroundColor: '#2196f3',
+                            options: options
+                        }
+                    ]
+                }
+            };
 
+            chartData['options'] = {
+                            plugins: {
+                                datalabels: {
+                                    formatter: {},
+                                    display: false
+                                },
+                            },
+                                legend: {display: false}
+            };
 
-        this.setState({loading: false, chart: crt});
+            const chart = new Chart(ctx, chartData);
+            console.log(chart.options);
+            chart.update();
+            crt.chart = chart;
+            this.setState({loading: false, chart: crt});
+        }
+        catch(err) {
+            alert(err);
+            this.setState({loading: false});
+        }
 
-};
+    };
+
+    sessionModuleOptions = [
+        {key: 1, text: "Session normale", value:'=1'},{key:2, text: "Aprés rattrapage", value:'=2'},
+        {key: 3, text: "Redouble normale", value:'=3'},
+        {key: 4, text: "Redouble apres rattrapage", value:'=4'}
+    ];
+
 
     render() {
 
+        const modules = this.state.modules.map(module => (
+            {
+                key: module.codemodule,
+                text: module.libellemodule,
+                value: module.codemodule
+            }
+        ));
+
         return (
             <>
-                <Segment>
-                  <Dimmer active={this.state.loading}>
-                    <Loader size='small'>
-                        Chargement..
-                    </Loader>
-                  </Dimmer>
-                    <Form>
-                        <Grid stackable columns={1}>
-                            <Grid.Column width={6}>
-                                <Form.Group>
-                                    <Form.Select onChange={this.onOptionChange.bind(this)}
-                                                   options={this.formatOptions(this.state.modules)}
-                                                   placeholder="Choisir un module" name="libellemodule"
-                                                   label="Choisir un module"/>
-                                </Form.Group>
-                                <Form.Group>
-                                    <SelectOptions onChange={this.onOptionChange.bind(this)}
-                                               options={column_choices}
-                                               placeholder="Choisir les colonnes" name="selected_columns"
-                                                label="Choisir les colonnes"/>
-                                </Form.Group>
-                            </Grid.Column>
-                            <Grid.Column width={10}>
-                                <Filters onChange={this.onFiltersChange.bind(this)}
-                                         typesbac={this.state.typesbac}  diplomes={this.state.diplomes}/>
-                            </Grid.Column>
-                        </Grid>
-
-                            <Form.Group>
-                                <Header as='h4'>Choisir type de graph</Header>
+                <Form method='GET' onSubmit={this.onSubmit.bind(this)}>
+                    <Grid columns={2}>
+                        <Grid.Column>
+                            <Form.Field>
+                                <Form.Select
+                                    onChange={this.onFiltersChange.bind(this)}
+                                    options={modules}
+                                    label='Modules'
+                                    name='codemodule'
+                                />
+                            </Form.Field>
+                            <Form.Group widths={2}>
+                              <Form.Select label='Session de Module' placeholder='Session de module' name='module_session'
+                                          onChange={this.onFiltersChange.bind(this)} options={this.sessionModuleOptions}/>
 
                             </Form.Group>
                             <Form.Field>
-                              <Radio
-                                label=''
-                                name='chart_type'
-                                value='pie'
-                                checked={this.state.kind === 'pie'}
-                                onChange={this.handleKindChange.bind(this)}
+                                <Header as='h4'>Target</Header>
+                                <Segment compact>
+                                    <Form.Group inline>
+                                        <Form.Field>
+                                          <Radio toggle name='target' value='moyennesemestre' checked={this.state.target === 'moyennesemestre'}
+                                              label="Moyenne de semestre" onChange={this.onTargetClick}/>
+                                        </Form.Field>
 
-                              />{ <Icon size='big' color='teal' name='pie chart' />}
+                                            <Segment style={{display : this.state.target === 'moyennesemestre' ? 'flex': 'none'}}>
 
+                                                <Form.Field>
+                                                    <Radio
+                                                        name='idsemestre' value='s5' label='S5'
+                                                        onChange={this.onFiltersChange.bind(this)}
+                                                        checked={this.state.filters.idsemestre === 's5'}
+                                                    />
+
+                                                     <Radio
+                                                        name='idsemestre' value='s6' label='S6'
+                                                        onChange={this.onFiltersChange.bind(this)}
+                                                        checked={this.state.filters.idsemestre === 's6'}
+                                                    />
+                                                </Form.Field>
+
+                                            </Segment>
+
+                                    </Form.Group>
+                                    <Form.Field>
+                                      <Radio toggle name='target' value='moyenneannee' checked={this.state.target === 'moyenneannee'}
+                                            label="Moyenne d'année" onChange={this.onTargetClick}/>
+                                    </Form.Field>
+                                </Segment>
                             </Form.Field>
                             <Form.Field>
-                              <Radio
-                                label=''
-                                name='chart_type'
-                                value='bar'
-                                checked={this.state.kind === 'bar'}
-                                onChange={this.handleKindChange.bind(this)}
-
-                              />{ <Icon size='big' color='teal' name='bar chart' />}
-
-                            </Form.Field>
-                            <Form.Field>
-                                <Button basic size='medium' color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
-                                  Tracer le graph
+                                <Button basic loading={this.state.loading} color='primary' type='submit'>
+                                    Envoyer
                                 </Button>
+                                {/*<Loader active={ this.state.loading } inline color='purple'/>*/}
+                                {/*<Icon loading name='spinner' color='purple' size='big' /> */}
                             </Form.Field>
-                    </Form>
-                    <Grid>
-                        <Grid.Row>
-                            <canvas id="chart">
-
-                            </canvas>
-                        </Grid.Row>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Filters onChange={this.onFiltersChange.bind(this)}
+                                                 typesbac={this.state.typesbac}  diplomes={this.state.diplomes} />
+                        </Grid.Column>
 
                     </Grid>
-                </Segment>
+                </Form>
+                <Grid style={{ display: this.state.corr ? 'flex': 'none' }}>
+                    <Grid.Row>
+                        <Statistic color={(() => {
+                            if(this.state.corr > 0.75) return 'green';
+                            else if (this.state.corr > 0.45) return 'orange';
+                            else return 'red';
+                        })()}>
+                          <Statistic.Value>{this.state.corr}</Statistic.Value>
+                          <Statistic.Label>Coefficient de corrélation</Statistic.Label>
+                        </Statistic>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Graph chart="chart_etudiants" />
+                    </Grid.Row>
+                </Grid>
             </>
-        )
+        );
     }
 }
+
 export default EtudiantStatistics;

@@ -86,6 +86,7 @@ class Candidats extends Component {
 
     }
 
+
     onToggle = (el, val) => {
         this.setState({count_enabled: val.checked})
 
@@ -234,6 +235,8 @@ class Candidats extends Component {
         }
 
         const chart = new Chart(ctx, chartData);
+        console.log(chart.options);
+        chart.update();
         crt.chart = chart;
         crt.number = (function()  {
           let n = 0;
