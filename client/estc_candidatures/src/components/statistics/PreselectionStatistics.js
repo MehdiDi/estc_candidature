@@ -269,9 +269,7 @@ class PreselectionStatistics extends Component {
                                                 <Form.Select
                                                     name='codemodule' onChange={this.onFiltersChange.bind(this)}
                                                     options={modules} label='Modules'
-                                                    value={(
-                                                        () => {if(this.state.filters.codemodule == null) return ''})()
-                                                    }/>
+                                                    />
                                             </Grid>
                                         </Form.Field>
                                     </Form.Group>
