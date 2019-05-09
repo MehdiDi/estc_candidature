@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .utils.pg_database import dictfetchall
-from .models import Candidat, DiplomeSup, Module
+from .models import Candidat, DiplomeSup, Module, Elementmodule, Passer
 
 
 def contains_operator(string):
@@ -98,7 +98,7 @@ class ModuleStatisticsView(APIView):
         return Response({'modules': modules})
 
     def post(self, request):
-        codemodule = request.data['column']
+        column = request.data['column']
         target = request.data['target']
         filters = request.data['filters']
 
@@ -107,15 +107,15 @@ class ModuleStatisticsView(APIView):
         elif target == 'moyenneannee':
             target_table = 'resultatannee'
 
-        sql = create_notes_select(codemodule, target, target_table)
+        sql = create_notes_select(column, target, target_table)
         sql += create_filters(filters)
 
         cursor = connection.cursor()
         cursor.execute(sql)
         rows = dictfetchall(cursor)
 
-        notes = [{'x': row[codemodule], 'y': row[target]} for row in rows]
-        sql = create_corr_select(codemodule, target, target_table)
+        notes = [{'x': row[column], 'y': row[target]} for row in rows]
+        sql = create_corr_select(column, target, target_table)
 
         sql += create_filters(filters)
         cursor = connection.cursor()
@@ -126,6 +126,59 @@ class ModuleStatisticsView(APIView):
             'notes': notes,
             'corr': corr
         })
+
+
+class PrecandidatStatistics(APIView):
+
+    tables = {
+        'excel': {'col': 'moyenne', 'table': 'calculermoyenne'},
+        'concours': {'col': 'moyenneconcours', 'table': 'resultat'},
+        'elconcours': {'col': 'note', 'table': 'passer'},
+        'moyenneannee': {'col': 'moyenneannee', 'table': 'moyannee_candidat()'},
+        'elmodule': {'col': 'note', 'table': 'elements_candidat()'},
+        'module': {'col': 'notemodule', 'table': 'modules_candidat2()'},
+    }
+
+    def get(self, request):
+        modules = [{'codemodule': module.codemodule, 'libellemodule': module.libellemodule}
+                   for module in Module.objects.order_by('codemodule').distinct('codemodule', 'libellemodule')]
+        elmodules = [{ 'codeelementemodule': element.codeelementmodule,
+                            'libelleelementmodule': element.libelleelementmodule} for element
+                          in Elementmodule.objects.order_by('codeelementmodule').distinct('codeelementmodule', 'libelleelementmodule')]
+        elconcours = [el['libelle'] for el in Passer.objects.all().values('libelle').distinct().order_by('libelle')]
+
+        return Response({
+            'modules': modules,
+            'elmodules': elmodules,
+            'elconcours': elconcours
+        })
+
+    def post(self, request):
+        column = request.data['column']
+        target = request.data['target']
+        filters = request.data['filters']
+
+        table = self.tables[column].get('table')
+        column = self.tables[column].get('col')
+        target_table = self.tables[target].get('table')
+        target = self.tables[target].get('col')
+
+        sql = create_sql(column, target, table, target_table)
+        sql += create_filters(filters)
+        print(sql)
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        rows = dictfetchall(cursor)
+
+        data = [{'x': row[column], 'y': row['target']} for row in rows]
+
+        sql = create_sql_corr(column, target, table, target_table)
+        sql += create_filters(filters)
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        corr = cursor.fetchone()
+
+        return Response({'result': data, 'corr': corr})
 
 
 class FiltersData(APIView):
@@ -146,7 +199,8 @@ def create_notes_select(column, target_column, target_table):
     sql = "SELECT " + column + ", "
     sql += target_column + ' as ' + target_column
     sql += " FROM modules_candidat() mc " +\
-            ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
+            ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'\
+            + ' INNER JOIN donneescandidat() dc on dc.codecandidat = mc.codecandidat'
     return sql
 
 
@@ -156,12 +210,29 @@ def create_corr_select(column, target_column, target_table):
     sql += " FROM modules_candidat() mc " + \
            ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
 
+    return sql
+
+
+def create_sql(columns, target_columns, table, target_table):
+    sql = "SELECT " + table[0] + "." + columns + ',' + target_table[:2] + "." + target_columns + " as target "
+    sql += " FROM " + table + ' ' + table[0] + \
+           ' INNER JOIN ' + target_table + " " + target_table[:2] + ' ON ' + table[0] + '.codecandidat = ' \
+           + target_table[:2] + '.codecandidat'
+
+    return sql
+
+
+def create_sql_corr(column, target_column, table, target_table):
+    sql = "SELECT corr(" + table[0] + "." + column + ", " + target_table[:2] + '.' + target_column + ") as corr "
+    sql += " FROM " + table + ' ' + table[0] + \
+           ' INNER JOIN ' + target_table + " " + target_table[:2] + ' ON ' + table[0] + '.codecandidat = ' \
+           + target_table[:2] + '.codecandidat'
 
     return sql
 
 
 def create_filters(filters):
     return ('' if len(filters) == 0 else " WHERE "
-                                                + ''.join(' AND '.join(k + v if contains_operator(v)
+                                                +''.join(' AND '.join(k + v if contains_operator(v)
                                                                else k + " ILIKE '%" + v + "%' " for k, v in
                                                                filters.items())))

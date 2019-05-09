@@ -98,7 +98,7 @@ class Filters extends Component {
                                 options={this.formatOptions(this.props.typesbac)} />
                 </Form.Group>
                 <Form.Group widths={2}>
-                  <Form.Select label='Diplôme Superieur' placeholder='Diplôme Superieur' name='libelle'
+                  <Form.Select label='Diplôme Superieur' placeholder='Diplôme Superieur' name='diplome'
                                options={this.formatOptions(this.props.diplomes)} onChange={this.handleChange} />
                   <Form.Select  label='Durée de formation' placeholder='Durée de formation'
                                 name="dureeformation" options={this.dureesformation} onChange={this.handleChange}/>

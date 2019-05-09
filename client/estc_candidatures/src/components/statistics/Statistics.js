@@ -4,6 +4,7 @@ import StatsMenu from "../layout/StatsMenu";
 import {Grid, Segment} from "semantic-ui-react";
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
+import PreselectionStatistics from "./PreselectionStatistics";
 
 class Statistics extends Component {
     constructor(props) {
@@ -23,9 +24,10 @@ class Statistics extends Component {
         if(activeItem==='Candidats')
             categoryStatistics = <Candidats />;
         else if(activeItem === 'Préselection')
-            categoryStatistics = null;
+            categoryStatistics = <PreselectionStatistics />
         else if (activeItem === 'Aprés Selection')
             categoryStatistics = <EtudiantStatistics />
+
 
         return (
                 <Grid>

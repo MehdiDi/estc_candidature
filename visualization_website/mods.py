@@ -124,12 +124,14 @@ class DiplomeSup(models.Model):
 class Elementmodule(models.Model):
     libelleelementmodule = models.CharField(max_length=100, blank=True, null=True)
     coefficientelement = models.BigIntegerField(blank=True, null=True)
-    codemodule = models.ForeignKey('Module', models.DO_NOTHING, db_column='codemodule')
-    codeelementmodule = models.CharField(primary_key=True, max_length=20)
+    codemodule = models.ForeignKey('Module', models.DO_NOTHING, db_column='codemodule', primary_key=True)
+    codeelementmodule = models.CharField(max_length=20)
+    codefiliere = models.CharField(max_length=20)
 
     class Meta:
         managed = False
         db_table = 'elementmodule'
+        unique_together = (('codemodule', 'codeelementmodule', 'codefiliere'),)
 
 
 class Enseignant(models.Model):
@@ -277,18 +279,21 @@ class Module(models.Model):
     codemodule = models.CharField(primary_key=True, max_length=50)
     libellemodule = models.CharField(max_length=100, blank=True, null=True)
     codefiliere = models.ForeignKey(Filiere, models.DO_NOTHING, db_column='codefiliere')
-    idsemestre = models.ForeignKey('Semestre', models.DO_NOTHING, db_column='idsemestre')
+    idsemestre = models.CharField(max_length=20)
 
     class Meta:
         managed = False
         db_table = 'module'
+        unique_together = (('codemodule', 'codefiliere'),)
 
 
 class Obtenirelement(models.Model):
     codecandidat = models.ForeignKey(Candidats, models.DO_NOTHING, db_column='codecandidat')
-    idsession = models.ForeignKey('Session', models.DO_NOTHING, db_column='idsession')
+    idsession = models.IntegerField()
     note = models.FloatField(blank=True, null=True)
-    codelementmodule = models.ForeignKey(Elementmodule, models.DO_NOTHING, db_column='codelementmodule', blank=True, null=True)
+    codeelementmodule = models.ForeignKey(Elementmodule, models.DO_NOTHING, db_column='codeelementmodule', blank=True, null=True)
+    codemodule = models.CharField(max_length=20, blank=True, null=True)
+    codefiliere = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -297,10 +302,11 @@ class Obtenirelement(models.Model):
 
 class Obtenirmodule(models.Model):
     codemodule = models.ForeignKey(Module, models.DO_NOTHING, db_column='codemodule', primary_key=True)
-    idsession = models.ForeignKey('Session', models.DO_NOTHING, db_column='idsession')
+    idsession = models.IntegerField()
     codecandidat = models.ForeignKey(Candidats, models.DO_NOTHING, db_column='codecandidat')
     notemodule = models.FloatField(blank=True, null=True)
     etatmodule = models.CharField(max_length=20, blank=True, null=True)
+    codefiliere = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -326,9 +332,9 @@ class Participer(models.Model):
 
 
 class Passer(models.Model):
-    codecandidat = models.ForeignKey(Candidats, models.DO_NOTHING, db_column='codecandidat', blank=True, null=True)
-    anneetestecrit = models.ForeignKey('Testecrit', models.DO_NOTHING, db_column='anneetestecrit', blank=True, null=True)
-    libelle = models.ForeignKey(Matiere, models.DO_NOTHING, db_column='libelle', blank=True, null=True)
+    codecandidat = models.BigIntegerField(blank=True, null=True)
+    anneetestecrit = models.BigIntegerField(blank=True, null=True)
+    libelle = models.CharField(max_length=100, blank=True, null=True)
     note = models.FloatField(blank=True, null=True)
 
     class Meta:
@@ -402,7 +408,7 @@ class Resultatannee(models.Model):
 class Resultatsemestre(models.Model):
     codecandidat = models.ForeignKey(Candidats, models.DO_NOTHING, db_column='codecandidat', primary_key=True)
     idsemestre = models.ForeignKey('Semestre', models.DO_NOTHING, db_column='idsemestre')
-    idsession = models.ForeignKey('Session', models.DO_NOTHING, db_column='idsession')
+    idsession = models.IntegerField()
     moyennesemestre = models.FloatField(blank=True, null=True)
     etatsemestre = models.CharField(max_length=20, blank=True, null=True)
 
@@ -422,7 +428,7 @@ class Semestre(models.Model):
 
 
 class Session(models.Model):
-    idsession = models.CharField(primary_key=True, max_length=20)
+    idsession = models.IntegerField(primary_key=True)
     libellesession = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:

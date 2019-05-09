@@ -113,3 +113,25 @@ class Module(models.Model):
     class Meta:
         managed = False
         db_table = 'module'
+
+
+class Elementmodule(models.Model):
+    libelleelementmodule = models.CharField(max_length=100, blank=True, null=True)
+    coefficientelement = models.BigIntegerField(blank=True, null=True)
+    codemodule = models.ForeignKey(Module, models.DO_NOTHING, db_column='codemodule')
+    codeelementmodule = models.CharField(primary_key=True, max_length=20)
+
+    class Meta:
+        managed = False
+        db_table = 'elementmodule'
+
+
+class Passer(models.Model):
+    codecandidat = models.ForeignKey(Candidat, null=True, on_delete=models.CASCADE)
+    anneetestecrit = models.BigIntegerField(blank=True, null=True)
+    libelle = models.CharField(max_length=100, blank=True, null=True)
+    note = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'passer'

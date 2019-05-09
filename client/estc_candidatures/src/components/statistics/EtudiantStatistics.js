@@ -75,7 +75,7 @@ class EtudiantStatistics extends Component {
         else
             filters[el.name] = val;
 
-        if(el.name === 'module_session') {
+        if(el.name === 'module_session' && this.state.target === 'moyennesemestre') {
             filters['idsession'] = val;
         }
 
