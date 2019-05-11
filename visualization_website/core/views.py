@@ -1,9 +1,28 @@
+from .utils.pg_database import dictfetchall
+from .models import Candidat, DiplomeSup, Module, Elementmodule, Passer
 from django.db import connection
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
-from .utils.pg_database import dictfetchall
-from .models import Candidat, DiplomeSup, Module, Elementmodule, Passer
+
+class CustomAuthToken(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        print(token.key)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email,
+            'expiresIn': 7200
+        })
 
 
 def contains_operator(string):
@@ -21,7 +40,8 @@ def create_sql_candidats(columns, filters):
                                                                filters.items())))
     sql += " GROUP BY " + select_cols if len(columns) != 0 else ''
 
-    sql += " ORDER BY " + ','.join(col for col in columns) if len(columns) != 0 else ''
+    sql += " ORDER BY " + \
+        ','.join(col for col in columns) if len(columns) != 0 else ''
 
     return sql
 
@@ -38,10 +58,10 @@ def create_aggregation_sql(columns, filters, count_column, table, op):
         sql += count_column + ' as ' + count_column
 
     sql += " FROM " + table + \
-            ('' if len(filters) == 0 else " WHERE "
-                                                + ''.join(' AND '.join(k + v if contains_operator(v)
-                                                               else k + " ILIKE '%" + v + "%' " for k, v in
-                                                               filters.items())))
+        ('' if len(filters) == 0 else " WHERE "
+         + ''.join(' AND '.join(k + v if contains_operator(v)
+                                else k + " ILIKE '%" + v + "%' " for k, v in
+                                filters.items())))
     if op in ('count', 'avg'):
         sql += " GROUP BY " + select_cols
     sql += " ORDER BY " + ','.join(columns) if len(columns) != 0 else ''
@@ -55,7 +75,8 @@ def format_data(result, key):
     for data in result:
 
         counts.append(data[key])
-        val = ', '.join(str(v) if v is not None else 'null' for k, v in data.items() if k != key)
+        val = ', '.join(str(v) if v is not None else 'null' for k,
+                        v in data.items() if k != key)
         data.items()
         values.append(val)
 
@@ -71,7 +92,8 @@ class StatisticView(APIView):
         try:
             count_column = request.data['operation_column']
             columns.remove(count_column)
-            sql = create_aggregation_sql(columns, filters, count_column, 'donneescandidat()', 'count')
+            sql = create_aggregation_sql(
+                columns, filters, count_column, 'donneescandidat()', 'count')
         except Exception as e:
             sql = create_sql_candidats(columns, filters)
             print("Exception: " + str(e))
@@ -92,7 +114,7 @@ class StatisticView(APIView):
 
 class ModuleStatisticsView(APIView):
     def get(self, request):
-        modules = [{ 'codemodule': module.codemodule, 'libellemodule': module.libellemodule}
+        modules = [{'codemodule': module.codemodule, 'libellemodule': module.libellemodule}
                    for module in Module.objects.order_by('codemodule').distinct('codemodule', 'libellemodule')]
 
         return Response({'modules': modules})
@@ -142,10 +164,11 @@ class PrecandidatStatistics(APIView):
     def get(self, request):
         modules = [{'codemodule': module.codemodule, 'libellemodule': module.libellemodule}
                    for module in Module.objects.order_by('codemodule').distinct('codemodule', 'libellemodule')]
-        elmodules = [{ 'codeelementemodule': element.codeelementmodule,
-                            'libelleelementmodule': element.libelleelementmodule} for element
-                          in Elementmodule.objects.order_by('codeelementmodule').distinct('codeelementmodule', 'libelleelementmodule')]
-        elconcours = [el['libelle'] for el in Passer.objects.all().values('libelle').distinct().order_by('libelle')]
+        elmodules = [{'codeelementemodule': element.codeelementmodule,
+                      'libelleelementmodule': element.libelleelementmodule} for element
+                     in Elementmodule.objects.order_by('codeelementmodule').distinct('codeelementmodule', 'libelleelementmodule')]
+        elconcours = [el['libelle'] for el in Passer.objects.all().values(
+            'libelle').distinct().order_by('libelle')]
 
         return Response({
             'modules': modules,
@@ -199,8 +222,8 @@ def create_notes_select(column, target_column, target_table):
     sql = "SELECT " + column + ", "
     sql += target_column + ' as ' + target_column
     sql += " FROM modules_candidat() mc " +\
-            ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'\
-            + ' INNER JOIN donneescandidat() dc on dc.codecandidat = mc.codecandidat'
+        ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'\
+        + ' INNER JOIN donneescandidat() dc on dc.codecandidat = mc.codecandidat'
     return sql
 
 
@@ -208,13 +231,15 @@ def create_corr_select(column, target_column, target_table):
     sql = "SELECT corr(" + column + ", " + target_column + ") as corr "
 
     sql += " FROM modules_candidat() mc " + \
-           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
+           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + \
+        target_table + '.codecandidat'
 
     return sql
 
 
 def create_sql(columns, target_columns, table, target_table):
-    sql = "SELECT " + table[0] + "." + columns + ',' + target_table[:2] + "." + target_columns + " as target "
+    sql = "SELECT " + table[0] + "." + columns + ',' + \
+        target_table[:2] + "." + target_columns + " as target "
     sql += " FROM " + table + ' ' + table[0] + \
            ' INNER JOIN ' + target_table + " " + target_table[:2] + ' ON ' + table[0] + '.codecandidat = ' \
            + target_table[:2] + '.codecandidat'
@@ -223,7 +248,8 @@ def create_sql(columns, target_columns, table, target_table):
 
 
 def create_sql_corr(column, target_column, table, target_table):
-    sql = "SELECT corr(" + table[0] + "." + column + ", " + target_table[:2] + '.' + target_column + ") as corr "
+    sql = "SELECT corr(" + table[0] + "." + column + ", " + \
+        target_table[:2] + '.' + target_column + ") as corr "
     sql += " FROM " + table + ' ' + table[0] + \
            ' INNER JOIN ' + target_table + " " + target_table[:2] + ' ON ' + table[0] + '.codecandidat = ' \
            + target_table[:2] + '.codecandidat'
@@ -233,6 +259,6 @@ def create_sql_corr(column, target_column, table, target_table):
 
 def create_filters(filters):
     return ('' if len(filters) == 0 else " WHERE "
-                                                +''.join(' AND '.join(k + v if contains_operator(v)
-                                                               else k + " ILIKE '%" + v + "%' " for k, v in
-                                                               filters.items())))
+            + ''.join(' AND '.join(k + v if contains_operator(v)
+                                   else k + " ILIKE '%" + v + "%' " for k, v in
+                                   filters.items())))
