@@ -4,7 +4,19 @@ import { Grid, Segment } from "semantic-ui-react";
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
+import NavBar from "../layout/NavBar"
 
+const leftItems = [
+    { as: "a", content: "Home", key: "home" },
+    { as: "a", content: "Users", key: "users" },
+    { as: "a", content: "Users", key: "users" },
+    { as: "a", content: "Users", key: "users" },
+    { as: "a", content: "Users", key: "users" }
+];
+const rightItems = [
+    { as: "a", content: "Login", key: "login" },
+    { as: "a", content: "Register", key: "register" }
+];
 class Statistics extends Component {
     constructor(props) {
         super(props);
@@ -15,6 +27,7 @@ class Statistics extends Component {
     handleItemClick = (e, { name }) => {
         this.setState({ activeItem: name });
     };
+
     render() {
         const { activeItem } = this.state;
         let categoryStatistics;
@@ -25,21 +38,30 @@ class Statistics extends Component {
         else if (activeItem === 'Aprés Selection')
             categoryStatistics = <EtudiantStatistics />
         return (
-            <Grid>
-                <Grid.Column width={4}>
-                    <Menu fluid vertical tabular>
-                        <Menu.Item name='Candidats' active={activeItem === 'Candidats'} onClick={this.handleItemClick} />
-                        <Menu.Item name='Préselection' active={activeItem === 'Préselection'} onClick={this.handleItemClick} />
-                        <Menu.Item name='Aprés Selection' active={activeItem === 'Aprés Selection'} onClick={this.handleItemClick}/>
-                    </Menu>
-                </Grid.Column>
-                <Grid.Column width={12} >
-                    <Segment >
-                        {categoryStatistics}
-                    </Segment>
-                </Grid.Column>
-            </Grid>
-            
+            <NavBar leftItems={leftItems} rightItems={rightItems}  >
+
+                <Grid>
+                    <Grid.Column width={4}>
+                        <Menu fluid vertical tabular>
+                            <Menu.Item name='Candidats' active={activeItem === 'Candidats'} onClick={this.handleItemClick} />
+                            <Menu.Item name='Préselection' active={activeItem === 'Préselection'} onClick={this.handleItemClick} />
+                            <Menu.Item
+                                name='Aprés Selection'
+                                active={activeItem === 'Aprés Selection'}
+                                onClick={this.handleItemClick}
+                            />
+                        </Menu>
+                    </Grid.Column>
+
+                    <Grid.Column width={12}>
+                        <Segment >
+                            {categoryStatistics}
+                        </Segment>
+                    </Grid.Column>
+
+                </Grid>
+
+            </NavBar>
         );
     }
 }

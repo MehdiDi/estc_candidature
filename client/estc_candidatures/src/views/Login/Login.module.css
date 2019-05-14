@@ -1,9 +1,3 @@
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #ccc;
-    overflow: hidden;
-}
 .Size h2 {
     font-size: 3.5em;
     text-align: center;
@@ -25,6 +19,7 @@ body {
     transition: all 0.5s ease-out;
     transform: translateY(-100vh);
     opacity: 1;
+    box-shadow: 2px 4px 10px 10px #CCC;
 }
 
 .Size p {
