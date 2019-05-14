@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classes from './Login.module.css';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Form, Label } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
@@ -92,6 +93,10 @@ class Login extends Component {
   }
 
   render() {
+    let redirect = null
+    if (this.props.auth) {
+      redirect = <Redirect to="/statistics" />
+    }
     const classesUi = [classes.ui, classes.form, classes.Size]
     const classesButton = [classes.ui, classes.blue, classes.button]
     const fromElementsArray = [];
@@ -108,7 +113,8 @@ class Login extends Component {
       errorMessage = <p style={{ color: 'red' }}>{this.props.error}</p>;
     }
     return (
-      <div>
+      < div >
+        {redirect}
         <div className={classes.Login} style={this.state.style}>
           <div>
             <Form className={classesUi.join(' ')} onSubmit={this.submitHundler}>
@@ -135,14 +141,15 @@ class Login extends Component {
             </Form>
           </div>
         </div>
-      </div>
+      </div >
     );
   }
 }
 
 const mapStateToPros = state => {
   return {
-    error: state.error
+    error: state.error,
+    auth: state.auth
   }
 }
 

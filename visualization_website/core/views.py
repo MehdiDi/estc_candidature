@@ -21,7 +21,8 @@ class CustomAuthToken(ObtainAuthToken):
             'token': token.key,
             'user_id': user.pk,
             'email': user.email,
-            'expiresIn': 7200
+            'expiresIn': 7200,
+            'username': user.username
         })
 
 
