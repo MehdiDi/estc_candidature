@@ -113,10 +113,10 @@ class EtudiantStatistics extends Component {
                     }]
                 },
                 legend: {
-    labels: {
-        fontSize: 0
-    }
-}
+                    labels: {
+                        fontSize: 0
+                    }
+                }
             };
             let chartData = {
                 type: 'scatter',
