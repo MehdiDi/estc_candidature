@@ -19,7 +19,8 @@ class SelectOptions extends React.Component {
     };
 
 
-    render() {
+    render(){
+
         return (
             <Form.Field>
                 <label>{this.props.placeholder}</label>

@@ -55,15 +55,19 @@ def create_aggregation_sql(columns, filters, count_column, table, op):
         sql += 'COUNT(DISTINCT ' + count_column + ') as ' + count_column
     elif op == 'avg':
         sql += 'AVG(' + count_column + ') as ' + count_column
+    elif op == 'max':
+        sql += 'MAX(' + count_column + ') as ' + count_column
     else:
         sql += count_column + ' as ' + count_column
 
     sql += " FROM " + table + \
-        ('' if len(filters) == 0 else " WHERE "
-         + ''.join(' AND '.join(k + v if contains_operator(v)
-                                else k + " ILIKE '%" + v + "%' " for k, v in
-                                filters.items())))
-    if op in ('count', 'avg'):
+
+           ('' if len(filters) == 0 else " WHERE "
+                                         + ''.join(' AND '.join(k + v if contains_operator(v)
+                                                                else k + " ILIKE '%" + v + "%' " for k, v in
+                                                                filters.items())))
+    if op in ('count', 'avg', 'max', 'min'):
+
         sql += " GROUP BY " + select_cols
     sql += " ORDER BY " + ','.join(columns) if len(columns) != 0 else ''
     return sql
@@ -74,7 +78,6 @@ def format_data(result, key):
     counts = []
 
     for data in result:
-
         counts.append(data[key])
         val = ', '.join(str(v) if v is not None else 'null' for k,
                         v in data.items() if k != key)
@@ -132,7 +135,7 @@ class ModuleStatisticsView(APIView):
 
         sql = create_notes_select(column, target, target_table)
         sql += create_filters(filters)
-
+        print(sql)
         cursor = connection.cursor()
         cursor.execute(sql)
         rows = dictfetchall(cursor)
@@ -151,8 +154,7 @@ class ModuleStatisticsView(APIView):
         })
 
 
-class PrecandidatStatistics(APIView):
-
+def get_table_data_joined(key):
     tables = {
         'excel': {'col': 'moyenne', 'table': 'calculermoyenne'},
         'concours': {'col': 'moyenneconcours', 'table': 'resultat'},
@@ -160,21 +162,47 @@ class PrecandidatStatistics(APIView):
         'moyenneannee': {'col': 'moyenneannee', 'table': 'moyannee_candidat()'},
         'elmodule': {'col': 'note', 'table': 'elements_candidat()'},
         'module': {'col': 'notemodule', 'table': 'modules_candidat2()'},
+        'moysemestre': {'col': 'moyennesemestre', 'table': 'resultatsemestre'}
     }
+
+    return tables[key]
+
+
+def get_table_data(key):
+    tables = {
+        'excel': {'col': 'moyenne', 'table': 'calculermoyenne'},
+        'concours': {'col': 'moyenneconcours', 'table': 'resultat'},
+        'elconcours': {'col': 'note', 'table': 'passer'},
+        'moyenneannee': {'col': 'moyenneannee', 'table': 'resultatannee'},
+        'elmodule': {'col': 'note', 'table': 'obtenirelement'},
+        'module': {'col': 'notemodule', 'table': 'obtenirmodule'},
+        'moysemestre': {'col': 'moyennesemestre', 'table': 'resultatsemestre'}
+    }
+
+    return tables[key]
+
+
+class PrecandidatStatistics(APIView):
 
     def get(self, request):
         modules = [{'codemodule': module.codemodule, 'libellemodule': module.libellemodule}
                    for module in Module.objects.order_by('codemodule').distinct('codemodule', 'libellemodule')]
-        elmodules = [{'codeelementemodule': element.codeelementmodule,
+
+        elmodules = [{'codeelementmodule': element.codeelementmodule,
                       'libelleelementmodule': element.libelleelementmodule} for element
-                     in Elementmodule.objects.order_by('codeelementmodule').distinct('codeelementmodule', 'libelleelementmodule')]
-        elconcours = [el['libelle'] for el in Passer.objects.all().values(
-            'libelle').distinct().order_by('libelle')]
+                     in Elementmodule.objects.order_by('codeelementmodule').distinct('codeelementmodule',
+                                                                                     'libelleelementmodule')]
+        elconcours = [el['libelle'] for el in Passer.objects.all().values('libelle').distinct().order_by('libelle')]
+
+
+        annees = [el['anneecandidature'] for el in Candidat.objects.exclude(anneecandidature__isnull=True).values(
+            'anneecandidature').distinct().order_by('anneecandidature')]
 
         return Response({
             'modules': modules,
             'elmodules': elmodules,
-            'elconcours': elconcours
+            'elconcours': elconcours,
+            'annees': annees
         })
 
     def post(self, request):
@@ -182,10 +210,10 @@ class PrecandidatStatistics(APIView):
         target = request.data['target']
         filters = request.data['filters']
 
-        table = self.tables[column].get('table')
-        column = self.tables[column].get('col')
-        target_table = self.tables[target].get('table')
-        target = self.tables[target].get('col')
+        table = get_table_data_joined(column).get('table')
+        column = get_table_data_joined(column).get('col')
+        target_table = get_table_data_joined(target).get('table')
+        target = get_table_data_joined(target).get('col')
 
         sql = create_sql(column, target, table, target_table)
         sql += create_filters(filters)
@@ -219,12 +247,46 @@ class FiltersData(APIView):
         return Response(data)
 
 
+class NotesStatistic(APIView):
+    def post(self, request):
+        field = request.data['field']
+        filters = request.data['filters']
+        op = request.data['op']
+        table = get_table_data(field).get('table')
+        column = get_table_data(field).get('col')
+
+        table_alias = table[:2]
+        join = table + ' ' + table_alias + ' INNER JOIN donneescandidat() c ON ' + table_alias + '.codecandidat = c.codecandidat '
+
+        sql = create_aggregation_sql(['anneecandidature'], filters, column, join, op)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        rows = dictfetchall(cursor)
+
+        annees = [el['anneecandidature'] for el in Candidat.objects.exclude(anneecandidature__isnull=True)
+            .values('anneecandidature').distinct().order_by('anneecandidature')]
+
+        data = []
+        for annee in annees:
+            found = False
+            for row in rows:
+                if annee == row['anneecandidature']:
+                    data.append(row[column])
+                    found = True
+                    break
+            if not found:
+                data.append(0)
+
+        return Response({'result': data})
+
+
 def create_notes_select(column, target_column, target_table):
     sql = "SELECT " + column + ", "
     sql += target_column + ' as ' + target_column
-    sql += " FROM modules_candidat() mc " +\
-        ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'\
-        + ' INNER JOIN donneescandidat() dc on dc.codecandidat = mc.codecandidat'
+    sql += " FROM modules_candidat() mc " + \
+           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
+
     return sql
 
 
@@ -260,6 +322,8 @@ def create_sql_corr(column, target_column, table, target_table):
 
 def create_filters(filters):
     return ('' if len(filters) == 0 else " WHERE "
-            + ''.join(' AND '.join(k + v if contains_operator(v)
-                                   else k + " ILIKE '%" + v + "%' " for k, v in
-                                   filters.items())))
+
+                                         + ''.join(' AND '.join(k + v if contains_operator(v)
+                                                                else k + " ILIKE '%" + v + "%' " for k, v in
+                                                                filters.items())))
+
