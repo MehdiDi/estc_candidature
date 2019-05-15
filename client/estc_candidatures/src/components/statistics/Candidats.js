@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import SelectOptions from "./SelectOptions";
 import {
     Button,
@@ -15,7 +16,7 @@ import {
 } from "semantic-ui-react";
 import Filters from "./Filters";
 import axios from "axios"
-import Chart  from 'chart.js'
+import Chart from 'chart.js'
 // import {options} from "./ChartOptions";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
@@ -75,60 +76,62 @@ class Candidats extends Component {
             filters: {},
             loading: false,
             kind: 'pie',
-            chart: {chart: null, number: null}
+            chart: { chart: null, number: null }
         }
     }
 
     async componentDidMount() {
-        const {data} = await axios.get('http://localhost:8000/filters/');
-
-        this.setState({typesbac: data.typesbac, diplomes: data.diplomes});
-
+        console.log(this.props.token);
+        // eslint-disable-next-line no-native-reassign
+        const { data } = await axios({
+            method: 'get',
+            url: 'http://localhost:8000/filters',
+            headers: { 'Authorization': `Token ${this.props.token}` }
+        });
+        this.setState({ typesbac: data.typesbac, diplomes: data.diplomes });
     }
 
 
     onToggle = (el, val) => {
-        this.setState({count_enabled: val.checked})
+        this.setState({ count_enabled: val.checked })
 
     };
 
     onOptionChange = (ev, el) => {
-      this.setState({[el.name]: el.value},() =>{
+        this.setState({ [el.name]: el.value }, () => {
 
-      if(el.name === 'selected_columns') {
+            if (el.name === 'selected_columns') {
 
-          const options = el.options;
+                const options = el.options;
 
-          this.state.group_columns.length = 1;
+                this.state.group_columns.length = 1;
 
-          let opts = [
-              {
-                  key: -1,
-                  text: "Aucun",
-                  value: "-1"
-              }
-          ];
+                let opts = [
+                    {
+                        key: -1,
+                        text: "Aucun",
+                        value: "-1"
+                    }
+                ];
+                if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
+                    this.setState({ count_column: null });
+                }
 
+                options.map(opt => {
 
-          if(this.state.selected_columns.indexOf(this.state.count_column) === -1) {
-              this.setState({count_column: null});
-          }
-
-          options.map(opt => {
-
-              if(this.state.selected_columns.indexOf(opt.value)>-1){
-                  opts.push(
-                      {
-                          key: opt.value,
-                          text: opt.text,
-                          value: opt.value
-                      }
-                  );
-              }
-          });
-        this.setState({ group_columns: opts });
-        }
-      });
+                    if (this.state.selected_columns.indexOf(opt.value) > -1) {
+                        opts.push(
+                            {
+                                key: opt.value,
+                                text: opt.text,
+                                value: opt.value
+                            }
+                        );
+                    }
+                });
+                this.setState({ group_columns: opts });
+            }
+        });
 
     };
 
@@ -137,57 +140,59 @@ class Candidats extends Component {
         let filters = Object.assign({}, this.state.filters);
         const val = el.value;
 
-        if(val === "") {
+        if (val === "") {
             delete filters[el.name];
         }
         else
             filters[el.name] = val;
 
-        this.setState({ filters: filters} );
+        this.setState({ filters: filters });
 
     };
 
-    randomizeColors = (n) =>{
+    randomizeColors = (n) => {
         let colors = [];
 
         var letters = '0123456789ABCDEF'.split('');
 
-        for(let i = 0; i< n; i++) {
+        for (let i = 0; i < n; i++) {
             colors[i] = '#';
-            for (let j = 0; j < 6; j++ ) {
+            for (let j = 0; j < 6; j++) {
                 colors[i] += letters[Math.floor(Math.random() * 16)];
 
             }
-
-
         }
-
-
         return colors;
     };
 
-    handleChange = (e, { value }) => this.setState({kind: value});
+    handleChange = (e, { value }) => this.setState({ kind: value });
 
-    async onSubmit (e)  {
+    async onSubmit(e) {
         e.preventDefault();
 
-        this.setState({loading: true});
+        this.setState({ loading: true });
         const postData = {
             selected_columns: this.state.selected_columns,
             filters: this.state.filters,
             kind: this.state.kind
 
         };
-        if(this.state.count_enabled) {
+        if (this.state.count_enabled) {
             postData['count_column'] = this.state.count_column;
         }
 
-        const { data }= await axios.post("http://localhost:8000", postData);
+        const { data } = await axios({
+            method: 'post',
+            url: 'http://localhost:8000',
+            data: postData,
+            headers: { 'Authorization': `Token ${this.props.token}` }
+        });
+        //axios.post("http://localhost:8000", postData)
         const ctx = document.getElementById("chart").getContext('2d');
 
 
         let crt = this.state.chart;
-        if(crt.chart !== null) {
+        if (crt.chart !== null) {
             crt.chart.clear();
             crt.chart.destroy();
 
@@ -205,24 +210,24 @@ class Candidats extends Component {
             },
 
         };
-        if(this.state.kind === 'pie')
+        if (this.state.kind === 'pie')
             chartData['options'] = {
-        plugins: {
-            datalabels: {
-                formatter: (value, ctx) => {
-                                let sum = 0;
-                                let dataArr = ctx.chart.data.datasets[0].data;
-                                dataArr.map(data => {
-                                    sum += data;
-                                });
-                                let percentage = (value*100 / sum).toFixed(2)+"%";
-                                return percentage;
-                            },
-                            color: '#fff',
-            }
-            },
+                plugins: {
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => {
+                                sum += data;
+                            });
+                            let percentage = (value * 100 / sum).toFixed(2) + "%";
+                            return percentage;
+                        },
+                        color: '#fff',
+                    }
+                },
 
-        };
+            };
         else {
             chartData['options'] = {
                 plugins: {
@@ -238,97 +243,94 @@ class Candidats extends Component {
         console.log(chart.options);
         chart.update();
         crt.chart = chart;
-        crt.number = (function()  {
-          let n = 0;
-          for(let i=0; i < data.counts.length; i++)
-              n += data.counts[i];
-          return n;
+        crt.number = (function () {
+            let n = 0;
+            for (let i = 0; i < data.counts.length; i++)
+                n += data.counts[i];
+            return n;
         })();
 
 
-        this.setState({loading: false, chart: crt});
+        this.setState({ loading: false, chart: crt });
 
-};
-  saveChart = () => {
+    };
+    saveChart = () => {
         const canvas = document.getElementById("chart");
-        const  d = canvas.toDataURL("image/png");
-        const w = window.open('about:blank','image from canvas');
-        w.document.write("<img src='"+d+"' alt='from canvas'/>");
+        const d = canvas.toDataURL("image/png");
+        const w = window.open('about:blank', 'image from canvas');
+        w.document.write("<img src='" + d + "' alt='from canvas'/>");
     };
     render() {
 
         return (
             <>
                 <Segment>
-                  <Dimmer active={this.state.loading}>
-                    <Loader size='small'>
-                        Chargement..
+                    <Dimmer active={this.state.loading}>
+                        <Loader size='small'>
+                            Chargement..
                     </Loader>
-                  </Dimmer>
+                    </Dimmer>
                     <Form>
                         <Grid stackable columns={2}>
                             <Grid.Column width={6}>
                                 <Form.Group>
                                     <SelectOptions onChange={this.onOptionChange.bind(this)}
-                                               options={column_choices}
-                                               placeholder="Choisir les colonnes" name="selected_columns"
-                                                label="Choisir les colonnes"/>
+                                        options={column_choices}
+                                        placeholder="Choisir les colonnes" name="selected_columns"
+                                        label="Choisir les colonnes" />
                                 </Form.Group>
 
-                                    <Segment>
-                                <Form.Group>
+                                <Segment>
+                                    <Form.Group>
                                         <Checkbox onChange={this.onToggle.bind(this)} name="count_enabled" toggle label="Compter " />
-                                </Form.Group>
+                                    </Form.Group>
 
-                                        <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column" onChange={this.onOptionChange.bind(this)}
-                                                 selection options={this.state.group_columns} />
-                                    </Segment>
+                                    <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column" onChange={this.onOptionChange.bind(this)}
+                                        selection options={this.state.group_columns} />
+                                </Segment>
                             </Grid.Column>
                             <Grid.Column width={10}>
                                 <Filters onChange={this.onFiltersChange.bind(this)}
-                                         typesbac={this.state.typesbac}  diplomes={this.state.diplomes}/>
+                                    typesbac={this.state.typesbac} diplomes={this.state.diplomes} />
                             </Grid.Column>
                         </Grid>
 
-                            <Form.Group>
-                                <Header as='h4'>Choisir type de graph</Header>
-
-                            </Form.Group>
-                            <Form.Field>
-                              <Radio
+                        <Form.Group>
+                            <Header as='h4'>Choisir type de graph</Header>
+                        </Form.Group>
+                        <Form.Field>
+                            <Radio
                                 label=''
                                 name='chart_type'
                                 value='pie'
                                 checked={this.state.kind === 'pie'}
                                 onChange={this.handleChange.bind(this)}
 
-                              />{ <Icon size='big' color='teal' name='pie chart' />}
+                            />{<Icon size='big' color='teal' name='pie chart' />}
 
-                            </Form.Field>
-                            <Form.Field>
-                              <Radio
+                        </Form.Field>
+                        <Form.Field>
+                            <Radio
                                 label=''
                                 name='chart_type'
                                 value='bar'
                                 checked={this.state.kind === 'bar'}
                                 onChange={this.handleChange.bind(this)}
 
-                              />{ <Icon size='big' color='teal' name='bar chart' />}
+                            />{<Icon size='big' color='teal' name='bar chart' />}
 
-                            </Form.Field>
-                            <Form.Field>
-                                <Button basic size='medium' color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
-                                  Tracer le graph
+                        </Form.Field>
+                        <Form.Field>
+                            <Button basic size='medium' color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
+                                Tracer le graph
                                 </Button>
-                            </Form.Field>
+                        </Form.Field>
                     </Form>
-
+                    <Button style={{ margin: '10px 0 0' }}
+                        icon='download'
+                        onClick={this.saveChart.bind(this)} />
                     <Grid>
                         <Grid.Row>
-                            <Button icon='download' onClick={this.saveChart.bind(this)}/>
-                        </Grid.Row>
-                        <Grid.Row>
-
                             <canvas id="chart">
 
                             </canvas>
@@ -337,8 +339,8 @@ class Candidats extends Component {
 
                             {this.state.chart.chart &&
                                 <Statistic size='huge' style={styleStats}  >
-                                  <Statistic.Label >Total</Statistic.Label>
-                                  <Statistic.Value>{this.state.chart.number}</Statistic.Value>
+                                    <Statistic.Label >Total</Statistic.Label>
+                                    <Statistic.Value>{this.state.chart.number}</Statistic.Value>
                                 </Statistic>
                             }
 
@@ -349,4 +351,11 @@ class Candidats extends Component {
         )
     }
 }
-export default Candidats;
+
+const mapStateToProps = state => {
+    return {
+        token: state.token
+    };
+};
+
+export default connect(mapStateToProps, null)(Candidats);

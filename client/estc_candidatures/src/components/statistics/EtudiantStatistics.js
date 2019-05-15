@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import Form from "semantic-ui-react/dist/commonjs/collections/Form";
 import axios from "axios";
 import Segment from "semantic-ui-react/dist/commonjs/elements/Segment";
@@ -10,6 +10,7 @@ import Grid from "semantic-ui-react/dist/commonjs/collections/Grid";
 import Graph from "./Graph";
 import Chart from "chart.js";
 import Statistic from "semantic-ui-react/dist/commonjs/views/Statistic";
+import { connect } from 'react-redux';
 
 
 class EtudiantStatistics extends Component {
@@ -24,7 +25,7 @@ class EtudiantStatistics extends Component {
             filters: {},
             typesbac: [],
             diplomes: [],
-            chart: {chart: null, number: null},
+            chart: { chart: null, number: null },
             corr: null,
             loading: false
 
@@ -32,36 +33,40 @@ class EtudiantStatistics extends Component {
     }
 
     async componentDidMount() {
-        const data = await axios.get('http://localhost:8000/modules/');
+        const data = await axios({
+            method: 'get',
+            url: 'http://localhost:8000/modules',
+            headers: { 'Authorization': `Token ${this.props.token}` }
+        });;;
 
 
         this.setState({ modules: data.data.modules });
 
         const filterdata = await axios.get('http://localhost:8000/filters/');
 
-        this.setState({typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes});
+        this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes });
     }
 
 
-    onTargetClick = (el, { name, value } ) => {
+    onTargetClick = (el, { name, value }) => {
         this.setState({ target: value });
-        if(value !== 'moyennesemestre') {
+        if (value !== 'moyennesemestre') {
             const filters = Object.assign({}, this.state.filters);
             delete filters['idsession'];
             delete filters['idsemestre'];
-            this.setState({filters: filters});
+            this.setState({ filters: filters });
         }
         else {
             const filters = Object.assign({}, this.state.filters);
             filters['idsession'] = filters.module_session;
-            this.setState({filters: filters});
+            this.setState({ filters: filters });
         }
 
 
     };
-    onChange = (el, {name, value}) => {
+    onChange = (el, { name, value }) => {
 
-        this.setState({[name]: value})
+        this.setState({ [name]: value })
     };
 
     onFiltersChange = (e, el) => {
@@ -69,32 +74,37 @@ class EtudiantStatistics extends Component {
         let filters = Object.assign({}, this.state.filters);
         const val = el.value;
 
-        if(val === "") {
+        if (val === "") {
             delete filters[el.name];
         }
         else
             filters[el.name] = val;
 
-        if(el.name === 'module_session' && this.state.target === 'moyennesemestre') {
+        if (el.name === 'module_session' && this.state.target === 'moyennesemestre') {
             filters['idsession'] = val;
         }
 
-        this.setState({ filters: filters} );
+        this.setState({ filters: filters });
 
 
     };
 
     async onSubmit(e) {
 
-        const postData = {column: this.state.column, target: this.state.target, filters: this.state.filters};
-        this.setState({loading: true});
+        const postData = { column: this.state.column, target: this.state.target, filters: this.state.filters };
+        this.setState({ loading: true });
         try {
-            const {data} = await axios.post('http://localhost:8000/modules/', postData);
+            const { data } = await axios({
+                method: 'post',
+                url: 'http://localhost:8000/modules',
+                data: postData,
+                headers: { 'Authorization': `Token ${this.props.token}` }
+            });
 
 
             const ctx = document.getElementById("chart_etudiants").getContext('2d');
 
-            this.setState({corr: data.corr, loading: false});
+            this.setState({ corr: data.corr, loading: false });
             let crt = this.state.chart;
             if (crt.chart !== null) {
                 crt.chart.clear();
@@ -106,10 +116,10 @@ class EtudiantStatistics extends Component {
                 maintainAspectRatio: false,
                 scales: {
                     xAxes: [{
-                        ticks: {beginAtZero: true}
+                        ticks: { beginAtZero: true }
                     }],
                     yAxes: [{
-                        ticks: {beginAtZero: true}
+                        ticks: { beginAtZero: true }
                     }]
                 },
                 legend: {
@@ -133,32 +143,32 @@ class EtudiantStatistics extends Component {
             };
 
             chartData['options'] = {
-                            plugins: {
-                                datalabels: {
-                                    formatter: {},
-                                    display: false
-                                },
-                            },
-                                legend: {display: false}
+                plugins: {
+                    datalabels: {
+                        formatter: {},
+                        display: false
+                    },
+                },
+                legend: { display: false }
             };
 
             const chart = new Chart(ctx, chartData);
             console.log(chart.options);
             chart.update();
             crt.chart = chart;
-            this.setState({loading: false, chart: crt});
+            this.setState({ loading: false, chart: crt });
         }
-        catch(err) {
+        catch (err) {
             alert(err);
-            this.setState({loading: false});
+            this.setState({ loading: false });
         }
 
     };
 
     sessionModuleOptions = [
-        {key: 1, text: "Session normale", value:'=1'},{key:2, text: "Aprés rattrapage", value:'=2'},
-        {key: 3, text: "Redouble normale", value:'=3'},
-        {key: 4, text: "Redouble apres rattrapage", value:'=4'}
+        { key: 1, text: "Session normale", value: '=1' }, { key: 2, text: "Aprés rattrapage", value: '=2' },
+        { key: 3, text: "Redouble normale", value: '=3' },
+        { key: 4, text: "Redouble apres rattrapage", value: '=4' }
     ];
 
 
@@ -186,8 +196,8 @@ class EtudiantStatistics extends Component {
                                 />
                             </Form.Field>
                             <Form.Group widths={2}>
-                              <Form.Select label='Session de Module' placeholder='Session de module' name='module_session'
-                                          onChange={this.onFiltersChange.bind(this)} options={this.sessionModuleOptions}/>
+                                <Form.Select label='Session de Module' placeholder='Session de module' name='module_session'
+                                    onChange={this.onFiltersChange.bind(this)} options={this.sessionModuleOptions} />
 
                             </Form.Group>
                             <Form.Field>
@@ -195,32 +205,32 @@ class EtudiantStatistics extends Component {
                                 <Segment compact>
                                     <Form.Group inline>
                                         <Form.Field>
-                                          <Radio toggle name='target' value='moyennesemestre' checked={this.state.target === 'moyennesemestre'}
-                                              label="Moyenne de semestre" onChange={this.onTargetClick}/>
+                                            <Radio toggle name='target' value='moyennesemestre' checked={this.state.target === 'moyennesemestre'}
+                                                label="Moyenne de semestre" onChange={this.onTargetClick} />
                                         </Form.Field>
 
-                                            <Segment style={{display : this.state.target === 'moyennesemestre' ? 'flex': 'none'}}>
+                                        <Segment style={{ display: this.state.target === 'moyennesemestre' ? 'flex' : 'none' }}>
 
-                                                <Form.Field>
-                                                    <Radio
-                                                        name='idsemestre' value='s5' label='S5'
-                                                        onChange={this.onFiltersChange.bind(this)}
-                                                        checked={this.state.filters.idsemestre === 's5'}
-                                                    />
+                                            <Form.Field>
+                                                <Radio
+                                                    name='idsemestre' value='s5' label='S5'
+                                                    onChange={this.onFiltersChange.bind(this)}
+                                                    checked={this.state.filters.idsemestre === 's5'}
+                                                />
 
-                                                     <Radio
-                                                        name='idsemestre' value='s6' label='S6'
-                                                        onChange={this.onFiltersChange.bind(this)}
-                                                        checked={this.state.filters.idsemestre === 's6'}
-                                                    />
-                                                </Form.Field>
+                                                <Radio
+                                                    name='idsemestre' value='s6' label='S6'
+                                                    onChange={this.onFiltersChange.bind(this)}
+                                                    checked={this.state.filters.idsemestre === 's6'}
+                                                />
+                                            </Form.Field>
 
-                                            </Segment>
+                                        </Segment>
 
                                     </Form.Group>
                                     <Form.Field>
-                                      <Radio toggle name='target' value='moyenneannee' checked={this.state.target === 'moyenneannee'}
-                                            label="Moyenne d'année" onChange={this.onTargetClick}/>
+                                        <Radio toggle name='target' value='moyenneannee' checked={this.state.target === 'moyenneannee'}
+                                            label="Moyenne d'année" onChange={this.onTargetClick} />
                                     </Form.Field>
                                 </Segment>
                             </Form.Field>
@@ -234,20 +244,20 @@ class EtudiantStatistics extends Component {
                         </Grid.Column>
                         <Grid.Column>
                             <Filters onChange={this.onFiltersChange.bind(this)}
-                                                 typesbac={this.state.typesbac}  diplomes={this.state.diplomes} />
+                                typesbac={this.state.typesbac} diplomes={this.state.diplomes} />
                         </Grid.Column>
 
                     </Grid>
                 </Form>
-                <Grid style={{ display: this.state.corr ? 'flex': 'none' }}>
+                <Grid style={{ display: this.state.corr ? 'flex' : 'none' }}>
                     <Grid.Row>
                         <Statistic color={(() => {
-                            if(this.state.corr > 0.75) return 'green';
+                            if (this.state.corr > 0.75) return 'green';
                             else if (this.state.corr > 0.45) return 'orange';
                             else return 'red';
                         })()}>
-                          <Statistic.Value>{this.state.corr}</Statistic.Value>
-                          <Statistic.Label>Coefficient de corrélation</Statistic.Label>
+                            <Statistic.Value>{this.state.corr}</Statistic.Value>
+                            <Statistic.Label>Coefficient de corrélation</Statistic.Label>
                         </Statistic>
                     </Grid.Row>
                     <Grid.Row>
@@ -259,4 +269,11 @@ class EtudiantStatistics extends Component {
     }
 }
 
-export default EtudiantStatistics;
+
+const mapStateToProps = state => {
+    return {
+        token: state.token
+    };
+};
+
+export default connect(mapStateToProps, null)(EtudiantStatistics);
