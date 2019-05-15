@@ -50,6 +50,9 @@ class Login extends Component {
   submitHundler = (event) => {
     event.preventDefault();
     this.props.onAuth(this.state.loginForm.username.value, this.state.loginForm.password.value);
+    if (this.props.auth) {
+      this.props.history.push('/statistics');
+    }
   }
 
   inputChangedHundler = (event, id) => {
@@ -87,13 +90,13 @@ class Login extends Component {
     if (updatedOrderFrom['username'].value === "abdelaziz" && updatedOrderFrom['password'].value === "123123") {
       formIsValid = true;
     }
-    console.log(formIsValid);
 
     this.setState({ loginForm: updatedOrderFrom, formIsValid: formIsValid });
   }
 
   render() {
     let redirect = null
+    console.log(this.props.auth);
     if (this.props.auth) {
       redirect = <Redirect to="/statistics" />
     }
@@ -113,7 +116,7 @@ class Login extends Component {
       errorMessage = <p style={{ color: 'red' }}>{this.props.error}</p>;
     }
     return (
-      < div >
+      <div>
         {redirect}
         <div className={classes.Login} style={this.state.style}>
           <div>
@@ -141,7 +144,7 @@ class Login extends Component {
             </Form>
           </div>
         </div>
-      </div >
+      </div>
     );
   }
 }
@@ -149,7 +152,7 @@ class Login extends Component {
 const mapStateToPros = state => {
   return {
     error: state.error,
-    auth: state.auth
+    auth: state.token !== null
   }
 }
 

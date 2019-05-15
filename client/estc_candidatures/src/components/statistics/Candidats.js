@@ -24,7 +24,7 @@ const column_choices = [
     {
         key: 0,
         text: 'Diplome',
-        value: 'libelle'
+        value: 'diplome'
     },
     {
         key: 1,
@@ -287,6 +287,7 @@ class Candidats extends Component {
 
                                     <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column" onChange={this.onOptionChange.bind(this)}
                                         selection options={this.state.group_columns} />
+
                                 </Segment>
                             </Grid.Column>
                             <Grid.Column width={10}>
