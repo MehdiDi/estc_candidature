@@ -1,9 +1,22 @@
 import React, {Component} from 'react';
 import {Form} from "semantic-ui-react";
 
+const initialState = {
+        anneecandidature: '',
+        age: '',
+        residence: '',
+        mentionbac: '',
+        typebac: '',
+        diplome: '',
+        dureeformation: '',
+};
+
 class Filters extends Component {
 
-
+    constructor(props) {
+        super(props);
+        this.state = initialState;
+    }
     formatOptions  = (values) => {
         let opts =  values.map(value => (
 
@@ -76,6 +89,11 @@ class Filters extends Component {
 
     handleChange = (e, el) => {
         this.props.onChange(e, el);
+        this.setState({ [el.name]: el.value });
+    };
+
+    clearFilters = () => {
+        this.setState(initialState);
     };
 
     render() {
@@ -83,27 +101,29 @@ class Filters extends Component {
             <>
                 <Form.Group widths={2}>
                   <Form.Input fluid label='Année candidature' onChange={this.handleChange}
-                              placeholder='Année candidature' name="anneecandidature" />
-                  <Form.Input  label='Age' placeholder='Age' name='age' onChange={this.handleChange} />
+                              placeholder='Année candidature' name="anneecandidature" value={this.state.anneecandidature} />
+                  <Form.Input  label='Age' placeholder='Age' name='age' onChange={this.handleChange}
+                                value={this.state.age}/>
                 </Form.Group>
                 <Form.Group widths={2}>
-                  <Form.Input label='Ville de naissance' placeholder='Ville de naissance' name='naissance'
-                              onChange={this.handleChange}/>
-                  <Form.Input label='Ville de Residence' name='residence' placeholder='Ville' onChange={this.handleChange}/>
+
+                  <Form.Input label='Ville de Residence' name='residence' placeholder='Ville' onChange={this.handleChange}
+                                value={this.state.residence}/>
                 </Form.Group>
                 <Form.Group widths={2}>
                   <Form.Select label='Mention de BAC' placeholder='Mention de BAC' name='mentionbac'
-                               options={this.mentionsbac} onChange={this.handleChange}/>
+                               options={this.mentionsbac} onChange={this.handleChange} value={this.state.mentionbac}/>
                   <Form.Select  label='Type de BAC' placeholder='Type de BAC' name="typebac" onChange={this.handleChange}
-                                options={this.formatOptions(this.props.typesbac)} />
+                                options={this.formatOptions(this.props.typesbac)} value={this.state.typebac} />
                 </Form.Group>
                 <Form.Group widths={2}>
                   <Form.Select label='Diplôme Superieur' placeholder='Diplôme Superieur' name='diplome'
-                               options={this.formatOptions(this.props.diplomes)} onChange={this.handleChange} />
+                               options={this.formatOptions(this.props.diplomes)} onChange={this.handleChange}
+                                value={ this.state.diplome }/>
                   <Form.Select  label='Durée de formation' placeholder='Durée de formation'
-                                name="dureeformation" options={this.dureesformation} onChange={this.handleChange}/>
+                                name="dureeformation" options={this.dureesformation} onChange={this.handleChange}
+                                value={this.state.dureeformation}/>
                 </Form.Group>
-
             </>
         );
     }

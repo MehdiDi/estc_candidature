@@ -7,9 +7,7 @@ import Statistics from "./components/statistics/Statistics";
 function App() {
   return (
     <div className="App">
-        {/*<Container>*/}
-            <Statistics />
-        {/*</Container>*/}
+        <Statistics />
     </div>
   );
 }

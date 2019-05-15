@@ -23,7 +23,7 @@ const column_choices = [
     {
         key: 0,
         text: 'Diplome',
-        value: 'libelle'
+        value: 'diplome'
     },
     {
         key: 1,
