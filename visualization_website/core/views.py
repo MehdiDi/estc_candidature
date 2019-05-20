@@ -61,7 +61,6 @@ def create_aggregation_sql(columns, filters, count_column, table, op):
         sql += count_column + ' as ' + count_column
 
     sql += " FROM " + table + \
-
            ('' if len(filters) == 0 else " WHERE "
                                          + ''.join(' AND '.join(k + v if contains_operator(v)
                                                                 else k + " ILIKE '%" + v + "%' " for k, v in

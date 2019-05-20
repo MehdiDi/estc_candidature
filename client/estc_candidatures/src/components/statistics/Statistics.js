@@ -4,29 +4,16 @@ import { Grid, Segment } from "semantic-ui-react";
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
-
-import NavBar from "../layout/NavBar"
-
 import MoyStatistics from "./MoyStatistics";
+import MachineLearning from "../Machine Learning/MachineLearning.js";
 
-
-const leftItems = [
-    { as: "a", content: "Home", key: "home" },
-    { as: "a", content: "Users", key: "users" },
-    { as: "a", content: "Users", key: "users" },
-    { as: "a", content: "Users", key: "users" },
-    { as: "a", content: "Users", key: "users" }
-];
-const rightItems = [
-    { as: "a", content: "Login", key: "login" },
-    { as: "a", content: "Register", key: "register" }
-];
 class Statistics extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeItem: 'Notes'
+            activeItem: 'Candidats'
         }
+
     }
     handleItemClick = (e, { name }) => {
         this.setState({ activeItem: name });
@@ -39,46 +26,31 @@ class Statistics extends Component {
         if (activeItem === 'Candidats')
             categoryStatistics = <Candidats />;
         else if (activeItem === 'Préselection')
-            categoryStatistics = <PreselectionStatistics />
+            categoryStatistics = <PreselectionStatistics />;
         else if (activeItem === 'Aprés Selection')
-            categoryStatistics = <EtudiantStatistics />
+            categoryStatistics = <EtudiantStatistics />;
         else if (activeItem === 'Notes')
             categoryStatistics = <MoyStatistics />;
+        else if (activeItem === 'Machine Learning')
+            categoryStatistics = <MachineLearning />
+
         return (
-            <NavBar leftItems={leftItems} rightItems={rightItems}  >
-
-                <Grid>
-                    <Grid.Column width={4}>
-
-                        <Menu fluid vertical tabular>
-                            <Menu.Item name='Candidats' active={activeItem === 'Candidats'} onClick={this.handleItemClick} />
-                            <Menu.Item name='Préselection' active={activeItem === 'Préselection'} onClick={this.handleItemClick} />
-                            <Menu.Item name='Aprés Selection' active={activeItem === 'Aprés Selection'}
-                                       onClick={this.handleItemClick}
-                            />
-                            <Menu.Item
-                                name='Aprés Selection'
-                                active={activeItem === 'Aprés Selection'}
-                                onClick={this.handleItemClick}
-                              />
-                              <Menu.Item
-                              name='Notes'
-                              active={activeItem === 'Notes'}
-                              onClick={this.handleItemClick}
-                              />
-                        </Menu>
-                    </Grid.Column>
-
-                    <Grid.Column width={12}>
-                        <Segment >
-                            {categoryStatistics}
-                        </Segment>
-                    </Grid.Column>
-
-
-                </Grid>
-
-            </NavBar>
+            <Grid stackable>
+                <Grid.Column width={2}>
+                    <Menu fluid vertical tabular>
+                        <Menu.Item name='Candidats' active={activeItem === 'Candidats'} onClick={this.handleItemClick} />
+                        <Menu.Item name='Préselection' active={activeItem === 'Préselection'} onClick={this.handleItemClick} />
+                        <Menu.Item name='Aprés Selection' active={activeItem === 'Aprés Selection'} onClick={this.handleItemClick} />
+                        <Menu.Item name='Notes' active={activeItem === 'Notes'} onClick={this.handleItemClick} />
+                        <Menu.Item name='Machine Learning' active={activeItem === 'Machine Learning'} onClick={this.handleItemClick} />
+                    </Menu>
+                </Grid.Column>
+                <Grid.Column width={14} >
+                    <Segment >
+                        {categoryStatistics}
+                    </Segment>
+                </Grid.Column>
+            </Grid>
         );
     }
 }
