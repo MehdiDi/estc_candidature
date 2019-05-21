@@ -17,6 +17,8 @@ import {
 import Filters from "./Filters";
 import axios from "axios"
 import Chart from 'chart.js'
+// import {options} from "./ChartOptions";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const column_choices = [
     {
@@ -261,7 +263,7 @@ class Candidats extends Component {
     render() {
 
         return (
-            <>
+            <React.Fragment>
                 <Segment>
                     <Dimmer active={this.state.loading}>
                         <Loader size='small'>
@@ -319,7 +321,7 @@ class Candidats extends Component {
 
                         </Form.Field>
                         <Form.Field>
-                            <Button basic size='medium' color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
+                            <Button size='medium' color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
                                 Tracer le graph
                                 </Button>
                         </Form.Field>
@@ -345,7 +347,7 @@ class Candidats extends Component {
                         </Grid.Row>
                     </Grid>
                 </Segment>
-            </>
+            </React.Fragment>
         )
     }
 }

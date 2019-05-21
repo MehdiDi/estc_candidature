@@ -19,7 +19,7 @@ class SelectOptions extends React.Component {
     };
 
 
-    render(){
+    render() {
 
         return (
             <Form.Field>
