@@ -25,7 +25,6 @@ class SelectOptions extends React.Component {
             <Form.Field>
                 <label>{this.props.placeholder}</label>
                 <Dropdown
-
                     multiple
                     selection
                     width={16}

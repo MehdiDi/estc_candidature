@@ -8,12 +8,11 @@ import { connect } from 'react-redux';
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        {console.log(this.props.auth)}
+      <div className="App">  {console.log(this.props.auth)}
         <Switch>
-          {this.props.auth ? < Route path="/statistics" component={Statistics} /> : null}
+          <Route path="/" exact component={Login} />
+          {this.props.auth ? <Route path="/statistics" exact component={Statistics} /> : <Redirect to="/" />}
         </Switch>
-        <Route path="/" component={Login} exact />
       </div>
     );
   }

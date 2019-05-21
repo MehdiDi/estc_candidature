@@ -17,8 +17,6 @@ import {
 import Filters from "./Filters";
 import axios from "axios"
 import Chart from 'chart.js'
-// import {options} from "./ChartOptions";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const column_choices = [
     {
