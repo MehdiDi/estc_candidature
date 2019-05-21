@@ -118,7 +118,6 @@ class Candidats extends Component {
                 }
 
                 options.map(opt => {
-
                     if (this.state.selected_columns.indexOf(opt.value) > -1) {
                         opts.push(
                             {
