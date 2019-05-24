@@ -11,7 +11,8 @@ class Statistics extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeItem: 'Candidats'
+            activeItem: 'Candidats',
+            show: false,
         }
 
     }
