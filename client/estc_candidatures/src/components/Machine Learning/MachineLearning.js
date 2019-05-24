@@ -11,7 +11,6 @@ class MachineLearning extends Component {
             target: null,
             show: false
         }
-
     }
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
@@ -29,7 +28,6 @@ class MachineLearning extends Component {
         event.preventDefault();
     };
 
-
     render() {
         const algo = [
             { key: 'a', text: 'Arbre de décision', value: "Arbre de décision" },
@@ -39,10 +37,17 @@ class MachineLearning extends Component {
             { key: 'e', text: 'Régression linéaire multiple', value: 'Régression linéaire multiple' },
         ];
         const fields = [
-            { key: 'a', text: 'Age', value: 'Age' },
-            { key: 'b', text: 'Type de Bac', value: 'Type de Bac' },
-            { key: 'c', text: 'Note de Concours', value: 'Note de Concours' },
-            { key: 'd', text: 'Moyenne Excele', value: 'Moyenne Excele' },
+            { key: 'a', text: 'Genre', value: 'Genre' },
+            { key: 'b', text: 'Age', value: 'Age' },
+            { key: 'c', text: 'Type Bac', value: 'Type Bac' },
+            { key: 'd', text: 'Mention bac', value: 'Mention bac' },
+            { key: 'e', text: 'Nom ville', value: 'Nom ville' },
+            { key: 'f', text: 'Durée formation', value: 'Durée formation' },
+            { key: 'g', text: 'Moyenne formation', value: 'Moyenne formation' },
+            { key: 'h', text: 'Moyenne préselection', value: 'Moyenne préselection' },
+            { key: 'i', text: 'Moyenne concours', value: 'Moyenne nconcours' },
+            { key: 'j', text: 'Moyenne année', value: 'Moyenne année' },
+            { key: 'k', text: 'Mention année', value: 'Mention année' },
         ];
         const { algorithme } = this.state;
         let params;
@@ -94,7 +99,7 @@ class MachineLearning extends Component {
                                     <Header as='h4'>Target</Header>
                                     <Segment compact>
                                         <Form.Field>
-                                            <Radio toggle name='target' value={this.state.target} checked={this.state.target}
+                                            <Radio toggle name={this.state.target} value={this.state.target} checked={this.state.target}
                                                 label={this.state.target} onChange={this.onTargetClick} />
                                         </Form.Field>
                                     </Segment>
