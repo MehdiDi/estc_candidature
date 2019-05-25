@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Candidats from "./Candidats";
-import { Grid, Segment } from "semantic-ui-react";
+import { Grid } from "semantic-ui-react";
+import classes from './Statistics.module.css';
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
@@ -9,23 +10,11 @@ import NavBar from "../layout/NavBar"
 
 import MoyStatistics from "./MoyStatistics";
 
-
-const leftItems = [
-    { as: "a", content: "Home", key: "home" },
-    { as: "a", content: "Users", key: "users" },
-    { as: "a", content: "Users", key: "users" },
-    { as: "a", content: "Users", key: "users" },
-    { as: "a", content: "Users", key: "users" }
-];
-const rightItems = [
-    { as: "a", content: "Login", key: "login" },
-    { as: "a", content: "Register", key: "register" }
-];
 class Statistics extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeItem: 'Notes'
+            activeItem: 'Candidats'
         }
     }
     handleItemClick = (e, { name }) => {
@@ -45,40 +34,55 @@ class Statistics extends Component {
         else if (activeItem === 'Notes')
             categoryStatistics = <MoyStatistics />;
         return (
-            <NavBar leftItems={leftItems} rightItems={rightItems}  >
-
-                <Grid>
-                    <Grid.Column width={4}>
-
-                        <Menu fluid vertical tabular>
-                            <Menu.Item name='Candidats' active={activeItem === 'Candidats'} onClick={this.handleItemClick} />
-                            <Menu.Item name='Préselection' active={activeItem === 'Préselection'} onClick={this.handleItemClick} />
-                            <Menu.Item name='Aprés Selection' active={activeItem === 'Aprés Selection'}
-                                       onClick={this.handleItemClick}
+            <React.Fragment>
+                <NavBar />
+                <Grid style={{
+                    marginTop: 0,
+                    marginBottom: 0,
+                    backgroundColor: '#00b5ad'
+                }}>
+                    <Grid.Column width={2} style={{
+                        overFlow: 'hidden',
+                        minHeight: '100vh'
+                    }}>
+                        <Menu vertical inverted style={{
+                            backgroundColor: '#00b5ad',
+                            minHeight: '100vh'
+                        }}>
+                            <Menu.Item
+                                className={classes.FontSize}
+                                name='Candidats'
+                                active={activeItem === 'Candidats'}
+                                onClick={this.handleItemClick} />
+                            <Menu.Item
+                                className={classes.FontSize}
+                                name='Préselection'
+                                active={activeItem === 'Préselection'}
+                                onClick={this.handleItemClick} />
+                            <Menu.Item
+                                className={
+                                    classes.FontSize
+                                }
+                                active={activeItem === 'Aprés Selection'}
+                                name='Aprés Selection'
+                                onClick={this.handleItemClick}
                             />
                             <Menu.Item
-                                name='Aprés Selection'
-                                active={activeItem === 'Aprés Selection'}
+                                className={classes.FontSize}
+                                name='Notes'
+                                active={activeItem === 'Notes'}
                                 onClick={this.handleItemClick}
-                              />
-                              <Menu.Item
-                              name='Notes'
-                              active={activeItem === 'Notes'}
-                              onClick={this.handleItemClick}
-                              />
+                            />
                         </Menu>
                     </Grid.Column>
 
-                    <Grid.Column width={12}>
-                        <Segment >
-                            {categoryStatistics}
-                        </Segment>
+                    <Grid.Column width={14} style={{
+                        backgroundColor: '#FFF'
+                    }}>
+                        {categoryStatistics}
                     </Grid.Column>
-
-
                 </Grid>
-
-            </NavBar>
+            </React.Fragment >
         );
     }
 }

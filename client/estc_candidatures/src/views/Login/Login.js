@@ -17,7 +17,7 @@ class Login extends Component {
       username: {
         elementConfig: {
           type: 'text',
-          placeholder: 'Username'
+          placeholder: 'Pseudo'
         },
         icon: 'user',
         value: '',
@@ -31,7 +31,7 @@ class Login extends Component {
       password: {
         elementConfig: {
           type: 'password',
-          placeholder: 'Password'
+          placeholder: 'Mot de passe'
         },
         value: '',
         icon: 'lock',
@@ -50,6 +50,9 @@ class Login extends Component {
   submitHundler = (event) => {
     event.preventDefault();
     this.props.onAuth(this.state.loginForm.username.value, this.state.loginForm.password.value);
+    if (this.props.auth) {
+      this.props.history.push('/statistics');
+    }
   }
 
   inputChangedHundler = (event, id) => {
@@ -63,17 +66,17 @@ class Login extends Component {
     updatedFormElement.value = value;
 
     switch (placeholder) {
-      case "Username":
+      case "Pseudo":
         if (value.length < 3) {
-          updatedFormElement.error = "minimum 3 characaters required";
+          updatedFormElement.error = "minimum 3 caractères requis";
           updatedFormElement.notValid = true;
         } else {
           updatedFormElement.notValid = false;
         }
         break;
-      case "Password":
+      case "Mot de passe":
         if (value.length < 5) {
-          updatedFormElement.error = "minimum 5 characaters required";
+          updatedFormElement.error = "minimum 5 caractères requis";
           updatedFormElement.notValid = true;
         } else {
           updatedFormElement.notValid = false;
@@ -87,7 +90,6 @@ class Login extends Component {
     if (updatedOrderFrom['username'].value === "abdelaziz" && updatedOrderFrom['password'].value === "123123") {
       formIsValid = true;
     }
-    console.log(formIsValid);
 
     this.setState({ loginForm: updatedOrderFrom, formIsValid: formIsValid });
   }
@@ -113,35 +115,32 @@ class Login extends Component {
       errorMessage = <p style={{ color: 'red' }}>{this.props.error}</p>;
     }
     return (
-      < div >
+      <div className={classes.Container}>
         {redirect}
         <div className={classes.Login} style={this.state.style}>
-          <div>
-            <Form className={classesUi.join(' ')} onSubmit={this.submitHundler}>
-              <h2>Login</h2>
-              <p>Sign In to your account</p>
-              {errorMessage}
-              {fromElementsArray.map(formElement => (
-                <Form.Field key={formElement.id}>
-                  <Input
-                    elementConfig={formElement.config.elementConfig}
-                    value={formElement.config.value}
-                    icon={formElement.config.icon}
-                    iconPosition='left'
-                    changed={(event) => this.inputChangedHundler(event, formElement.id)} />
-                  {
-                    formElement.config.notValid ? <Label basic color='red' pointing>
-                      {formElement.config.error}
-                    </Label> : null
-                  }
-                </Form.Field>
-              ))}
-              <Button className={classesButton.join(' ')} floated="left">Log In</Button>
-              <Link to="#" color="link" className={classes.Link}>Forgot Password?</Link>
-            </Form>
-          </div>
+          <Form className={classesUi.join(' ')} onSubmit={this.submitHundler}>
+            <h2>Login</h2>
+            <p>Connectez-vous à votre compte</p>
+            {errorMessage}
+            {fromElementsArray.map(formElement => (
+              <Form.Field key={formElement.id}>
+                <Input
+                  elementConfig={formElement.config.elementConfig}
+                  value={formElement.config.value}
+                  icon={formElement.config.icon}
+                  iconPosition='left'
+                  changed={(event) => this.inputChangedHundler(event, formElement.id)} />
+                {
+                  formElement.config.notValid ? <Label basic color='red' pointing>
+                    {formElement.config.error}
+                  </Label> : null
+                }
+              </Form.Field>
+            ))}
+            <Button className={classesButton.join(' ')} floated="left">S'identifier</Button>
+          </Form>
         </div>
-      </div >
+      </div>
     );
   }
 }
@@ -149,9 +148,9 @@ class Login extends Component {
 const mapStateToPros = state => {
   return {
     error: state.error,
-    auth: state.auth
-  }
-}
+    auth: state.token !== null
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {

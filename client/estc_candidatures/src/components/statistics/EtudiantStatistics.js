@@ -42,7 +42,11 @@ class EtudiantStatistics extends Component {
 
         this.setState({ modules: data.data.modules });
 
-        const filterdata = await axios.get('http://localhost:8000/filters/');
+        const filterdata = await axios({
+            method: 'get',
+            url: 'http://localhost:8000/filters',
+            headers: { 'Authorization': `Token ${this.props.token}` }
+        });
 
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes });
     }
@@ -96,7 +100,7 @@ class EtudiantStatistics extends Component {
         try {
             const { data } = await axios({
                 method: 'post',
-                url: 'http://localhost:8000/modules',
+                url: 'http://localhost:8000/modules/',
                 data: postData,
                 headers: { 'Authorization': `Token ${this.props.token}` }
             });
@@ -183,7 +187,11 @@ class EtudiantStatistics extends Component {
         ));
 
         return (
-            <>
+            <Segment style={{
+                marginLeft: '1rem',
+                minHeight: '100vh',
+                marginTop: '-1rem'
+            }}>
                 <Form method='GET' onSubmit={this.onSubmit.bind(this)}>
                     <Grid columns={2}>
                         <Grid.Column>
@@ -235,7 +243,7 @@ class EtudiantStatistics extends Component {
                                 </Segment>
                             </Form.Field>
                             <Form.Field>
-                                <Button basic loading={this.state.loading} color='primary' type='submit'>
+                                <Button loading={this.state.loading} color='teal' type='submit'>
                                     Envoyer
                                 </Button>
                                 {/*<Loader active={ this.state.loading } inline color='purple'/>*/}
@@ -264,7 +272,7 @@ class EtudiantStatistics extends Component {
                         <Graph chart="chart_etudiants" />
                     </Grid.Row>
                 </Grid>
-            </>
+            </Segment>
         );
     }
 }
@@ -276,4 +284,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps, null)(EtudiantStatistics);
+export default connect(mapStateToProps)(EtudiantStatistics);

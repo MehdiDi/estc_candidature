@@ -61,7 +61,6 @@ def create_aggregation_sql(columns, filters, count_column, table, op):
         sql += count_column + ' as ' + count_column
 
     sql += " FROM " + table + \
-
            ('' if len(filters) == 0 else " WHERE "
                                          + ''.join(' AND '.join(k + v if contains_operator(v)
                                                                 else k + " ILIKE '%" + v + "%' " for k, v in
@@ -192,8 +191,8 @@ class PrecandidatStatistics(APIView):
                       'libelleelementmodule': element.libelleelementmodule} for element
                      in Elementmodule.objects.order_by('codeelementmodule').distinct('codeelementmodule',
                                                                                      'libelleelementmodule')]
-        elconcours = [el['libelle'] for el in Passer.objects.all().values('libelle').distinct().order_by('libelle')]
-
+        elconcours = [el['libelle'] for el in Passer.objects.all().values(
+            'libelle').distinct().order_by('libelle')]
 
         annees = [el['anneecandidature'] for el in Candidat.objects.exclude(anneecandidature__isnull=True).values(
             'anneecandidature').distinct().order_by('anneecandidature')]
@@ -256,16 +255,18 @@ class NotesStatistic(APIView):
         column = get_table_data(field).get('col')
 
         table_alias = table[:2]
-        join = table + ' ' + table_alias + ' INNER JOIN donneescandidat() c ON ' + table_alias + '.codecandidat = c.codecandidat '
+        join = table + ' ' + table_alias + ' INNER JOIN donneescandidat() c ON ' + \
+            table_alias + '.codecandidat = c.codecandidat '
 
-        sql = create_aggregation_sql(['anneecandidature'], filters, column, join, op)
+        sql = create_aggregation_sql(
+            ['anneecandidature'], filters, column, join, op)
 
         cursor = connection.cursor()
         cursor.execute(sql)
         rows = dictfetchall(cursor)
 
         annees = [el['anneecandidature'] for el in Candidat.objects.exclude(anneecandidature__isnull=True)
-            .values('anneecandidature').distinct().order_by('anneecandidature')]
+                  .values('anneecandidature').distinct().order_by('anneecandidature')]
 
         data = []
         for annee in annees:
@@ -285,7 +286,8 @@ def create_notes_select(column, target_column, target_table):
     sql = "SELECT " + column + ", "
     sql += target_column + ' as ' + target_column
     sql += " FROM modules_candidat() mc " + \
-           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
+           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + \
+        target_table + '.codecandidat'
 
     return sql
 
@@ -326,4 +328,3 @@ def create_filters(filters):
                                          + ''.join(' AND '.join(k + v if contains_operator(v)
                                                                 else k + " ILIKE '%" + v + "%' " for k, v in
                                                                 filters.items())))
-

@@ -1,29 +1,54 @@
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 import 'chart.js';
 import Statistics from "./components/statistics/Statistics";
+import MachineLearnings from './components/MachineLearnings/MachineLearnings';
 import Login from './views/Login/Login';
+import Logout from './views/Login/Logout/Logout';
 import { connect } from 'react-redux';
+import * as actions from './store/actions/index'
+
 
 class App extends Component {
+  componentDidMount() {
+    this.props.onTry();
+  }
   render() {
+    let routes = (
+      <Switch>
+        <Route path="/" exact component={Login} />
+      </Switch>
+    );
+    if (this.props.auth) {
+      routes = (
+        <Switch>
+          <Route path="/logout" component={Logout} />
+          <Route path="/statistics" component={Statistics} />
+          <Route path="/machinelearnings" component={MachineLearnings} />
+          <Redirect to="/statistics" />
+        </Switch>
+      );
+    }
     return (
       <div className="App">
-        {console.log(this.props.auth)}
-        <Switch>
-          {this.props.auth ? < Route path="/statistics" component={Statistics} /> : null}
-        </Switch>
-        <Route path="/" component={Login} exact />
+        {/*<Container>*/}
+        {routes}
+        {/*</Container>*/}
       </div>
     );
   }
-
 }
 
 const mapStateToProps = state => {
   return {
     auth: state.token !== null
   };
-}
+};
 
-export default connect(mapStateToProps, null)(App);
+const mapDispatchToProps = dispatch => {
+  return {
+    onTry: () => dispatch(actions.authCheckState())
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

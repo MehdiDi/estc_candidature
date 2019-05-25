@@ -213,12 +213,13 @@ class PreselectionStatistics extends Component {
             }
         ));
         return (
-            <>
+            <Segment style={{
+                minHeight: '100vh',
+                marginTop: '-1rem'
+            }}>
                 <Form onSubmit={this.onSubmit.bind(this)}>
-
                     <Grid columns={2}>
                         <Grid.Column>
-
                             <Header as='h4'>Selectionner</Header>
                             <Form.Field>
                                 <Radio name='column' value='excel' label='Moyenne excel'
@@ -288,7 +289,7 @@ class PreselectionStatistics extends Component {
                                 </Segment>
                             </Form.Field>
                             <Form.Field>
-                                <Button basic loading={this.state.loading} color='primary' type='submit'>
+                                <Button loading={this.state.loading} color='teal' type='submit'>
                                     Envoyer
                                 </Button>
                                 {/*<Loader active={ this.state.loading } inline color='purple'/>*/}
@@ -317,8 +318,7 @@ class PreselectionStatistics extends Component {
                         <Graph chart="chart_etudiants" />
                     </Grid.Row>
                 </Grid>
-
-            </>
+            </Segment>
         );
     }
 }
