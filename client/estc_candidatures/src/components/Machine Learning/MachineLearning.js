@@ -9,9 +9,52 @@ class MachineLearning extends Component {
         this.state = {
             algorithme: null,
             target: null,
-            show: false
+            show: false,
+            selected_columns: [],
+            group_columns: [],
         }
     }
+    onOptionChange = (ev, el) => {
+        this.setState({ [el.name]: el.value }, () => {
+            if (el.name === 'selected_columns') {
+                const options = el.options;
+                this.state.group_columns.length = 1;
+
+                let opts = [
+                    {
+                        key: -1,
+                        text: "Aucun",
+                        value: "-1"
+                    }
+                ];
+                if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
+                    this.setState({ count_column: null });
+                }
+                options.map(opt => {
+                    if (this.state.selected_columns.indexOf(opt.value) > -1) {
+                        opts.push(
+                            {
+                                key: opt.value,
+                                text: opt.text,
+                                value: opt.value
+                            }
+                        );
+                    }
+                });
+                this.setState({ group_columns: opts });
+            }
+        });
+        this.setState({
+            algorithme: el.value,
+        });
+        if (el.value === 'Arbre de décision' || el.value === "Forêt d'arbres décisionnels" || el.value === "Machine à vecteurs de support"
+            || el.value === "Classification naïve bayésienne")
+            this.setState({ target: "Mention Année" })
+        else if (el.value === "Régression linéaire multiple")
+            this.setState({ target: "Moyenne Année" })
+        this.setState({ show: true })
+    };
+
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
             algorithme: value,
@@ -21,13 +64,16 @@ class MachineLearning extends Component {
             this.setState({ target: "Mention Année" })
         else if (value === "Régression linéaire multiple")
             this.setState({ target: "Moyenne Année" })
-
         this.setState({ show: true });
     };
+
     onChangeFieldHundler(event) {
         event.preventDefault();
     };
 
+    onSubmit = () => {
+        console.log(this.state.algorithme)
+    }
     render() {
         const algo = [
             { key: 'a', text: 'Arbre de décision', value: "Arbre de décision" },
@@ -76,7 +122,7 @@ class MachineLearning extends Component {
                 <Header as='h4'>Selectionner Votre Kernel:</Header>
                 <Form.Group>
                     <Form.Field>
-                        <Select placeholder="Kernel" options={kernel} onChange={this.onChangeAlgoHundler.bind(this)} />
+                        <Select placeholder="Kernel" options={kernel} onChange={this.onOptionChange.bind(this)} />
                     </Form.Field>
                 </Form.Group>
             </div>;
@@ -103,7 +149,7 @@ class MachineLearning extends Component {
                                 {this.state.show ?
                                     <Form.Group>
                                         <Form.Group>
-                                            <SelectOptions onChange={this.onChangeFieldHundler.bind(this)}
+                                            <SelectOptions onChange={this.onOptionChange.bind(this)}
                                                 options={fields}
                                                 placeholder="Choisir les colonnes" name="selected_columns"
                                                 label="Choisir les colonnes" />
@@ -121,7 +167,7 @@ class MachineLearning extends Component {
                                     </Segment>
                                 </Form.Field>
                                 <Form.Field>
-                                    <Button loading={this.state.loading} color='teal' type='submit'>
+                                    <Button loading={this.state.loading} color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
                                         Envoyer
                                 </Button>
                                 </Form.Field>
