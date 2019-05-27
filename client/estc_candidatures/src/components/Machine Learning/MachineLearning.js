@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Select,Segment,Form,Radio,Header,Button,Grid } from 'semantic-ui-react'
+import { Select, Input, Segment, Form, Radio, Header, Button, Grid } from 'semantic-ui-react'
 import SelectOptions from "../statistics/SelectOptions.js";
 
 
@@ -36,6 +36,12 @@ class MachineLearning extends Component {
             { key: 'd', text: 'Classification naïve bayésienne', value: 'Classification naïve bayésienne' },
             { key: 'e', text: 'Régression linéaire multiple', value: 'Régression linéaire multiple' },
         ];
+        const kernel = [
+            { key: 'a', text: 'linear', value: "linear" },
+            { key: 'b', text: 'polynomial', value: "polynomial" },
+            { key: 'c', text: 'gaussian', value: "gaussian" },
+            { key: 'd', text: 'sigmoid', value: "sigmoid" },
+        ];
         const fields = [
             { key: 'a', text: 'Genre', value: 'Genre' },
             { key: 'b', text: 'Age', value: 'Age' },
@@ -59,10 +65,20 @@ class MachineLearning extends Component {
         else if (algorithme === "Forêt d'arbres décisionnels")
             params = <div>
                 <h1>Forêt d'arbres décisionnels</h1>
+                <Form.Group>
+                    <Header as='h4'>Entrer Votre Nombre d'arbre : </Header>
+                    <Input placeholder="Nombre d'arbre" value="5" />
+                </Form.Group>
             </div>;
         else if (algorithme === 'Machine à vecteurs de support')
             params = <div>
                 <h1>Machine à vecteurs de support</h1>
+                <Header as='h4'>Selectionner Votre Kernel:</Header>
+                <Form.Group>
+                    <Form.Field>
+                        <Select placeholder="Kernel" options={kernel} onChange={this.onChangeAlgoHundler.bind(this)} />
+                    </Form.Field>
+                </Form.Group>
             </div>;
         else if (algorithme === 'Classification naïve bayésienne')
             params = <div>
@@ -91,7 +107,7 @@ class MachineLearning extends Component {
                                                 options={fields}
                                                 placeholder="Choisir les colonnes" name="selected_columns"
                                                 label="Choisir les colonnes" />
-                                        </Form.Group>                           
+                                        </Form.Group>
                                     </Form.Group> : null}
                             </Grid.Column>
                             {this.state.show ? <Grid.Column>
