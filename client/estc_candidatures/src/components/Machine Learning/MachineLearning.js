@@ -12,14 +12,20 @@ class MachineLearning extends Component {
             show: false,
             selected_columns: [],
             group_columns: [],
+            kernel: null,
+            NombreArbre: null
         }
+    }
+    onKernelChange = (e, { value }) => {
+        this.setState({
+            kernel: value,
+        });
     }
     onOptionChange = (ev, el) => {
         this.setState({ [el.name]: el.value }, () => {
             if (el.name === 'selected_columns') {
                 const options = el.options;
                 this.state.group_columns.length = 1;
-
                 let opts = [
                     {
                         key: -1,
@@ -34,7 +40,7 @@ class MachineLearning extends Component {
                     if (this.state.selected_columns.indexOf(opt.value) > -1) {
                         opts.push(
                             {
-                                key: opt.value,
+                                key: opt.key,
                                 text: opt.text,
                                 value: opt.value
                             }
@@ -44,15 +50,6 @@ class MachineLearning extends Component {
                 this.setState({ group_columns: opts });
             }
         });
-        this.setState({
-            algorithme: el.value,
-        });
-        if (el.value === 'Arbre de décision' || el.value === "Forêt d'arbres décisionnels" || el.value === "Machine à vecteurs de support"
-            || el.value === "Classification naïve bayésienne")
-            this.setState({ target: "Mention Année" })
-        else if (el.value === "Régression linéaire multiple")
-            this.setState({ target: "Moyenne Année" })
-        this.setState({ show: true })
     };
 
     onChangeAlgoHundler = (e, { value }) => {
@@ -71,8 +68,17 @@ class MachineLearning extends Component {
         event.preventDefault();
     };
 
+    onChangeNombreArbre = (e, { value }) => {
+        this.setState({
+            NombreArbre: value,
+        });
+    }
+
     onSubmit = () => {
-        console.log(this.state.algorithme)
+        console.log(this.state.group_columns)
+        console.log(this.state.kernel)
+        console.log(this.state.NombreArbre)
+        console.log(this.state.target)
     }
     render() {
         const algo = [
@@ -103,7 +109,6 @@ class MachineLearning extends Component {
         ];
         const { algorithme } = this.state;
         let params;
-
         if (algorithme === 'Arbre de décision')
             params = <div>
                 <h1>Arbre de décision</h1>
@@ -113,7 +118,7 @@ class MachineLearning extends Component {
                 <h1>Forêt d'arbres décisionnels</h1>
                 <Form.Group>
                     <Header as='h4'>Entrer Votre Nombre d'arbre : </Header>
-                    <Input placeholder="Nombre d'arbre" value="5" />
+                    <Input placeholder="Nombre d'arbre"   type="number" onChange={this.onChangeNombreArbre.bind(this)} />
                 </Form.Group>
             </div>;
         else if (algorithme === 'Machine à vecteurs de support')
@@ -122,7 +127,7 @@ class MachineLearning extends Component {
                 <Header as='h4'>Selectionner Votre Kernel:</Header>
                 <Form.Group>
                     <Form.Field>
-                        <Select placeholder="Kernel" options={kernel} onChange={this.onOptionChange.bind(this)} />
+                        <Select placeholder="Kernel" options={kernel} onChange={this.onKernelChange.bind(this)} />
                     </Form.Field>
                 </Form.Group>
             </div>;
