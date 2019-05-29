@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Grid, Label, Form, Checkbox, Button, Modal, Segment, Header, Icon} from "semantic-ui-react";
+import {Grid, Label, Form, Button, Segment, Header, Icon} from "semantic-ui-react";
 import Filters from "./Filters";
 import axios from "axios";
 import Chart from "chart.js";
@@ -72,9 +72,9 @@ class MoyStatistics extends Component {
             options: {
                 scales: {
                     yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        },
+                        // ticks: {
+                        //     beginAtZero:true
+                        // },
                         scaleLabel: {
                             display: true,
                             labelString: 'Notes',
@@ -175,7 +175,7 @@ class MoyStatistics extends Component {
 
             this.setState({ filters: {}, fields, labels });
 
-            const { data } = axios.post('http://localhost:8000/notes/', postData)
+            axios.post('http://localhost:8000/notes/', postData)
                 .then(resp => {
                     this.addLineToChart(this.chart, resp.data.result, title, this.randomizeColors(1)[0], id);
                 });

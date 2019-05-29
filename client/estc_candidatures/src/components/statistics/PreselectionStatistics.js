@@ -7,7 +7,6 @@ import Header from "semantic-ui-react/dist/commonjs/elements/Header";
 import Button from "semantic-ui-react/dist/commonjs/elements/Button";
 import Filters from "./Filters";
 import Grid from "semantic-ui-react/dist/commonjs/collections/Grid";
-import {Input} from "semantic-ui-react";
 import Chart from "chart.js";
 import Statistic from "semantic-ui-react/dist/commonjs/views/Statistic";
 import Graph from "./Graph";

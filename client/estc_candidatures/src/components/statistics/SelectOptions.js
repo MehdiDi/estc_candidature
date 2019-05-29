@@ -8,9 +8,7 @@ const renderLabel = label => ({
 });
 
 class SelectOptions extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+
 
     onOptionChange = (ev, el) => {
         this.props.onChange(ev, el);

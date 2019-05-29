@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
 import Candidats from "./Candidats";
-import StatsMenu from "../layout/StatsMenu";
 import {Grid, Segment} from "semantic-ui-react";
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
 import MoyStatistics from "./MoyStatistics";
+import Rapport from './Rapport'
 
 class Statistics extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeItem: 'Notes'
+            activeItem: 'Rapport'
         }
 
     }
@@ -31,6 +31,8 @@ class Statistics extends Component {
             categoryStatistics = <EtudiantStatistics />;
         else if (activeItem === 'Notes')
             categoryStatistics = <MoyStatistics />;
+        else if (activeItem === 'Rapport')
+            categoryStatistics = <Rapport />
 
 
         return (
@@ -46,6 +48,12 @@ class Statistics extends Component {
                             <Menu.Item
                               name='Notes'
                               active={activeItem === 'Notes'}
+                              onClick={this.handleItemClick}
+                            />
+
+                            <Menu.Item
+                              name='Rapport'
+                              active={activeItem === 'Rapport'}
                               onClick={this.handleItemClick}
                             />
 
