@@ -9,5 +9,6 @@ urlpatterns = [
     path('modules/', views.ModuleStatisticsView.as_view(), name='modules'),
     path('preselect/', views.PrecandidatStatistics.as_view(), name='preselect'),
     path('notes/', views.NotesStatistic.as_view(), name='notes'),
-    path('rapport/', views.RapportCandidat.as_view(), name='rapport')
+    path('rapport/', views.RapportCandidat.as_view(), name='rapport'),
+    path('predict/', views.PredictCandidats.as_view(), name='predict'),
 ]
