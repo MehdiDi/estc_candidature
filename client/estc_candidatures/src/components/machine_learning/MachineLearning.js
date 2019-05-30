@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Select, Input, Segment, Form, Radio, Header, Button, Grid } from 'semantic-ui-react'
 import SelectOptions from "../statistics/SelectOptions.js";
-import axios from 'axios';
-
+import axios from 'axios'
+import CSVReader from 'react-csv-reader'
+import "./styles.css";
 
 class MachineLearning extends Component {
     constructor(props) {
@@ -14,7 +15,8 @@ class MachineLearning extends Component {
             selected_columns: [],
             group_columns: [],
             kernel: null,
-            NombreArbre: null
+            NombreArbre: null,
+            DataJson: null
         }
     }
     onKernelChange = (e, { value }) => {
@@ -53,7 +55,6 @@ class MachineLearning extends Component {
             }
         });
     };
-
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
             algorithme: value,
@@ -66,7 +67,6 @@ class MachineLearning extends Component {
         this.setState({ show: true });
     };
 
-
     onChangeNombreArbre = (e, { value }) => {
         this.setState({
             NombreArbre: value,
@@ -75,16 +75,17 @@ class MachineLearning extends Component {
 
     onSubmit = () => {
         const params = {};
-        if(this.state.algorithme === "Forêt d'arbres décisionnels") {
+        if (this.state.algorithme === "decision_tree") {
             params['nb_arbres'] = this.state.NombreArbre;
         }
-        else if(this.state.algorithme === "Machine à vecteurs de support") {
+        else if (this.state.algorithme === "svm") {
             params['kernel'] = this.state.kernel;
         }
         const postData = {
             algorithm: this.state.algorithme,
             features: this.state.selected_columns,
             target: this.state.target,
+            JsonData: this.state.DataJson,
             params
         };
         console.log(postData);
@@ -92,6 +93,11 @@ class MachineLearning extends Component {
             .then(resp => console.log(resp))
             .catch(err => console.log(err));
     };
+
+    handleForce = data => {
+        this.setState({ DataJson: JSON.stringify(data) })
+    }
+
     render() {
         const algo = [
             { key: 'a', text: 'Arbre de décision', value: "decision_tree" },
@@ -121,19 +127,19 @@ class MachineLearning extends Component {
         ];
         const { algorithme } = this.state;
         let params;
-        if (algorithme === 'Arbre de décision')
+        if (algorithme === 'decision_tree')
             params = <div>
                 <h1>Arbre de décision</h1>
             </div>;
-        else if (algorithme === "Forêt d'arbres décisionnels")
+        else if (algorithme === "random_forest")
             params = <div>
                 <h1>Forêt d'arbres décisionnels</h1>
                 <Form.Group>
                     <Header as='h4'>Entrer Votre Nombre d'arbre : </Header>
-                    <Input placeholder="Nombre d'arbre"   type="number" onChange={this.onChangeNombreArbre.bind(this)} />
+                    <Input placeholder="Nombre d'arbre" type="number" onChange={this.onChangeNombreArbre.bind(this)} />
                 </Form.Group>
             </div>;
-        else if (algorithme === 'Machine à vecteurs de support')
+        else if (algorithme === 'svm')
             params = <div>
                 <h1>Machine à vecteurs de support</h1>
                 <Header as='h4'>Selectionner Votre Kernel:</Header>
@@ -143,7 +149,7 @@ class MachineLearning extends Component {
                     </Form.Field>
                 </Form.Group>
             </div>;
-        else if (algorithme === 'Classification naïve bayésienne')
+        else if (algorithme === 'naive_bayes')
             params = <div>
                 <h1>Classification naïve bayésienne</h1>
             </div>;
@@ -193,9 +199,19 @@ class MachineLearning extends Component {
                             </Grid.Column>
                         </Grid>
                         {params}
+                        <Header as='h4'>Select CSV Files :</Header>
+                        <CSVReader
+                            cssClass="csv-reader-input"
+                            label=""
+                            onFileLoaded={this.handleForce}
+                            onError={this.handleDarkSideForce}
+                            inputStyle={{ color: 'red' }}
+                        />
+
                     </Form>
                 </Segment>
             </React.Fragment>
+
         );
     }
 }
