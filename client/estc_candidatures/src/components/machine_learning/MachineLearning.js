@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Select, Input, Segment, Form, Radio, Header, Button, Grid } from 'semantic-ui-react'
+import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Icon } from 'semantic-ui-react'
 import SelectOptions from "../statistics/SelectOptions.js";
 import axios from 'axios'
 import CSVReader from 'react-csv-reader'
 import "./styles.css";
 
+
 class MachineLearning extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -16,9 +18,26 @@ class MachineLearning extends Component {
             group_columns: [],
             kernel: null,
             NombreArbre: null,
-            DataJson: null
+            DataJson: null,
+            candidats: [],
+            listDescription: [],
+            typesbac: [],
         }
     }
+    async componentDidMount() {
+        const filterdata = await axios.get('http://localhost:8000/filters/');
+        this.setState({ typesbac: filterdata.data.typesbac });
+    }
+    formatOptions = (values) => {
+        let opts = values.map(value => (
+            {
+                key: value,
+                value: value,
+                text: value
+            }
+        ));
+        return opts;
+    };
     onKernelChange = (e, { value }) => {
         this.setState({
             kernel: value,
@@ -66,13 +85,11 @@ class MachineLearning extends Component {
             this.setState({ target: "moyenneannee" });
         this.setState({ show: true });
     };
-
     onChangeNombreArbre = (e, { value }) => {
         this.setState({
             NombreArbre: value,
         });
     };
-
     onSubmit = () => {
         const params = {};
         if (this.state.algorithme === "decision_tree") {
@@ -86,19 +103,94 @@ class MachineLearning extends Component {
             features: this.state.selected_columns,
             target: this.state.target,
             JsonData: this.state.DataJson,
-            params
+            params,
+            candidat: this.state.listDescription
+
         };
         console.log(postData);
         axios.post('http://localhost:8000/predict/', postData)
             .then(resp => console.log(resp))
             .catch(err => console.log(err));
     };
-
     handleForce = data => {
         this.setState({ DataJson: JSON.stringify(data) })
     }
+    onCandidatChange = (e, el) => {
+
+
+        const candidats = Object.assign({}, this.state.candidats);
+        const listDescription = this.state.listDescription;
+
+
+        const val = el.value;
+        const name = el.name;
+        const filterText = el.title;
+
+        for (let i in listDescription) {
+            if (listDescription[i].key === filterText) {
+                listDescription.splice(i, 1);
+                break;
+            }
+        }
+
+        if (val === "") {
+            delete candidats[name];
+
+        }
+        else {
+            candidats[name] = val;
+            listDescription.push({ key: filterText, value: val })
+        }
+
+        this.setState({ candidats: candidats, listDescription: listDescription });
+        console.log(this.state.listDescription)
+    };
 
     render() {
+        const dureesformation = [
+            {
+                key: 1,
+                text: 'Normal',
+                value: 'Normale',
+            },
+            {
+                key: 2,
+                text: 'Redoublé 1 an',
+                value: 'redouble 1 an'
+            },
+            {
+                key: 3,
+                text: 'Redoublé 2 ans ou plus',
+                value: 'redouble 2 ans ou plus'
+            }
+        ];
+        const Genre = [
+            { key: 'm', text: 'Homme', value: 'homme' },
+            { key: 'f', text: 'Femme', value: 'femme' },
+        ]
+        const mentionsbac = [
+            {
+                key: 1,
+                text: 'Passable',
+                value: 'Passable'
+            },
+            {
+                key: 2,
+                text: 'Assez Bien',
+                value: 'Assez Bien'
+            },
+
+            {
+                key: 3,
+                text: 'Bien',
+                value: 'Bien'
+            },
+            {
+                key: 4,
+                text: 'Tres Bien',
+                value: 'Tres Bien'
+            },
+        ];
         const algo = [
             { key: 'a', text: 'Arbre de décision', value: "decision_tree" },
             { key: 'b', text: "Forêt d'arbres décisionnels", value: "random_forest" },
@@ -134,7 +226,7 @@ class MachineLearning extends Component {
         else if (algorithme === "random_forest")
             params = <div>
                 <h1>Forêt d'arbres décisionnels</h1>
-                <Form.Group>
+                <Form.Group>d
                     <Header as='h4'>Entrer Votre Nombre d'arbre : </Header>
                     <Input placeholder="Nombre d'arbre" type="number" onChange={this.onChangeNombreArbre.bind(this)} />
                 </Form.Group>
@@ -161,6 +253,30 @@ class MachineLearning extends Component {
             <React.Fragment>
                 <Segment>
                     <Form>
+                        <Form.Group widths='equal'>
+                            <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
+                                placeholder='Genre' name="genre" value={this.state.genre} />
+                            <Form.Input title='Age' fluid label='Age' onChange={this.onCandidatChange}
+                                placeholder='Age' name="age" value={this.state.age} />
+                            <Form.Select title='Type de Bac' fluid label='Type de Bac' onChange={this.onCandidatChange} options={this.formatOptions(this.state.typesbac)}
+                                placeholder='Type de Bac' name="typebac" value={this.state.typebac} />
+                        </Form.Group>
+                        <Form.Group widths='equal'>
+                            <Form.Select title='Mention de bac' fluid label='Mention de bac' onChange={this.onCandidatChange} options={mentionsbac}
+                                placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} />
+                            <Form.Input title='Nom de ville' fluid label='Nom de ville' onChange={this.onCandidatChange}
+                                placeholder='Nom de ville' name="ville" value={this.state.ville} />
+                            <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
+                                placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} />
+                        </Form.Group>
+                        <Form.Group widths='equal'>
+                            <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de formation' name="moyenneformation" value={this.state.moyenneformation} />
+                            <Form.Input title='Moyenne de preselection' fluid label='Moyenne de preselection' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de preselection' name="moyennepreselection" value={this.state.moyennepreselection} />
+                            <Form.Input title='Moyenne de concours' fluid label='Moyenne de concours' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de concours' name="moyenneconcours" value={this.state.moyenneconcours} />
+                        </Form.Group>
                         <Grid columns={2}>
                             <Grid.Column>
                                 <Header as='h4'>Selectionner Votre Algo:</Header>
@@ -207,7 +323,6 @@ class MachineLearning extends Component {
                             onError={this.handleDarkSideForce}
                             inputStyle={{ color: 'red' }}
                         />
-
                     </Form>
                 </Segment>
             </React.Fragment>
