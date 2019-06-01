@@ -22,8 +22,8 @@ def get_table_data(key):
         'elmodule': {'col': 'note', 'table': 'obtenirelement'},
         'module': {'col': 'notemodule', 'table': 'obtenirmodule'},
         'moysemestre': {'col': 'moyennesemestre', 'table': 'resultatsemestre'},
-        'moyformation': {'col': 'moyenneformation', 'table': 'candidat_diplome_sup'}
-
+        'moyformation': {'col': 'moyenneformation', 'table': 'candidat_diplome_sup'},
+        'moyenneconcours': {'col': 'moyenneconcours', 'table': 'resultat'},
     }
 
     return tables[key]
@@ -38,7 +38,6 @@ def select_multiple_join(columns=[], tables=[]):
     sql += tables[0] + " " + alias
 
     itter_table = tables[1:]
-    print(itter_table)
 
     if len(tables) > 1:
         for table in itter_table:

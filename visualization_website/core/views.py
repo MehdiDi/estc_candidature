@@ -359,10 +359,16 @@ class PredictCandidats(APIView):
                 if 'donneescandidat()' not in tables:
                     tables.append('donneescandidat()')
             else:
-                cols.append(get_table_data(f)['col'])
-                table = get_table_data(f)['table']
-                if table not in tables:
-                    tables.append(table)
+                # Pour le libelle de diplome jointure de 2 tables
+                if f == 'libelle':
+                    cols.append(f)
+                    tables.append('candidat_diplome_sup')
+                    tables.append('diplome_sup')
+                else:
+                    cols.append(get_table_data(f)['col'])
+                    table = get_table_data(f)['table']
+                    if table not in tables:
+                        tables.append(table)
         cols.append(target)
         table = get_table_data(target)['table']
 
@@ -378,8 +384,32 @@ class PredictCandidats(APIView):
 
         if algo == 'decision_tree':
             model, p = decision_tree(t_df, cols, target)
-            print(model)
         elif algo == 'random_forest':
-            model, p = random_forest(t_df, cols, target, params['nb_arbres'])
+            model, p = random_forest(t_df, cols, target, int(params['nb_arbres']))
+        elif algo == 'svm':
+            model, p = svm(t_df, cols, target, params['kernel'])
+        elif algo == 'naive_bayes':
+            model, p = naive_bayes(t_df, cols, target)
+        elif algo == 'mlr':
+            model, p = mlr(t_df, cols, target)
 
-        return Response("ok")
+        candidat_data = request.data['candidat']
+
+        values = dict()
+        for i, f in enumerate(features):
+            if f != target:
+                val = candidat_data[f] if algo != 'mlr' else float(candidat_data[f])
+                values[cols[i]] = val
+        df = pd.DataFrame([values])
+
+        p = model.predict(transform(df))
+        val = 0
+        if target == 'mentionbac':
+            for men in mention_codes:
+                if men['code'] == p:
+                    val = men['text']
+                    break
+        else:
+            val = p
+
+        return Response({'prediction': val})

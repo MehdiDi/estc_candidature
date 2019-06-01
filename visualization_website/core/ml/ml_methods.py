@@ -2,7 +2,7 @@
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
-from sklearn import metrics
+from sklearn import metrics, linear_model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.naive_bayes import MultinomialNB
@@ -11,10 +11,11 @@ from sklearn.svm import SVC
 
 def transform(dataset):
     pd.options.mode.chained_assignment = None
-    print(dataset)
 
     for column_name in dataset.columns:
-        if column_name == "genre":
+        if dataset[column_name].dtype == 'int64' or dataset[column_name].dtype == 'float64':
+            pass
+        elif column_name == "genre":
             for i in range(len(dataset[column_name])):
 
                 dataset[column_name][i] = dataset[column_name][i].lower()
@@ -26,8 +27,8 @@ def transform(dataset):
 
         elif column_name == "typebac":
             for i in range(len(dataset[column_name])):
-                val = dataset[column_name][i]
-                dataset[column_name][i] = (val.lower() if val is not None else '')
+
+                dataset[column_name][i] = dataset[column_name][i].lower()
 
                 if dataset[column_name][i] == "bac sciences de la vie et de la terre":
                     dataset[column_name][i] = 0
@@ -121,7 +122,6 @@ def decision_tree(dataset, inputs, target):
     X = dataset[inputs]  # Features
     y = target  # Target variable
 
-    print(X)
     X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     model = DecisionTreeClassifier()
@@ -136,7 +136,7 @@ def decision_tree(dataset, inputs, target):
 def random_forest(dataset, inputs, target, trees=5):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     sc = StandardScaler()
     X_train = sc.fit_transform(X_train)
@@ -152,7 +152,7 @@ def random_forest(dataset, inputs, target, trees=5):
 def naive_bayes(dataset, inputs, target):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     model = MultinomialNB().fit(X_train, y_train)
     y_pred = model.predict(X_test)
@@ -163,10 +163,30 @@ def naive_bayes(dataset, inputs, target):
 def svm(dataset, inputs, target, kernel='poly'):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     model = SVC(kernel=kernel, gamma='auto')
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
     return model, metrics.accuracy_score(y_test, y_pred)
+
+
+def mlr(dataset, inputs, target):
+    X = dataset[inputs]  # Features
+    y = target  # Target variable
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, :-1], test_size=0.2, random_state=1)
+
+    model = linear_model.LinearRegression()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    return model, metrics.mean_squared_error(y_test, y_pred)
+
+
+mention_codes = [
+    {'text': "passable", 'code': 10},
+    {'text': "assez bien", 'code': 12},
+    {'text': "bien", 'code': 14},
+    {'text': "tres bien", 'code': 16}
+]
