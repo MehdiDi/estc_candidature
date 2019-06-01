@@ -356,4 +356,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps, null)(Candidats);
+export default connect(mapStateToProps)(Candidats);
