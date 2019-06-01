@@ -7,6 +7,7 @@ import Login from './views/Login/Login';
 import Logout from './views/Login/Logout/Logout';
 import { connect } from 'react-redux';
 import * as actions from './store/actions/index'
+import NavBar from "./components/layout/NavBar"
 
 
 class App extends Component {
@@ -32,6 +33,7 @@ class App extends Component {
     return (
       <div className="App">
         {/*<Container>*/}
+        <NavBar />
         {routes}
         {/*</Container>*/}
       </div>

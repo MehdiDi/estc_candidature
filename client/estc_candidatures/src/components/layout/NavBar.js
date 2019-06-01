@@ -25,17 +25,17 @@ class NavBar extends Component {
       backgroundColor: '#00b5ad'
     }
     return (
-      <div className={Classes.NavBar}>
-        <Segment inverted>
-          <Menu size='small' pointing secondary inverted style={{ segmentStyle }}>
-            <Menu.Item name='Statistics' active={activeItem === 'Statistics'} onClick={this.handleItemClick} />
+      <div className={Classes.NavBar} >
+        <Segment inverted style={{backgroundColor: "#008080",}}>
+          <Menu size='small' pointing secondary inverted style={{ segmentStyle ,borderWidth: 0}}  >
+            <Menu.Item name='Statistics' active={activeItem === 'Statistics'} onClick={this.handleItemClick} style={{fontSize: 16}}/>
             <Menu.Item
               name='Machine Learning'
               active={activeItem === 'Machine Learning'}
-              onClick={this.handleItemClick}
+              onClick={this.handleItemClick} style={{fontSize: 16}}
             />
             <Menu.Menu position='right'>
-              <Menu.Item name='Logout' onClick={this.handleItemClick} />
+              <Menu.Item name='Logout' onClick={this.handleItemClick} style={{fontSize: 16}}/>
             </Menu.Menu>
           </Menu>
         </Segment>

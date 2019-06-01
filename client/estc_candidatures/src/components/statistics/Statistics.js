@@ -7,7 +7,6 @@ import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
 
-import NavBar from "../layout/NavBar"
 
 import MoyStatistics from "./MoyStatistics";
 import { isNull } from 'util';
@@ -44,7 +43,6 @@ class Statistics extends Component {
             categoryStatistics = <MoyStatistics />;
         return (
             <React.Fragment>
-                <NavBar />
                 <Grid stretched style={{
                     marginTop: 0,
                     backgroundColor: '#FFF'
