@@ -269,8 +269,8 @@ class MachineLearning extends Component {
                                 placeholder='Mention de formation' name="moyformation" value={this.state.moyformation} /> : null}
                             {this.featureExists('excel') ? <Form.Input fluid label='Moyenne Préselection' onChange={this.onCandidatChange}
                                 placeholder='Moyenne Préselection' name="excel" value={this.state.excel} /> : null}
-                            {this.featureExists('concours') ? <Form.Input fluid label='Mention Concours' onChange={this.onCandidatChange}
-                            placeholder='Mention concours' name="concours" value={this.state.concours} /> : null}
+                            {this.featureExists('concours') ? <Form.Input fluid label='Moyenne concours' onChange={this.onCandidatChange}
+                            placeholder='Moyenne concours' name="concours" value={this.state.concours} /> : null}
                         </Form.Group>
                         <Form.Group widths='equal'>
                             {this.featureExists('dureeformation') ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
