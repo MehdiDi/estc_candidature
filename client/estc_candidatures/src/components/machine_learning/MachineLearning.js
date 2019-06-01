@@ -267,8 +267,15 @@ class MachineLearning extends Component {
                                     placeholder='Mention de formation' name="moyformation" value={this.state.moyformation} /> : null}
                             {this.featureExists('excel') ? <Form.Input fluid label='Moyenne Préselection' onChange={this.onCandidatChange}
                                 placeholder='Moyenne Préselection' name="excel" value={this.state.excel} /> : null}
+<<<<<<< HEAD
                             {this.featureExists('concours') ? <Form.Input fluid label='Mention Concours' onChange={this.onCandidatChange}
                                 placeholder='Mention concours' name="concours" value={this.state.concours} /> : null}
+=======
+                            {this.featureExists('concours') ? <Form.Input fluid label='Moyenne concours' onChange={this.onCandidatChange}
+                            placeholder='Moyenne concours' name="concours" value={this.state.concours} /> : null}
+                        </Form.Group>
+                        <Form.Group widths='equal'>
+>>>>>>> 22fe425a18f78d7608007a4f459aadd7a32fb19e
                             {this.featureExists('dureeformation') ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
                                 placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} /> : null}
                             {this.featureExists('moyenneformation') ? <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
