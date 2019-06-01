@@ -38,7 +38,6 @@ def select_multiple_join(columns=[], tables=[]):
     sql += tables[0] + " " + alias
 
     itter_table = tables[1:]
-    print(itter_table)
 
     if len(tables) > 1:
         for table in itter_table:

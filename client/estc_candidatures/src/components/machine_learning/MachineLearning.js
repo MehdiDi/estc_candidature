@@ -1,10 +1,83 @@
 import React, { Component } from 'react';
-import { Select, Input, Segment, Form, Radio, Header, Button, Grid } from 'semantic-ui-react'
-import SelectOptions from "../statistics/SelectOptions.js";
-import axios from 'axios';
+import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Dropdown } from 'semantic-ui-react'
+import axios from 'axios'
 
 
+let params;
+const renderLabel = label => ({
+    color: 'blue',
+    content: `${label.text}`,
+    icon: 'check',
+});
+const dureesformation = [
+    {
+        key: 1,
+        text: 'Normal',
+        value: 'Normale',
+    },
+    {
+        key: 2,
+        text: 'Redoublé 1 an',
+        value: 'redouble 1 an'
+    },
+    {
+        key: 3,
+        text: 'Redoublé 2 ans ou plus',
+        value: 'redouble 2 ans ou plus'
+    }
+];
+const Genre = [
+    { key: 'm', text: 'Homme', value: 'homme' },
+    { key: 'f', text: 'Femme', value: 'femme' },
+]
+const mentionsbac = [
+    {
+        key: 1,
+        text: 'Passable',
+        value: 'Passable'
+    },
+    {
+        key: 2,
+        text: 'Assez Bien',
+        value: 'Assez Bien'
+    },
+
+    {
+        key: 3,
+        text: 'Bien',
+        value: 'Bien'
+    },
+    {
+        key: 4,
+        text: 'Tres Bien',
+        value: 'Tres Bien'
+    },
+];
+const algo = [
+    { key: 'a', text: 'Arbre de décision', value: "decision_tree" },
+    { key: 'b', text: "Forêt d'arbres décisionnels", value: "random_forest" },
+    { key: 'c', text: 'Machine à vecteurs de support', value: 'svm' },
+    { key: 'd', text: 'Classification naïve bayésienne', value: 'naive_bayes' },
+    { key: 'e', text: 'Régression linéaire multiple', value: 'mlr' },
+];
+const kernel = [
+    { key: 'a', text: 'linear', value: "linear" },
+    { key: 'b', text: 'polynomial', value: "polynomial" },
+    { key: 'c', text: 'gaussian', value: "gaussian" },
+    { key: 'd', text: 'sigmoid', value: "sigmoid" },
+];
+const fields = [
+    { key: 'a', text: 'Genre', value: 'genre' },
+    { key: 'b', text: 'Age', value: 'age' },
+    { key: 'c', text: 'Type Bac', value: 'typebac' },
+    { key: 'd', text: 'Mention bac', value: 'mentionbac' },
+    { key: 'f', text: 'Durée formation', value: 'dureeformation' },
+    { key: 'g', text: 'Moyenne formation', value: 'moyformation' },
+    { key: 'h', text: 'Moyenne préselection', value: 'excel' },
+    { key: 'i', text: 'Moyenne concours', value: 'concours' },
+];
 class MachineLearning extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -14,9 +87,26 @@ class MachineLearning extends Component {
             selected_columns: [],
             group_columns: [],
             kernel: null,
-            NombreArbre: null
+            NombreArbre: null,
+            candidats: [],
+            listDescription: [],
+            typesbac: [],
         }
     }
+    async componentDidMount() {
+        const filterdata = await axios.get('http://localhost:8000/filters/');
+        this.setState({ typesbac: filterdata.data.typesbac });
+    }
+    formatOptions = (values) => {
+        let opts = values.map(value => (
+            {
+                key: value,
+                value: value,
+                text: value
+            }
+        ));
+        return opts;
+    };
     onKernelChange = (e, { value }) => {
         this.setState({
             kernel: value,
@@ -53,7 +143,6 @@ class MachineLearning extends Component {
             }
         });
     };
-
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
             algorithme: value,
@@ -61,121 +150,115 @@ class MachineLearning extends Component {
         if (value === 'decision_tree' || value === "random_forest" || value === "svm"
             || value === "naive_bayes")
             this.setState({ target: "mentionannee" });
-        else if (value === "Régression linéaire multiple")
+        else if (value === "mlr")
             this.setState({ target: "moyenneannee" });
         this.setState({ show: true });
     };
-
-
     onChangeNombreArbre = (e, { value }) => {
         this.setState({
             NombreArbre: value,
         });
     };
-
+    featureExists = (f) => {
+        const cols = this.state.selected_columns;
+        for(let i in cols) {
+            if(cols[i] === f)
+                return true;
+        }
+        return false;
+    };
     onSubmit = () => {
+
         const params = {};
-        if(this.state.algorithme === "random_forest") {
+        if (this.state.algorithme === "random_forest") {
             params['nb_arbres'] = this.state.NombreArbre;
         }
-        else if(this.state.algorithme === "svm") {
+        else if (this.state.algorithme === "svm") {
             params['kernel'] = this.state.kernel;
         }
         const postData = {
             algorithm: this.state.algorithme,
             features: this.state.selected_columns,
             target: this.state.target,
-            params
+            candidat: this.state.candidats,
+            params,
         };
-        console.log(postData);
+
         axios.post('http://localhost:8000/predict/', postData)
-            .then(resp => console.log(resp))
+            .then(resp => console.log(resp.data.prediction))
             .catch(err => console.log(err));
     };
+    onCandidatChange = (e, el) => {
+        const candidats = Object.assign({}, this.state.candidats);
+        const name = el.name;
+        const val = el.value;
+
+        if (val === "") {
+            delete candidats[name];
+
+        }
+        else {
+            candidats[name] = val;
+        }
+
+        this.setState({ candidats: candidats });
+    };
+
     render() {
-        const algo = [
-            { key: 'a', text: 'Arbre de décision', value: "decision_tree" },
-            { key: 'b', text: "Forêt d'arbres décisionnels", value: "random_forest" },
-            { key: 'c', text: 'Machine à vecteurs de support', value: 'svm' },
-            { key: 'd', text: 'Classification naïve bayésienne', value: 'naive_bayes' },
-            { key: 'e', text: 'Régression linéaire multiple', value: 'Régression linéaire multiple' },
-        ];
-        const kernel = [
-            { key: 'a', text: 'linear', value: "linear" },
-            { key: 'b', text: 'polynomial', value: "poly" },
-            { key: 'c', text: 'gaussian', value: "rbf" },
-            { key: 'd', text: 'sigmoid', value: "sigmoid" },
-        ];
-        const fields = [
-            { key: 'a', text: 'Genre', value: 'genre' },
-            { key: 'b', text: 'Age', value: 'age' },
-            { key: 'c', text: 'Type Bac', value: 'typebac' },
-            { key: 'd', text: 'Mention bac', value: 'mentionbac' },
-            { key: 'e', text: 'Nom ville', value: 'residence' },
-            { key: 'f', text: 'Durée formation', value: 'dureeformation' },
-            { key: 'g', text: 'Moyenne formation', value: 'moyformation' },
-            { key: 'h', text: 'Moyenne préselection', value: 'excel' },
-            { key: 'i', text: 'Moyenne concours', value: 'concours' },
-            { key: 'j', text: 'Moyenne année', value: 'moyenneannee' },
-            { key: 'k', text: 'Mention année', value: 'mentionannee' },
-        ];
         const { algorithme } = this.state;
-        let params;
-        if (algorithme === 'decision_tree')
+        if (algorithme === "random_forest")
             params = <div>
-                <h1>Arbre de décision</h1>
-            </div>;
-        else if (algorithme === "random_forest")
-            params = <div>
-                <h1>Forêt d'arbres décisionnels</h1>
                 <Form.Group>
-                    <Header as='h4'>Entrer Votre Nombre d'arbre : </Header>
-                    <Input placeholder="Nombre d'arbre"   type="number" onChange={this.onChangeNombreArbre.bind(this)} />
+                    <Form.Field>
+                        <Header as='h3'>Entrer Votre Nombre d'arbre : </Header>
+                        <Input placeholder="Nombre d'arbre" type="number" onChange={this.onChangeNombreArbre.bind(this)} />
+                    </Form.Field>
                 </Form.Group>
             </div>;
         else if (algorithme === 'svm')
             params = <div>
-                <h1>Machine à vecteurs de support</h1>
-                <Header as='h4'>Selectionner Votre Kernel:</Header>
+                <Header as='h3'>Selectionner Votre Kernel:</Header>
                 <Form.Group>
                     <Form.Field>
                         <Select placeholder="Kernel" options={kernel} onChange={this.onKernelChange.bind(this)} />
                     </Form.Field>
                 </Form.Group>
             </div>;
-        else if (algorithme === 'naive_bayes')
-            params = <div>
-                <h1>Classification naïve bayésienne</h1>
-            </div>;
-        else if (algorithme === 'Régression linéaire multiple')
-            params = <div>
-                <h1>Régression linéaire multiple</h1>
-            </div>;
+        else if (algorithme === "decision_tree" || algorithme === "naive_bayes" || algorithme === "mlr")
+            params = null;
         return (
             <React.Fragment>
                 <Segment>
-                    <Form>
-                        <Grid columns={2}>
+                    <Form onSubmit={this.onSubmit}>
+                        <Grid columns={3}>
                             <Grid.Column>
-                                <Header as='h4'>Selectionner Votre Algo:</Header>
-                                <Form.Group>
-                                    <Form.Field>
-                                        <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
-                                    </Form.Field>
-                                </Form.Group>
-                                {this.state.show ?
+                                <Form.Field>
+                                    <Header as='h3'>Sélectionner Votre Algorithme :</Header>
                                     <Form.Group>
-                                        <Form.Group>
-                                            <SelectOptions onChange={this.onOptionChange.bind(this)}
-                                                options={fields}
-                                                placeholder="Choisir les colonnes" name="selected_columns"
-                                                label="Choisir les colonnes" />
-                                        </Form.Group>
-                                    </Form.Group> : null}
+                                        <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
+                                    </Form.Group>
+                                </Form.Field>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <Form.Field>
+                                    <Header as='h3'>
+                                        Choisir les colonnes :</Header>
+                                    <Form.Group widths='equal'>
+                                        <Dropdown
+                                            multiple
+                                            selection
+                                            width={16}
+                                            onChange={this.onOptionChange.bind(this)}
+                                            options={fields}
+                                            placeholder="Choisir les colonnes"
+                                            name="selected_columns"
+                                            renderLabel={renderLabel} />
+                                    </Form.Group>
+                                </Form.Field>
                             </Grid.Column>
                             {this.state.show ? <Grid.Column>
                                 <Form.Field>
-                                    <Header as='h4'>Target</Header>
+                                    <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Cible :</Header>
                                     <Segment compact>
                                         <Form.Field>
                                             <Radio toggle name={this.state.target} value={this.state.target} checked={this.state.target}
@@ -184,15 +267,40 @@ class MachineLearning extends Component {
                                     </Segment>
                                 </Form.Field>
                                 <Form.Field>
-                                    <Button loading={this.state.loading} color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
-                                        Envoyer
-                                </Button>
+                                    <Button style={{ margin: "5px" }} loading={this.state.loading} color='teal' type='submit'>
+                                        Envoyer </Button>
                                 </Form.Field>
                             </Grid.Column> : null}
-                            <Grid.Column>
-                            </Grid.Column>
                         </Grid>
                         {params}
+                        {this.state.showHeader ? <Header style={{ color: "#009688", 'font-family': "Times new Roman" }} as='h2'>
+                            Saisir les information de candidat pour obtenir ça mention où ça moyenne : </Header> : null}
+                        <Form.Group widths='equal'>
+                            {this.featureExists('genre') ? <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
+                                placeholder='Genre' name="genre" value={this.state.genre} /> : null}
+                            {this.featureExists('age') ? <Form.Input title='Age' fluid label='Age' onChange={this.onCandidatChange}
+                                placeholder='Age' name="age" value={this.state.age} /> : null}
+                            {this.featureExists('typebac') ? <Form.Select title='Type de Bac' fluid label='Type de Bac' onChange={this.onCandidatChange} options={this.formatOptions(this.state.typesbac)}
+                                placeholder='Type de Bac' name="typebac" value={this.state.typebac} /> : null}
+                            {this.featureExists('mentionbac') ? <Form.Select title='Mention de bac' fluid label='Mention de bac' onChange={this.onCandidatChange} options={mentionsbac}
+                                placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} /> : null}
+                        </Form.Group>
+                        <Form.Group widths='equal'>
+                            {this.featureExists('dureeformation') ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
+                                placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} /> : null}
+                            {this.featureExists('moyenneformation') ? <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de formation' name="moyenneformation" value={this.state.moyenneformation} /> : null}
+                            {this.featureExists('moyennepreselection') ? <Form.Input title='Moyenne preselection' fluid label='Moyenne de preselection' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de preselection' name="moyennepreselection" value={this.state.moyennepreselection} /> : null}
+                            {this.featureExists('moyenneconcours') ? <Form.Input title='Moyenne de concours' fluid label='Moyenne de concours' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de concours' name="moyenneconcours" value={this.state.moyenneconcours} /> : null}
+                        </Form.Group>
+                        <Form.Field>
+                            {this.state.showHeader ?
+                                <Button loading={this.state.loading} color='teal' type='submit' onClick={this.onSubmit}>
+                                    Calculer
+                                </Button> : null}
+                        </Form.Field>
                     </Form>
                 </Segment>
             </React.Fragment>
