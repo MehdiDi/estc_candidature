@@ -1,6 +1,7 @@
 * {
     box-sizing: border-box;
-    font-family: 'Helvetica', sans-serif;
+    font-family: 'Times new Roman', sans-serif;
+    font-size: 16px
   }
   
   .container {
@@ -9,15 +10,7 @@
     margin: 10px auto;
   }
   
-  .csv-input {
-    padding: 10px;
-    display: block;
-    margin: 15px auto;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .container p {
-    padding-top: 10px;
-    color: #666;
+  .headerStyle{
+    color:"#009688";
+    font-family:"Times new Roman"
   }

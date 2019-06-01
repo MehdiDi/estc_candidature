@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Icon } from 'semantic-ui-react'
-import SelectOptions from "../statistics/SelectOptions.js";
+import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Dropdown } from 'semantic-ui-react'
 import axios from 'axios'
-import CSVReader from 'react-csv-reader'
-import "./styles.css";
+import Classes from "../machine_learning/styles.css"
 
 
 class MachineLearning extends Component {
@@ -103,18 +101,14 @@ class MachineLearning extends Component {
             features: this.state.selected_columns,
             target: this.state.target,
             JsonData: this.state.DataJson,
+            candidat: this.state.listDescription,
             params,
-            candidat: this.state.listDescription
-
         };
         console.log(postData);
         axios.post('http://localhost:8000/predict/', postData)
             .then(resp => console.log(resp))
             .catch(err => console.log(err));
     };
-    handleForce = data => {
-        this.setState({ DataJson: JSON.stringify(data) })
-    }
     onCandidatChange = (e, el) => {
 
 
@@ -147,6 +141,11 @@ class MachineLearning extends Component {
     };
 
     render() {
+        const renderLabel = label => ({
+            color: 'blue',
+            content: `${label.text}`,
+            icon: 'check',
+        });
         const dureesformation = [
             {
                 key: 1,
@@ -226,15 +225,17 @@ class MachineLearning extends Component {
         else if (algorithme === "random_forest")
             params = <div>
                 <h1>Forêt d'arbres décisionnels</h1>
-                <Form.Group>d
-                    <Header as='h4'>Entrer Votre Nombre d'arbre : </Header>
-                    <Input placeholder="Nombre d'arbre" type="number" onChange={this.onChangeNombreArbre.bind(this)} />
+                <Form.Group>
+                    <Form.Field>
+                        <Header as='h4' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Entrer Votre Nombre d'arbre : </Header>
+                        <Input placeholder="Nombre d'arbre" type="number" onChange={this.onChangeNombreArbre.bind(this)} />
+                    </Form.Field>
                 </Form.Group>
             </div>;
         else if (algorithme === 'svm')
             params = <div>
                 <h1>Machine à vecteurs de support</h1>
-                <Header as='h4'>Selectionner Votre Kernel:</Header>
+                <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Selectionner Votre Kernel:</Header>
                 <Form.Group>
                     <Form.Field>
                         <Select placeholder="Kernel" options={kernel} onChange={this.onKernelChange.bind(this)} />
@@ -249,10 +250,14 @@ class MachineLearning extends Component {
             params = <div>
                 <h1>Régression linéaire multiple</h1>
             </div>;
+
+
         return (
             <React.Fragment>
                 <Segment>
                     <Form>
+                        <Header style={{ color: "#009688", 'font-family': "Times new Roman" }} as='h2'>
+                            Saisir les information de candidat pour obtenir ça mention où ça moyenne  :</Header>
                         <Form.Group widths='equal'>
                             <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
                                 placeholder='Genre' name="genre" value={this.state.genre} />
@@ -279,25 +284,30 @@ class MachineLearning extends Component {
                         </Form.Group>
                         <Grid columns={2}>
                             <Grid.Column>
-                                <Header as='h4'>Selectionner Votre Algo:</Header>
+                                <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >Sélectionner Votre Algorithme :</Header>
                                 <Form.Group>
-                                    <Form.Field>
-                                        <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
-                                    </Form.Field>
+                                    <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
                                 </Form.Group>
                                 {this.state.show ?
-                                    <Form.Group>
+                                    <Form.Field>
+                                        <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >
+                                            Choisir les colonnes :</Header>
                                         <Form.Group>
-                                            <SelectOptions onChange={this.onOptionChange.bind(this)}
+                                            <Dropdown
+                                                multiple
+                                                selection
+                                                width={16}
+                                                onChange={this.onOptionChange.bind(this)}
                                                 options={fields}
-                                                placeholder="Choisir les colonnes" name="selected_columns"
-                                                label="Choisir les colonnes" />
+                                                placeholder="Choisir les colonnes"
+                                                name="selected_columns"
+                                                renderLabel={renderLabel} />
                                         </Form.Group>
-                                    </Form.Group> : null}
+                                    </Form.Field> : null}
                             </Grid.Column>
                             {this.state.show ? <Grid.Column>
                                 <Form.Field>
-                                    <Header as='h4'>Target</Header>
+                                    <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Cible :</Header>
                                     <Segment compact>
                                         <Form.Field>
                                             <Radio toggle name={this.state.target} value={this.state.target} checked={this.state.target}
@@ -315,14 +325,6 @@ class MachineLearning extends Component {
                             </Grid.Column>
                         </Grid>
                         {params}
-                        <Header as='h4'>Select CSV Files :</Header>
-                        <CSVReader
-                            cssClass="csv-reader-input"
-                            label=""
-                            onFileLoaded={this.handleForce}
-                            onError={this.handleDarkSideForce}
-                            inputStyle={{ color: 'red' }}
-                        />
                     </Form>
                 </Segment>
             </React.Fragment>
