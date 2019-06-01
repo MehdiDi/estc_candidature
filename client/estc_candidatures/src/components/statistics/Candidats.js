@@ -263,10 +263,7 @@ class Candidats extends Component {
     render() {
 
         return (
-            <Segment style={{
-                minHeight: '100vh',
-                marginTop: '-1rem'
-            }}>
+            <React.Fragment>
                 <Dimmer active={this.state.loading}>
                     <Loader size='small'>
                         Chargement..
@@ -328,7 +325,7 @@ class Candidats extends Component {
                                 </Button>
                     </Form.Field>
                 </Form>
-                <Button style={{ margin: '10px 0 0' }}
+                <Button style={{ margin: '10px 0 0', width: '5%' }}
                     icon='download'
                     onClick={this.saveChart.bind(this)} />
                 <Grid>
@@ -348,7 +345,7 @@ class Candidats extends Component {
 
                     </Grid.Row>
                 </Grid>
-            </Segment>
+            </React.Fragment>
         )
     }
 }

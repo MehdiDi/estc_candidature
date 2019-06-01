@@ -187,11 +187,7 @@ class EtudiantStatistics extends Component {
         ));
 
         return (
-            <Segment style={{
-                marginLeft: '1rem',
-                minHeight: '100vh',
-                marginTop: '-1rem'
-            }}>
+            <React.Fragment>
                 <Form method='GET' onSubmit={this.onSubmit.bind(this)}>
                     <Grid columns={2}>
                         <Grid.Column>
@@ -272,7 +268,7 @@ class EtudiantStatistics extends Component {
                         <Graph chart="chart_etudiants" />
                     </Grid.Row>
                 </Grid>
-            </Segment>
+            </React.Fragment>
         );
     }
 }

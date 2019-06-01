@@ -280,10 +280,7 @@ class MoyStatistics extends Component {
         });
 
         return (
-            <Segment style={{
-                minHeight: '100vh',
-                marginTop: '-1rem'
-            }}>
+            <React.Fragment>
                 <Segment placeholder>
                     <Button as='a' color='teal' id='downloadImage' download='chart.png' href='#' onClick={this.onDownload}
                         content='Telecharger' icon='download' labelPosition='right' />
@@ -376,7 +373,7 @@ class MoyStatistics extends Component {
                         </Form>
                     </Grid.Row>
                 </Grid>
-            </Segment>
+            </React.Fragment>
         );
     }
 }

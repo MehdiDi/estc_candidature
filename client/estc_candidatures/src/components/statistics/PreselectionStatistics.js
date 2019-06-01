@@ -213,10 +213,7 @@ class PreselectionStatistics extends Component {
             }
         ));
         return (
-            <Segment style={{
-                minHeight: '100vh',
-                marginTop: '-1rem'
-            }}>
+            <React.Fragment>
                 <Form onSubmit={this.onSubmit.bind(this)}>
                     <Grid columns={2}>
                         <Grid.Column>
@@ -318,7 +315,7 @@ class PreselectionStatistics extends Component {
                         <Graph chart="chart_etudiants" />
                     </Grid.Row>
                 </Grid>
-            </Segment>
+            </React.Fragment>
         );
     }
 }
