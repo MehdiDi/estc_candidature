@@ -380,6 +380,12 @@ class PredictCandidats(APIView):
             model, p = decision_tree(t_df, cols, target)
             print(model)
         elif algo == 'random_forest':
-            model, p = random_forest(t_df, cols, target, params['nb_arbres'])
+            model, p = random_forest(t_df, cols, target, int(params['nb_arbres']))
+        elif algo == 'svm':
+            model, p = svm(t_df, cols, target, params['kernel'])
+        elif algo == 'naive_bayes':
+            model, p = naive_bayes(t_df, cols, target)
+
+        print(p)
 
         return Response("ok")

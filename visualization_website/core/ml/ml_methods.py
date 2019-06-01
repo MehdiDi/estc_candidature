@@ -136,7 +136,7 @@ def decision_tree(dataset, inputs, target):
 def random_forest(dataset, inputs, target, trees=5):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     sc = StandardScaler()
     X_train = sc.fit_transform(X_train)
@@ -152,7 +152,7 @@ def random_forest(dataset, inputs, target, trees=5):
 def naive_bayes(dataset, inputs, target):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     model = MultinomialNB().fit(X_train, y_train)
     y_pred = model.predict(X_test)
@@ -163,7 +163,7 @@ def naive_bayes(dataset, inputs, target):
 def svm(dataset, inputs, target, kernel='poly'):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     model = SVC(kernel=kernel, gamma='auto')
     model.fit(X_train, y_train)

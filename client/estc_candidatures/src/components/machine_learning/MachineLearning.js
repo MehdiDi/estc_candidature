@@ -75,10 +75,10 @@ class MachineLearning extends Component {
 
     onSubmit = () => {
         const params = {};
-        if(this.state.algorithme === "Forêt d'arbres décisionnels") {
+        if(this.state.algorithme === "random_forest") {
             params['nb_arbres'] = this.state.NombreArbre;
         }
-        else if(this.state.algorithme === "Machine à vecteurs de support") {
+        else if(this.state.algorithme === "svm") {
             params['kernel'] = this.state.kernel;
         }
         const postData = {
@@ -102,8 +102,8 @@ class MachineLearning extends Component {
         ];
         const kernel = [
             { key: 'a', text: 'linear', value: "linear" },
-            { key: 'b', text: 'polynomial', value: "polynomial" },
-            { key: 'c', text: 'gaussian', value: "gaussian" },
+            { key: 'b', text: 'polynomial', value: "poly" },
+            { key: 'c', text: 'gaussian', value: "rbf" },
             { key: 'd', text: 'sigmoid', value: "sigmoid" },
         ];
         const fields = [
@@ -121,11 +121,11 @@ class MachineLearning extends Component {
         ];
         const { algorithme } = this.state;
         let params;
-        if (algorithme === 'Arbre de décision')
+        if (algorithme === 'decision_tree')
             params = <div>
                 <h1>Arbre de décision</h1>
             </div>;
-        else if (algorithme === "Forêt d'arbres décisionnels")
+        else if (algorithme === "random_forest")
             params = <div>
                 <h1>Forêt d'arbres décisionnels</h1>
                 <Form.Group>
@@ -133,7 +133,7 @@ class MachineLearning extends Component {
                     <Input placeholder="Nombre d'arbre"   type="number" onChange={this.onChangeNombreArbre.bind(this)} />
                 </Form.Group>
             </div>;
-        else if (algorithme === 'Machine à vecteurs de support')
+        else if (algorithme === 'svm')
             params = <div>
                 <h1>Machine à vecteurs de support</h1>
                 <Header as='h4'>Selectionner Votre Kernel:</Header>
@@ -143,7 +143,7 @@ class MachineLearning extends Component {
                     </Form.Field>
                 </Form.Group>
             </div>;
-        else if (algorithme === 'Classification naïve bayésienne')
+        else if (algorithme === 'naive_bayes')
             params = <div>
                 <h1>Classification naïve bayésienne</h1>
             </div>;
