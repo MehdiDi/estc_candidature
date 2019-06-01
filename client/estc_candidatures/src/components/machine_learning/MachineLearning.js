@@ -4,6 +4,80 @@ import axios from 'axios'
 import Classes from "../machine_learning/styles.css"
 
 
+let params;
+const renderLabel = label => ({
+    color: 'blue',
+    content: `${label.text}`,
+    icon: 'check',
+});
+const dureesformation = [
+    {
+        key: 1,
+        text: 'Normal',
+        value: 'Normale',
+    },
+    {
+        key: 2,
+        text: 'Redoublé 1 an',
+        value: 'redouble 1 an'
+    },
+    {
+        key: 3,
+        text: 'Redoublé 2 ans ou plus',
+        value: 'redouble 2 ans ou plus'
+    }
+];
+const Genre = [
+    { key: 'm', text: 'Homme', value: 'homme' },
+    { key: 'f', text: 'Femme', value: 'femme' },
+]
+const mentionsbac = [
+    {
+        key: 1,
+        text: 'Passable',
+        value: 'Passable'
+    },
+    {
+        key: 2,
+        text: 'Assez Bien',
+        value: 'Assez Bien'
+    },
+
+    {
+        key: 3,
+        text: 'Bien',
+        value: 'Bien'
+    },
+    {
+        key: 4,
+        text: 'Tres Bien',
+        value: 'Tres Bien'
+    },
+];
+const algo = [
+    { key: 'a', text: 'Arbre de décision', value: "decision_tree" },
+    { key: 'b', text: "Forêt d'arbres décisionnels", value: "random_forest" },
+    { key: 'c', text: 'Machine à vecteurs de support', value: 'svm' },
+    { key: 'd', text: 'Classification naïve bayésienne', value: 'naive_bayes' },
+    { key: 'e', text: 'Régression linéaire multiple', value: 'Régression linéaire multiple' },
+];
+const kernel = [
+    { key: 'a', text: 'linear', value: "linear" },
+    { key: 'b', text: 'polynomial', value: "polynomial" },
+    { key: 'c', text: 'gaussian', value: "gaussian" },
+    { key: 'd', text: 'sigmoid', value: "sigmoid" },
+];
+const fields = [
+    { key: 'a', text: 'Genre', value: 'genre' },
+    { key: 'b', text: 'Age', value: 'age' },
+    { key: 'c', text: 'Type Bac', value: 'typebac' },
+    { key: 'd', text: 'Mention bac', value: 'mentionbac' },
+    { key: 'e', text: 'Nom ville', value: 'residence' },
+    { key: 'f', text: 'Durée formation', value: 'dureeformation' },
+    { key: 'g', text: 'Moyenne formation', value: 'moyformation' },
+    { key: 'h', text: 'Moyenne préselection', value: 'excel' },
+    { key: 'i', text: 'Moyenne concours', value: 'concours' },
+];
 class MachineLearning extends Component {
 
     constructor(props) {
@@ -20,6 +94,15 @@ class MachineLearning extends Component {
             candidats: [],
             listDescription: [],
             typesbac: [],
+            genreShow: false,
+            typedebacShow: false,
+            mentionShow: false,
+            residenceShow: false,
+            durreShow: false,
+            moyShow: false,
+            excelShow: false,
+            ConcoursShow: false,
+            showHeader: false
         }
     }
     async componentDidMount() {
@@ -71,6 +154,7 @@ class MachineLearning extends Component {
                 this.setState({ group_columns: opts });
             }
         });
+
     };
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
@@ -88,6 +172,40 @@ class MachineLearning extends Component {
             NombreArbre: value,
         });
     };
+    onShow = () => {
+        let features = this.state.selected_columns
+        this.setState({ genreShow: false })
+        this.setState({ ageShow: false })
+        this.setState({ typedebacShow: false })
+        this.setState({ mentionShow: false })
+        this.setState({ residenceShow: false })
+        this.setState({ durreShow: false })
+        this.setState({ moyShow: false })
+        this.setState({ excelShow: false })
+        this.setState({ ConcoursShow: false })
+        this.setState({ showHeader: false })
+        for (let i = 0; i < features.length; i++) {
+            this.setState({ showHeader: true })
+            if (features[i] === 'genre')
+                this.setState({ genreShow: true })
+            if (features[i] === 'age')
+                this.setState({ ageShow: true })
+            if (features[i] === 'typebac')
+                this.setState({ typedebacShow: true })
+            if (features[i] === 'mentionbac')
+                this.setState({ mentionShow: true })
+            if (features[i] === 'residence')
+                this.setState({ residenceShow: true })
+            if (features[i] === 'dureeformation')
+                this.setState({ durreShow: true })
+            if (features[i] === 'moyformation')
+                this.setState({ moyShow: true })
+            if (features[i] === 'excel')
+                this.setState({ excelShow: true })
+            if (features[i] === 'concours')
+                this.setState({ ConcoursShow: true })
+        }
+    }
     onSubmit = () => {
         const params = {};
         if (this.state.algorithme === "decision_tree") {
@@ -110,11 +228,8 @@ class MachineLearning extends Component {
             .catch(err => console.log(err));
     };
     onCandidatChange = (e, el) => {
-
-
         const candidats = Object.assign({}, this.state.candidats);
         const listDescription = this.state.listDescription;
-
 
         const val = el.value;
         const name = el.name;
@@ -141,90 +256,9 @@ class MachineLearning extends Component {
     };
 
     render() {
-        const renderLabel = label => ({
-            color: 'blue',
-            content: `${label.text}`,
-            icon: 'check',
-        });
-        const dureesformation = [
-            {
-                key: 1,
-                text: 'Normal',
-                value: 'Normale',
-            },
-            {
-                key: 2,
-                text: 'Redoublé 1 an',
-                value: 'redouble 1 an'
-            },
-            {
-                key: 3,
-                text: 'Redoublé 2 ans ou plus',
-                value: 'redouble 2 ans ou plus'
-            }
-        ];
-        const Genre = [
-            { key: 'm', text: 'Homme', value: 'homme' },
-            { key: 'f', text: 'Femme', value: 'femme' },
-        ]
-        const mentionsbac = [
-            {
-                key: 1,
-                text: 'Passable',
-                value: 'Passable'
-            },
-            {
-                key: 2,
-                text: 'Assez Bien',
-                value: 'Assez Bien'
-            },
-
-            {
-                key: 3,
-                text: 'Bien',
-                value: 'Bien'
-            },
-            {
-                key: 4,
-                text: 'Tres Bien',
-                value: 'Tres Bien'
-            },
-        ];
-        const algo = [
-            { key: 'a', text: 'Arbre de décision', value: "decision_tree" },
-            { key: 'b', text: "Forêt d'arbres décisionnels", value: "random_forest" },
-            { key: 'c', text: 'Machine à vecteurs de support', value: 'svm' },
-            { key: 'd', text: 'Classification naïve bayésienne', value: 'naive_bayes' },
-            { key: 'e', text: 'Régression linéaire multiple', value: 'Régression linéaire multiple' },
-        ];
-        const kernel = [
-            { key: 'a', text: 'linear', value: "linear" },
-            { key: 'b', text: 'polynomial', value: "polynomial" },
-            { key: 'c', text: 'gaussian', value: "gaussian" },
-            { key: 'd', text: 'sigmoid', value: "sigmoid" },
-        ];
-        const fields = [
-            { key: 'a', text: 'Genre', value: 'genre' },
-            { key: 'b', text: 'Age', value: 'age' },
-            { key: 'c', text: 'Type Bac', value: 'typebac' },
-            { key: 'd', text: 'Mention bac', value: 'mentionbac' },
-            { key: 'e', text: 'Nom ville', value: 'residence' },
-            { key: 'f', text: 'Durée formation', value: 'dureeformation' },
-            { key: 'g', text: 'Moyenne formation', value: 'moyformation' },
-            { key: 'h', text: 'Moyenne préselection', value: 'excel' },
-            { key: 'i', text: 'Moyenne concours', value: 'concours' },
-            { key: 'j', text: 'Moyenne année', value: 'moyenneannee' },
-            { key: 'k', text: 'Mention année', value: 'mentionannee' },
-        ];
         const { algorithme } = this.state;
-        let params;
-        if (algorithme === 'decision_tree')
+        if (algorithme === "random_forest")
             params = <div>
-                <h1>Arbre de décision</h1>
-            </div>;
-        else if (algorithme === "random_forest")
-            params = <div>
-                <h1>Forêt d'arbres décisionnels</h1>
                 <Form.Group>
                     <Form.Field>
                         <Header as='h4' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Entrer Votre Nombre d'arbre : </Header>
@@ -234,7 +268,6 @@ class MachineLearning extends Component {
             </div>;
         else if (algorithme === 'svm')
             params = <div>
-                <h1>Machine à vecteurs de support</h1>
                 <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Selectionner Votre Kernel:</Header>
                 <Form.Group>
                     <Form.Field>
@@ -242,68 +275,33 @@ class MachineLearning extends Component {
                     </Form.Field>
                 </Form.Group>
             </div>;
-        else if (algorithme === 'naive_bayes')
-            params = <div>
-                <h1>Classification naïve bayésienne</h1>
-            </div>;
-        else if (algorithme === 'Régression linéaire multiple')
-            params = <div>
-                <h1>Régression linéaire multiple</h1>
-            </div>;
-
-
         return (
             <React.Fragment>
                 <Segment>
                     <Form>
-                        <Header style={{ color: "#009688", 'font-family': "Times new Roman" }} as='h2'>
-                            Saisir les information de candidat pour obtenir ça mention où ça moyenne  :</Header>
-                        <Form.Group widths='equal'>
-                            <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
-                                placeholder='Genre' name="genre" value={this.state.genre} />
-                            <Form.Input title='Age' fluid label='Age' onChange={this.onCandidatChange}
-                                placeholder='Age' name="age" value={this.state.age} />
-                            <Form.Select title='Type de Bac' fluid label='Type de Bac' onChange={this.onCandidatChange} options={this.formatOptions(this.state.typesbac)}
-                                placeholder='Type de Bac' name="typebac" value={this.state.typebac} />
-                        </Form.Group>
-                        <Form.Group widths='equal'>
-                            <Form.Select title='Mention de bac' fluid label='Mention de bac' onChange={this.onCandidatChange} options={mentionsbac}
-                                placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} />
-                            <Form.Input title='Nom de ville' fluid label='Nom de ville' onChange={this.onCandidatChange}
-                                placeholder='Nom de ville' name="ville" value={this.state.ville} />
-                            <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
-                                placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} />
-                        </Form.Group>
-                        <Form.Group widths='equal'>
-                            <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
-                                placeholder='Moyenne de formation' name="moyenneformation" value={this.state.moyenneformation} />
-                            <Form.Input title='Moyenne de preselection' fluid label='Moyenne de preselection' onChange={this.onCandidatChange}
-                                placeholder='Moyenne de preselection' name="moyennepreselection" value={this.state.moyennepreselection} />
-                            <Form.Input title='Moyenne de concours' fluid label='Moyenne de concours' onChange={this.onCandidatChange}
-                                placeholder='Moyenne de concours' name="moyenneconcours" value={this.state.moyenneconcours} />
-                        </Form.Group>
-                        <Grid columns={2}>
+                        <Grid columns={3}>
                             <Grid.Column>
                                 <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >Sélectionner Votre Algorithme :</Header>
                                 <Form.Group>
                                     <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
                                 </Form.Group>
-                                {this.state.show ?
-                                    <Form.Field>
-                                        <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >
-                                            Choisir les colonnes :</Header>
-                                        <Form.Group>
-                                            <Dropdown
-                                                multiple
-                                                selection
-                                                width={16}
-                                                onChange={this.onOptionChange.bind(this)}
-                                                options={fields}
-                                                placeholder="Choisir les colonnes"
-                                                name="selected_columns"
-                                                renderLabel={renderLabel} />
-                                        </Form.Group>
-                                    </Form.Field> : null}
+                            </Grid.Column>
+                            <Grid.Column>
+                                <Form.Field>
+                                    <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >
+                                        Choisir les colonnes :</Header>
+                                    <Form.Group widths='equal'>
+                                        <Dropdown
+                                            multiple
+                                            selection
+                                            width={16}
+                                            onChange={this.onOptionChange.bind(this)}
+                                            options={fields}
+                                            placeholder="Choisir les colonnes"
+                                            name="selected_columns"
+                                            renderLabel={renderLabel} />
+                                    </Form.Group>
+                                </Form.Field>
                             </Grid.Column>
                             {this.state.show ? <Grid.Column>
                                 <Form.Field>
@@ -316,15 +314,41 @@ class MachineLearning extends Component {
                                     </Segment>
                                 </Form.Field>
                                 <Form.Field>
-                                    <Button loading={this.state.loading} color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
-                                        Envoyer
-                                </Button>
+                                    <Button style={{ margin: "5px" }} loading={this.state.loading} color='teal' type='submit' onClick={this.onShow.bind(this)}>
+                                        Envoyer </Button>
                                 </Form.Field>
                             </Grid.Column> : null}
-                            <Grid.Column>
-                            </Grid.Column>
                         </Grid>
                         {params}
+                        {this.state.showHeader ? <Header style={{ color: "#009688", 'font-family': "Times new Roman" }} as='h2'>
+                            Saisir les information de candidat pour obtenir ça mention où ça moyenne : </Header> : null}
+                        <Form.Group widths='equal'>
+                            {this.state.genreShow ? <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
+                                placeholder='Genre' name="genre" value={this.state.genre} /> : null}
+                            {this.state.ageShow ? <Form.Input title='Age' fluid label='Age' onChange={this.onCandidatChange}
+                                placeholder='Age' name="age" value={this.state.age} /> : null}
+                            {this.state.typedebacShow ? <Form.Select title='Type de Bac' fluid label='Type de Bac' onChange={this.onCandidatChange} options={this.formatOptions(this.state.typesbac)}
+                                placeholder='Type de Bac' name="typebac" value={this.state.typebac} /> : null}
+                            {this.state.mentionShow ? <Form.Select title='Mention de bac' fluid label='Mention de bac' onChange={this.onCandidatChange} options={mentionsbac}
+                                placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} /> : null}
+                        </Form.Group>
+                        <Form.Group widths='equal'>
+                            {this.state.residenceShow ? <Form.Input title='Nom de ville' fluid label='Nom de ville' onChange={this.onCandidatChange}
+                                placeholder='Nom de ville' name="ville" value={this.state.ville} /> : null}
+                            {this.state.durreShow ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
+                                placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} /> : null}
+                            {this.state.moyShow ? <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de formation' name="moyenneformation" value={this.state.moyenneformation} /> : null}
+                            {this.state.excelShow ? <Form.Input title='Moyenne preselection' fluid label='Moyenne de preselection' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de preselection' name="moyennepreselection" value={this.state.moyennepreselection} /> : null}
+                            {this.state.ConcoursShow ? <Form.Input title='Moyenne de concours' fluid label='Moyenne de concours' onChange={this.onCandidatChange}
+                                placeholder='Moyenne de concours' name="moyenneconcours" value={this.state.moyenneconcours} /> : null}
+                        </Form.Group>
+                        <Form.Field>
+                            {this.state.showHeader ? <Button loading={this.state.loading} color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
+                                Calculer
+                                </Button> : null}
+                        </Form.Field>
                     </Form>
                 </Segment>
             </React.Fragment>
