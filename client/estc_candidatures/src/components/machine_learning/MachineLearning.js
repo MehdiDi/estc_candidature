@@ -59,7 +59,7 @@ const algo = [
     { key: 'b', text: "Forêt d'arbres décisionnels", value: "random_forest" },
     { key: 'c', text: 'Machine à vecteurs de support', value: 'svm' },
     { key: 'd', text: 'Classification naïve bayésienne', value: 'naive_bayes' },
-    { key: 'e', text: 'Régression linéaire multiple', value: 'Régression linéaire multiple' },
+    { key: 'e', text: 'Régression linéaire multiple', value: 'multiple_linear' },
 ];
 const kernel = [
     { key: 'a', text: 'linear', value: "linear" },
@@ -72,7 +72,6 @@ const fields = [
     { key: 'b', text: 'Age', value: 'age' },
     { key: 'c', text: 'Type Bac', value: 'typebac' },
     { key: 'd', text: 'Mention bac', value: 'mentionbac' },
-    { key: 'e', text: 'Nom ville', value: 'residence' },
     { key: 'f', text: 'Durée formation', value: 'dureeformation' },
     { key: 'g', text: 'Moyenne formation', value: 'moyformation' },
     { key: 'h', text: 'Moyenne préselection', value: 'excel' },
@@ -94,15 +93,6 @@ class MachineLearning extends Component {
             candidats: [],
             listDescription: [],
             typesbac: [],
-            genreShow: false,
-            typedebacShow: false,
-            mentionShow: false,
-            residenceShow: false,
-            durreShow: false,
-            moyShow: false,
-            excelShow: false,
-            ConcoursShow: false,
-            showHeader: false
         }
     }
     async componentDidMount() {
@@ -154,7 +144,6 @@ class MachineLearning extends Component {
                 this.setState({ group_columns: opts });
             }
         });
-
     };
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
@@ -163,7 +152,7 @@ class MachineLearning extends Component {
         if (value === 'decision_tree' || value === "random_forest" || value === "svm"
             || value === "naive_bayes")
             this.setState({ target: "mentionannee" });
-        else if (value === "Régression linéaire multiple")
+        else if (value === "multiple_linear")
             this.setState({ target: "moyenneannee" });
         this.setState({ show: true });
     };
@@ -178,7 +167,6 @@ class MachineLearning extends Component {
         this.setState({ ageShow: false })
         this.setState({ typedebacShow: false })
         this.setState({ mentionShow: false })
-        this.setState({ residenceShow: false })
         this.setState({ durreShow: false })
         this.setState({ moyShow: false })
         this.setState({ excelShow: false })
@@ -194,8 +182,6 @@ class MachineLearning extends Component {
                 this.setState({ typedebacShow: true })
             if (features[i] === 'mentionbac')
                 this.setState({ mentionShow: true })
-            if (features[i] === 'residence')
-                this.setState({ residenceShow: true })
             if (features[i] === 'dureeformation')
                 this.setState({ durreShow: true })
             if (features[i] === 'moyformation')
@@ -261,7 +247,7 @@ class MachineLearning extends Component {
             params = <div>
                 <Form.Group>
                     <Form.Field>
-                        <Header as='h4' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Entrer Votre Nombre d'arbre : </Header>
+                        <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Entrer Votre Nombre d'arbre : </Header>
                         <Input placeholder="Nombre d'arbre" type="number" onChange={this.onChangeNombreArbre.bind(this)} />
                     </Form.Field>
                 </Form.Group>
@@ -275,16 +261,20 @@ class MachineLearning extends Component {
                     </Form.Field>
                 </Form.Group>
             </div>;
+        else if (algorithme === "decision_tree" || algorithme === "naive_bayes" || algorithme === "multiple_linear")
+            params = null
         return (
             <React.Fragment>
                 <Segment>
                     <Form>
                         <Grid columns={3}>
                             <Grid.Column>
-                                <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >Sélectionner Votre Algorithme :</Header>
-                                <Form.Group>
-                                    <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
-                                </Form.Group>
+                                <Form.Field>
+                                    <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }} >Sélectionner Votre Algorithme :</Header>
+                                    <Form.Group>
+                                        <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
+                                    </Form.Group>
+                                </Form.Field>
                             </Grid.Column>
                             <Grid.Column>
                                 <Form.Field>
@@ -333,8 +323,6 @@ class MachineLearning extends Component {
                                 placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} /> : null}
                         </Form.Group>
                         <Form.Group widths='equal'>
-                            {this.state.residenceShow ? <Form.Input title='Nom de ville' fluid label='Nom de ville' onChange={this.onCandidatChange}
-                                placeholder='Nom de ville' name="ville" value={this.state.ville} /> : null}
                             {this.state.durreShow ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
                                 placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} /> : null}
                             {this.state.moyShow ? <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
@@ -352,7 +340,6 @@ class MachineLearning extends Component {
                     </Form>
                 </Segment>
             </React.Fragment>
-
         );
     }
 }
