@@ -41,7 +41,7 @@ def select_multiple_join(columns=[], tables=[]):
 
     if len(tables) > 1:
         for table in itter_table:
-            table_alias = (table if table != 'donnescandidat()' else 'don')
+            table_alias = (table if table != 'donneescandidat()' else 'don')
 
             join += " INNER JOIN " + table + " " + table_alias +" on " + alias + ".codecandidat="
             join += table_alias + ".codecandidat"

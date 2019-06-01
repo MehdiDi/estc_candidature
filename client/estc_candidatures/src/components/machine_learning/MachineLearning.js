@@ -62,8 +62,8 @@ const algo = [
 ];
 const kernel = [
     { key: 'a', text: 'linear', value: "linear" },
-    { key: 'b', text: 'polynomial', value: "polynomial" },
-    { key: 'c', text: 'gaussian', value: "gaussian" },
+    { key: 'b', text: 'polynomial', value: "poly" },
+    { key: 'c', text: 'gaussian', value: "rbf" },
     { key: 'd', text: 'sigmoid', value: "sigmoid" },
 ];
 const fields = [
@@ -253,7 +253,7 @@ class MachineLearning extends Component {
                             </Grid.Column> : null}
                         </Grid>
                         {params}
-                        {this.state.showHeader ? <Header style={{ color: "#009688", 'font-family': "Times new Roman" }} as='h2'>
+                        {this.state.showHeader ? <Header as='h2' color='teal'>
                             Saisir les information de candidat pour obtenir ça mention où ça moyenne : </Header> : null}
                         <Form.Group widths='equal'>
                             {this.featureExists('genre') ? <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
