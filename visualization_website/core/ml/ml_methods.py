@@ -172,10 +172,22 @@ def svm(dataset, inputs, target, kernel='poly'):
     return model, metrics.accuracy_score(y_test, y_pred)
 
 
+# def mlr(dataset, inputs, target):
+#     X = dataset[inputs]  # Features
+#     y = target  # Target variable
+#     X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, :-1], test_size=0.2, random_state=1)
+#
+#     model = linear_model.LinearRegression()
+#     model.fit(X_train, y_train)
+#     y_pred = model.predict(X_test)
+#
+#     return model, metrics.mean_squared_error(y_test, y_pred)
+
+
 def mlr(dataset, inputs, target):
     X = dataset[inputs]  # Features
     y = target  # Target variable
-    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, :-1], test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X.iloc[:, :-1], X.iloc[:, -1], test_size=0.2, random_state=1)
 
     model = linear_model.LinearRegression()
     model.fit(X_train, y_train)

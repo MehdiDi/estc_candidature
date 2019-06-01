@@ -355,7 +355,7 @@ class PredictCandidats(APIView):
         for f in features:
 
             if f in candidats_data:
-                cols.append(f)
+                cols.append('don.' + f)
                 if 'donneescandidat()' not in tables:
                     tables.append('donneescandidat()')
             else:
@@ -378,10 +378,11 @@ class PredictCandidats(APIView):
         sql = select_multiple_join(cols, tables)
 
         df = pd.read_sql(sql, connection)
-        df = df[cols]
 
         t_df = transform(df)
-
+        for i, col in enumerate(cols):
+            split = col.split('.')
+            cols[i] = split[1] if len(split) > 1 else split[0]
         if algo == 'decision_tree':
             model, p = decision_tree(t_df, cols, target)
         elif algo == 'random_forest':
@@ -392,19 +393,29 @@ class PredictCandidats(APIView):
             model, p = naive_bayes(t_df, cols, target)
         elif algo == 'mlr':
             model, p = mlr(t_df, cols, target)
+            print(p)
 
         candidat_data = request.data['candidat']
-
         values = dict()
+
+        # structurer les donnees dans values pour creer un dataframe et obtenir les valeurs str, int, float
         for i, f in enumerate(features):
             if f != target:
-                val = candidat_data[f] if algo != 'mlr' else float(candidat_data[f])
+                v = candidat_data[f]
+                val = float(v) if isfloat(v) else int(v) if isint(v) else v
                 values[cols[i]] = val
-        df = pd.DataFrame([values])
+        #creer le dataframe pour l'encodage des variables categoriques
+        data = pd.DataFrame([values])
+        t_data = transform(data)
 
-        p = model.predict(transform(df))
+        # avoir la liste des données pour la prediction
+        vals = []
+        for i in t_data.iloc[0]:
+            vals.append(i)
+        p = model.predict([vals])
         val = 0
-        if target == 'mentionbac':
+
+        if target == 'mentionannee':
             for men in mention_codes:
                 if men['code'] == p:
                     val = men['text']
@@ -413,3 +424,19 @@ class PredictCandidats(APIView):
             val = p
 
         return Response({'prediction': val})
+
+
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
+def isint(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
