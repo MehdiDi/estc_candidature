@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Dropdown } from 'semantic-ui-react'
+import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Dropdown, Message } from 'semantic-ui-react'
 import axios from 'axios'
-
+import Classes from "../machine_learning/styles.css"
 
 let params;
 const renderLabel = label => ({
@@ -115,12 +115,12 @@ class MachineLearning extends Component {
         const options = el.value;
 
         const candidats = Object.assign({}, this.state.candidats);
-        for(let k in candidats) {
-            if(options.indexOf(k) === -1){
+        for (let k in candidats) {
+            if (options.indexOf(k) === -1) {
                 delete candidats[k];
             }
         }
-        this.setState({selected_columns: options, candidats})
+        this.setState({ selected_columns: options, candidats })
 
     };
     onChangeAlgoHundler = (e, { value }) => {
@@ -141,8 +141,8 @@ class MachineLearning extends Component {
     };
     featureExists = (f) => {
         const cols = this.state.selected_columns;
-        for(let i in cols) {
-            if(cols[i] === f)
+        for (let i in cols) {
+            if (cols[i] === f)
                 return true;
         }
         return false;
@@ -165,8 +165,9 @@ class MachineLearning extends Component {
         };
         console.log(this.state.candidats);
         axios.post('http://localhost:8000/predict/', postData)
-            .then(resp => console.log(resp.data.prediction))
+            .then(resp => this.setState({ resultat: resp.data.prediction }))
             .catch(err => console.log(err));
+        this.setState({ resultatShow: true })
     };
     onCandidatChange = (e, el) => {
         const candidats = Object.assign({}, this.state.candidats);
@@ -206,6 +207,14 @@ class MachineLearning extends Component {
             </div>;
         else if (algorithme === "decision_tree" || algorithme === "naive_bayes" || algorithme === "mlr")
             params = null;
+
+
+        let target
+        if (this.state.target === 'mentionannee')
+            target = 'Mention Prévu est :'
+        if (this.state.target === 'moyenneannee')
+            target = 'Moyenne Prévu est :'
+
         return (
             <React.Fragment>
                 <Segment>
@@ -213,7 +222,7 @@ class MachineLearning extends Component {
                         <Grid columns={3}>
                             <Grid.Column>
                                 <Form.Field>
-                                    <Header as='h3'>Sélectionner Votre Algorithme :</Header>
+                                    <Header as='h3' >Sélectionner Votre Algorithme :</Header>
                                     <Form.Group>
                                         <Select placeholder="Algorithme" options={algo} onChange={this.onChangeAlgoHundler.bind(this)} />
                                     </Form.Group>
@@ -238,7 +247,7 @@ class MachineLearning extends Component {
                             </Grid.Column>
                             {this.state.show ? <Grid.Column>
                                 <Form.Field>
-                                    <Header as='h3' style={{ color: "#009688", 'font-family': "Times new Roman" }}>Cible :</Header>
+                                    <Header as='h3' >Cible :</Header>
                                     <Segment compact>
                                         <Form.Field>
                                             <Radio toggle name={this.state.target} value={this.state.target} checked={this.state.target}
@@ -253,7 +262,7 @@ class MachineLearning extends Component {
                             </Grid.Column> : null}
                         </Grid>
                         {params}
-                        {this.state.showHeader ? <Header as='h2' color='teal'>
+                        {this.state.showHeader ? <Header as='h2'>
                             Saisir les information de candidat pour obtenir ça mention où ça moyenne : </Header> : null}
                         <Form.Group widths='equal'>
                             {this.featureExists('genre') ? <Form.Select title='Genre' fluid label='Genre' onChange={this.onCandidatChange} options={Genre}
@@ -264,20 +273,16 @@ class MachineLearning extends Component {
                                 placeholder='Type de Bac' name="typebac" value={this.state.typebac} /> : null}
                             {this.featureExists('mentionbac') ? <Form.Select title='Mention de bac' fluid label='Mention de bac' onChange={this.onCandidatChange} options={mentionsbac}
                                 placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} /> : null}
-                            {this.featureExists('moyformation') ?
-                                <Form.Input fluid label='Moyenne de formation' onChange={this.onCandidatChange}
+                        </Form.Group>
+                        <Form.Group widths='equal'>
+                            {this.featureExists('moyformation') ? <Form.Input fluid label='Moyenne de formation' onChange={this.onCandidatChange}
                                 placeholder='Mention de formation' name="moyformation" value={this.state.moyformation} /> : null}
                             {this.featureExists('excel') ? <Form.Input fluid label='Moyenne Préselection' onChange={this.onCandidatChange}
                                 placeholder='Moyenne Préselection' name="excel" value={this.state.excel} /> : null}
                             {this.featureExists('concours') ? <Form.Input fluid label='Moyenne concours' onChange={this.onCandidatChange}
-                            placeholder='Moyenne concours' name="concours" value={this.state.concours} /> : null}
-                        </Form.Group>
-                        <Form.Group widths='equal'>
+                                placeholder='Moyenne concours' name="concours" value={this.state.concours} /> : null}
                             {this.featureExists('dureeformation') ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
                                 placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} /> : null}
-                            {this.featureExists('moyenneformation') ? <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
-                                placeholder='Moyenne de formation' name="moyenneformation" value={this.state.moyenneformation} /> : null}
-
                         </Form.Group>
                         <Form.Field>
                             {this.state.showHeader ?
@@ -285,6 +290,10 @@ class MachineLearning extends Component {
                                     Calculer
                                 </Button> : null}
                         </Form.Field>
+                        {this.state.resultatShow ? <Form.Field>
+                            <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
+                                {target} {'"' + this.state.resultat + '"'}</Header>
+                        </Form.Field> : null}
                     </Form>
                 </Segment>
             </React.Fragment>
