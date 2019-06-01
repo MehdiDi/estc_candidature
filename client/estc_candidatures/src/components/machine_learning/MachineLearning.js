@@ -85,10 +85,9 @@ class MachineLearning extends Component {
             target: null,
             show: false,
             selected_columns: [],
-            group_columns: [],
             kernel: null,
             NombreArbre: null,
-            candidats: [],
+            candidats: {},
             listDescription: [],
             typesbac: [],
         }
@@ -113,35 +112,16 @@ class MachineLearning extends Component {
         });
     }
     onOptionChange = (ev, el) => {
-        this.setState({ [el.name]: el.value }, () => {
-            if (el.name === 'selected_columns') {
-                const options = el.options;
-                this.state.group_columns.length = 1;
-                let opts = [
-                    {
-                        key: -1,
-                        text: "Aucun",
-                        value: "-1"
-                    }
-                ];
-                if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
-                    this.setState({ count_column: null });
-                }
-                options.map(opt => {
-                    if (this.state.selected_columns.indexOf(opt.value) > -1) {
-                        opts.push(
-                            {
-                                key: opt.key,
-                                text: opt.text,
-                                value: opt.value
-                            }
-                        );
-                    }
-                    return null;
-                });
-                this.setState({ group_columns: opts });
+        const options = el.value;
+
+        const candidats = Object.assign({}, this.state.candidats);
+        for(let k in candidats) {
+            if(options.indexOf(k) === -1){
+                delete candidats[k];
             }
-        });
+        }
+        this.setState({selected_columns: options, candidats})
+
     };
     onChangeAlgoHundler = (e, { value }) => {
         this.setState({
@@ -183,7 +163,7 @@ class MachineLearning extends Component {
             candidat: this.state.candidats,
             params,
         };
-
+        console.log(this.state.candidats);
         axios.post('http://localhost:8000/predict/', postData)
             .then(resp => console.log(resp.data.prediction))
             .catch(err => console.log(err));
@@ -284,16 +264,20 @@ class MachineLearning extends Component {
                                 placeholder='Type de Bac' name="typebac" value={this.state.typebac} /> : null}
                             {this.featureExists('mentionbac') ? <Form.Select title='Mention de bac' fluid label='Mention de bac' onChange={this.onCandidatChange} options={mentionsbac}
                                 placeholder='Mention de bac' name="mentionbac" value={this.state.mentionbac} /> : null}
+                            {this.featureExists('moyformation') ?
+                                <Form.Input fluid label='Moyenne de formation' onChange={this.onCandidatChange}
+                                placeholder='Mention de formation' name="moyformation" value={this.state.moyformation} /> : null}
+                            {this.featureExists('excel') ? <Form.Input fluid label='Moyenne Préselection' onChange={this.onCandidatChange}
+                                placeholder='Moyenne Préselection' name="excel" value={this.state.excel} /> : null}
+                            {this.featureExists('concours') ? <Form.Input fluid label='Mention Concours' onChange={this.onCandidatChange}
+                            placeholder='Mention concours' name="concours" value={this.state.concours} /> : null}
                         </Form.Group>
                         <Form.Group widths='equal'>
                             {this.featureExists('dureeformation') ? <Form.Select title='Durée De Formation' fluid label='Durée De Formation' onChange={this.onCandidatChange} options={dureesformation}
                                 placeholder='Durée de Bac' name="dureeformation" value={this.state.dureeformation} /> : null}
                             {this.featureExists('moyenneformation') ? <Form.Input title='Moyenne de formation' fluid label='Moyenne de formation' onChange={this.onCandidatChange}
                                 placeholder='Moyenne de formation' name="moyenneformation" value={this.state.moyenneformation} /> : null}
-                            {this.featureExists('moyennepreselection') ? <Form.Input title='Moyenne preselection' fluid label='Moyenne de preselection' onChange={this.onCandidatChange}
-                                placeholder='Moyenne de preselection' name="moyennepreselection" value={this.state.moyennepreselection} /> : null}
-                            {this.featureExists('moyenneconcours') ? <Form.Input title='Moyenne de concours' fluid label='Moyenne de concours' onChange={this.onCandidatChange}
-                                placeholder='Moyenne de concours' name="moyenneconcours" value={this.state.moyenneconcours} /> : null}
+
                         </Form.Group>
                         <Form.Field>
                             {this.state.showHeader ?

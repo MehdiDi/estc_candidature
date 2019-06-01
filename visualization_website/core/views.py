@@ -384,9 +384,7 @@ class PredictCandidats(APIView):
 
         if algo == 'decision_tree':
             model, p = decision_tree(t_df, cols, target)
-            print(model)
         elif algo == 'random_forest':
-            print(params['nb_arbres'])
             model, p = random_forest(t_df, cols, target, int(params['nb_arbres']))
         elif algo == 'svm':
             model, p = svm(t_df, cols, target, params['kernel'])
@@ -398,17 +396,20 @@ class PredictCandidats(APIView):
         candidat_data = request.data['candidat']
 
         values = dict()
-        for col in cols:
-            if col != target:
-                values[col] = candidat_data[col]
+        for i, f in enumerate(features):
+            if f != target:
+                val = candidat_data[f] if algo != 'mlr' else float(candidat_data[f])
+                values[cols[i]] = val
         df = pd.DataFrame([values])
 
         p = model.predict(transform(df))
-        print(p)
-        val = None
-        for men in mention_codes:
-            if men['code'] == p:
-                val = men['text']
-                break
+        val = 0
+        if target == 'mentionbac':
+            for men in mention_codes:
+                if men['code'] == p:
+                    val = men['text']
+                    break
+        else:
+            val = p
 
         return Response({'prediction': val})

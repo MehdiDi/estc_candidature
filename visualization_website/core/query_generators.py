@@ -22,8 +22,8 @@ def get_table_data(key):
         'elmodule': {'col': 'note', 'table': 'obtenirelement'},
         'module': {'col': 'notemodule', 'table': 'obtenirmodule'},
         'moysemestre': {'col': 'moyennesemestre', 'table': 'resultatsemestre'},
-        'moyformation': {'col': 'moyenneformation', 'table': 'candidat_diplome_sup'}
-
+        'moyformation': {'col': 'moyenneformation', 'table': 'candidat_diplome_sup'},
+        'moyenneconcours': {'col': 'moyenneconcours', 'table': 'resultat'},
     }
 
     return tables[key]
