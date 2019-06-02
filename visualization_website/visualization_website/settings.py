@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'estc_candidatures',
         'USER': 'postgres',
-        'PASSWORD': 'root',
+        'PASSWORD': '123123',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
