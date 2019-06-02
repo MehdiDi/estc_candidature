@@ -412,18 +412,18 @@ class PredictCandidats(APIView):
         vals = []
         for i in t_data.iloc[0]:
             vals.append(i)
-        p = model.predict([vals])
+        pred = model.predict([vals])
         val = 0
 
         if target == 'mentionannee':
             for men in mention_codes:
-                if men['code'] == p:
+                if men['code'] == pred:
                     val = men['text']
                     break
         else:
-            val = p
+            val = pred
 
-        return Response({'prediction': val})
+        return Response({'prediction': val, 'precision': p})
 
 
 def isfloat(value):
