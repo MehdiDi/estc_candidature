@@ -35,7 +35,8 @@ class StatisticView(APIView):
         try:
             count_column = request.data['operation_column']
             columns.remove(count_column)
-            sql = create_aggregation_sql(columns, filters, count_column, 'donneescandidat()', 'count', False)
+            sql = create_aggregation_sql(
+                columns, filters, count_column, 'donneescandidat()', 'count', False)
 
         except Exception as e:
             sql = create_sql_candidats(columns, filters)
@@ -170,8 +171,8 @@ class NotesStatistic(APIView):
         join = table + ' ' + table_alias + ' INNER JOIN donneescandidat() c ON ' + \
             table_alias + '.codecandidat = c.codecandidat '
 
-
-        sql = create_aggregation_sql(['anneecandidature'], filters, column, join, op, False)
+        sql = create_aggregation_sql(
+            ['anneecandidature'], filters, column, join, op, False)
 
         cursor = connection.cursor()
         cursor.execute(sql)
@@ -208,7 +209,8 @@ class RapportCandidat(APIView):
 
         return_data = {}
 
-        sql = create_aggregation_sql('', {}, 'codecandidat', 'candidats', 'count', False)
+        sql = create_aggregation_sql(
+            '', {}, 'codecandidat', 'candidats', 'count', False)
 
         cursor = connection.cursor()
         cursor.execute(sql)
@@ -242,14 +244,16 @@ class RapportCandidat(APIView):
             return_data['excel'] = excel
 
         if 'mentionbac' in fields:
-            sql = create_aggregation_sql(['mentionbac'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
+            sql = create_aggregation_sql(
+                ['mentionbac'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
             cursor.execute(sql)
             res = dictfetchall(cursor)
             data, labels = format_data(res, 'mentionbac')
             return_data['mentionbac'] = {'labels': labels, 'data': data}
 
         if 'typebac' in fields:
-            sql = create_aggregation_sql(['typebac'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
+            sql = create_aggregation_sql(
+                ['typebac'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
             cursor.execute(sql)
             res = dictfetchall(cursor)
             data, labels = format_data(res, 'typebac')
@@ -259,7 +263,8 @@ class RapportCandidat(APIView):
             col = get_table_data('moyformation')['col']
             sql = "SELECT avg({}) as {} FROM candidat_diplome_sup c " \
                   "INNER JOIN donneescandidat() don ON don.codecandidat=c.codecandidat " \
-                  "INNER JOIN estselectionne es ON es.codecandidat=c.codecandidat".format(col, col)
+                  "INNER JOIN estselectionne es ON es.codecandidat=c.codecandidat".format(
+                      col, col)
             sql += filters_string
 
             cursor.execute(sql)
@@ -272,7 +277,8 @@ class RapportCandidat(APIView):
 
             sql = "SELECT avg({}) as {} FROM calculermoyenne c " \
                   "INNER JOIN donneescandidat() don ON don.codecandidat=c.codecandidat " \
-                  "INNER JOIN estselectionne es ON es.codecandidat=c.codecandidat".format(col, col)
+                  "INNER JOIN estselectionne es ON es.codecandidat=c.codecandidat".format(
+                      col, col)
 
             sql += filters_string
 
@@ -282,14 +288,16 @@ class RapportCandidat(APIView):
             return_data['selexcel'] = excel
 
         if 'selmentionbac' in fields:
-            sql = create_aggregation_sql(['mentionbac'], filters, 'estselectionne.codecandidat', 'estselectionne', 'count', True)
+            sql = create_aggregation_sql(
+                ['mentionbac'], filters, 'estselectionne.codecandidat', 'estselectionne', 'count', True)
             cursor.execute(sql)
             res = dictfetchall(cursor)
             data, labels = format_data(res, 'mentionbac')
             return_data['selmentionbac'] = {'labels': labels, 'data': data}
 
         if 'seltypebac' in fields:
-            sql = create_aggregation_sql(['typebac'], filters, 'estselectionne.codecandidat', 'estselectionne', 'count', True)
+            sql = create_aggregation_sql(
+                ['typebac'], filters, 'estselectionne.codecandidat', 'estselectionne', 'count', True)
             cursor.execute(sql)
             res = dictfetchall(cursor)
             data, labels = format_data(res, 'typebac')
@@ -298,7 +306,8 @@ class RapportCandidat(APIView):
         if 'modules' in request.data and len(request.data['modules']) != 0:
             modules = request.data['modules']
             flt = filters.copy()
-            flt['m.codemodule '] = ('in ' + str(tuple(modules)) if len(modules) > 1 else modules[0])
+            flt['m.codemodule '] = (
+                'in ' + str(tuple(modules)) if len(modules) > 1 else modules[0])
 
             del flt['don.anneecandidature']
             sql = "SELECT avg(notemodule) as nb, libellemodule, anneecandidature " \
@@ -314,7 +323,8 @@ class RapportCandidat(APIView):
             return_data['moduleannee'] = {'labels': labels, 'data': data}
 
         if 'diplomeannee' in fields:
-            sql = create_aggregation_sql(['anneecandidature'], filters, 'mentionannee', 'resultatannee', 'count', True)
+            sql = create_aggregation_sql(
+                ['anneecandidature'], filters, 'mentionannee', 'resultatannee', 'count', True)
             cursor.execute(sql)
             res = dictfetchall(cursor)
             data, labels = format_data(res, 'mentionannee')
@@ -327,25 +337,27 @@ class RapportCandidat(APIView):
 
         res = dictfetchall(cursor)
 
-
         candidats_preinscrits = res[0]['nb']
         return_data['preinscrit'] = candidats_preinscrits
 
-        sql = create_generic_count_sql('codecandidat', 'estselectionne', 'donneescandidat()')
+        sql = create_generic_count_sql(
+            'codecandidat', 'estselectionne', 'donneescandidat()')
         sql += filters_string
         cursor.execute(sql)
         res = dictfetchall(cursor)
         candidats_selectionne = res[0]['nb']
         return_data['preselect'] = candidats_selectionne
 
-        sql = create_generic_count_sql('codecandidat', 'resultat', 'donneescandidat()')
+        sql = create_generic_count_sql(
+            'codecandidat', 'resultat', 'donneescandidat()')
         sql += filters_string
         cursor.execute(sql)
         res = dictfetchall(cursor)
         passe_concours = res[0]['nb']
         return_data['passe_concours'] = passe_concours
 
-        sql = create_aggregation_sql(['estadmis.codecandidat'], filters, 'listeadmission', 'estadmis', '', True)
+        sql = create_aggregation_sql(
+            ['estadmis.codecandidat'], filters, 'listeadmission', 'estadmis', '', True)
         cursor.execute(sql)
         res = dictfetchall(cursor)
 
@@ -358,7 +370,9 @@ class RapportCandidat(APIView):
             else:
                 nb_attent += 1
 
-        return_data['admis'] = {'nb_principal': nb_principal, 'nb_attent': nb_attent}
+        return_data['admis'] = {
+            'nb_principal': nb_principal, 'nb_attent': nb_attent}
+        print(return_data)
         return Response({'result': return_data})
 
 
@@ -371,7 +385,8 @@ class PredictCandidats(APIView):
         cols = []
         tables = []
 
-        candidats_data = ('genre', 'mentionbac', 'typebac', 'age', 'residence', 'dureeformation')
+        candidats_data = ('genre', 'mentionbac', 'typebac',
+                          'age', 'residence', 'dureeformation')
 
         for f in features:
 
@@ -407,7 +422,8 @@ class PredictCandidats(APIView):
         if algo == 'decision_tree':
             model, p = decision_tree(t_df, cols, target)
         elif algo == 'random_forest':
-            model, p = random_forest(t_df, cols, target, int(params['nb_arbres']))
+            model, p = random_forest(
+                t_df, cols, target, int(params['nb_arbres']))
         elif algo == 'svm':
             model, p = svm(t_df, cols, target, params['kernel'])
         elif algo == 'naive_bayes':
@@ -425,7 +441,7 @@ class PredictCandidats(APIView):
                 v = candidat_data[f]
                 val = float(v) if isfloat(v) else int(v) if isint(v) else v
                 values[cols[i]] = val
-        #creer le dataframe pour l'encodage des variables categoriques
+        # creer le dataframe pour l'encodage des variables categoriques
         data = pd.DataFrame([values])
         t_data = transform(data)
 

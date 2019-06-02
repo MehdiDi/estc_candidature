@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import {Button, Form, Grid, Header, Modal, Table} from "semantic-ui-react";
+import { Button, Form, Grid, Header, Modal, Table } from "semantic-ui-react";
+import { connect } from 'react-redux';
 import axios from 'axios';
 import RapportResult from "./RapportResult";
 import ReactToPrint from 'react-to-print';
@@ -102,13 +103,19 @@ class Rapport extends Component {
         }
     }
     async componentDidMount() {
-        const filterdata = await axios.get('http://localhost:8000/filters/');
-        this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes,
-            modules: filterdata.data.modules});
+        const filterdata = await axios({
+            method: 'get',
+            url: 'http://localhost:8000/filters/',
+            headers: { 'Authorization': `Token ${this.props.token}` }
+        });
+        this.setState({
+            typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes,
+            modules: filterdata.data.modules
+        });
     }
 
-    formatOptions  = (values) => {
-        let opts =  values.map(value => (
+    formatOptions = (values) => {
+        let opts = values.map(value => (
 
             {
                 key: value,
@@ -128,22 +135,22 @@ class Rapport extends Component {
         let preinscSelected = false;
         let selectSelected = false;
 
-        for(let i=0; i<fields.length; i++) {
-            if(fields[i].indexOf('sel') > -1){
-                if(!selectSelected)
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i].indexOf('sel') > -1) {
+                if (!selectSelected)
                     selectSelected = true;
-                }
-            else if(!preinscSelected)
+            }
+            else if (!preinscSelected)
                 preinscSelected = true;
 
         }
 
-        if(!el.checked)
+        if (!el.checked)
             fields.splice(fields.indexOf(el.value), 1);
         else
             fields.push(el.value);
 
-        this.setState({fields, selectSelected, preinscSelected});
+        this.setState({ fields, selectSelected, preinscSelected });
 
     };
 
@@ -151,59 +158,65 @@ class Rapport extends Component {
 
         const filters = Object.assign({}, this.state.filters);
         const listDescription = this.state.listDescription;
-        
-        
+
+
         const val = el.value;
         const name = el.name;
         const filterText = el.title;
 
         for (let i in listDescription) {
-                if(listDescription[i].key === filterText) {
-                    listDescription.splice(i,1);
-                    break;
-                }
+            if (listDescription[i].key === filterText) {
+                listDescription.splice(i, 1);
+                break;
             }
+        }
 
-        if(val === "") {
+        if (val === "") {
             delete filters[name];
 
         }
         else {
             filters[name] = val;
-            listDescription.push({key: filterText, value: val})
+            listDescription.push({ key: filterText, value: val })
         }
 
-        this.setState({ filters: filters, listDescription: listDescription});
+        this.setState({ filters: filters, listDescription: listDescription });
     };
     moduleChange = (e, el) => {
-        this.setState({'rptmodules': el.value})
+        this.setState({ 'rptmodules': el.value })
     };
 
     onSubmit = (e, el) => {
         const fields = this.state.fields;
         const filters = this.state.filters;
-        this.setState({loading: true});
+        this.setState({ loading: true });
+        // sir allah
 
-        axios.post('http://localhost:8000/rapport/', {'fields': fields, 'filters': filters,
-            'modules': this.state.rptmodules})
-            .then(resp => {
-                this.setState({reportResult: resp.data.result, open: true, loading: false})
+        axios({
+            method: 'post',
+            url: 'http://localhost:8000/rapport/',
+            data: {
+                'fields': fields, 'filters': filters,
+                'modules': this.state.rptmodules
+            },
+            headers: { 'Authorization': `Token ${this.props.token}` }
+        }).then(resp => {
+            this.setState({ reportResult: resp.data.result, open: true, loading: false })
 
-            })
-            .catch(err => {
-                console.log("Error!! " + err);
-                this.setState({loading: false});
-            });
+        }).catch(err => {
+            console.log("Error!! " + err);
+            this.setState({ loading: false });
+        });
     };
     close = () => {
-        this.setState({open: false});
+        this.setState({ open: false });
     };
 
     print = () => {
 
     };
 
-    render(){
+    render() {
 
         const modules = this.state.modules.map(el => (
             {
@@ -214,120 +227,120 @@ class Rapport extends Component {
         ));
 
         return (
-            <div style={{padding: '10px'}} >
+            <div style={{ padding: '10px' }} >
                 <Grid>
                     <Grid.Row>
                         <Form onSubmit={this.onSubmit}>
                             <Grid stackable>
                                 <Grid.Row>
-                                <Grid.Column width={6}>
-                                    <Header as='h2' className='teal'>Filtres</Header>
-                                    <Form.Group widths={2}>
-                                      <Form.Select title='Année' fluid label='Année candidature' onChange={this.onFiltersChange} options={anneeOptions}
-                                                  placeholder='Tous' name="anneecandidature" value={this.state.anneecandidature} />
-                                      <Form.Input title='Age' label='Age' placeholder='Age' name='age' onChange={this.onFiltersChange}
-                                                    value={this.state.age}/>
-                                    </Form.Group>
-                                    <Form.Group widths={2}>
+                                    <Grid.Column width={6}>
+                                        <Header as='h2' className='teal'>Filtres</Header>
+                                        <Form.Group widths={2}>
+                                            <Form.Select title='Année' fluid label='Année candidature' onChange={this.onFiltersChange} options={anneeOptions}
+                                                placeholder='Tous' name="anneecandidature" value={this.state.anneecandidature} />
+                                            <Form.Input title='Age' label='Age' placeholder='Age' name='age' onChange={this.onFiltersChange}
+                                                value={this.state.age} />
+                                        </Form.Group>
+                                        <Form.Group widths={2}>
 
-                                      <Form.Input title='Ville de résidence' label='Ville de Residence' name='residence' placeholder='Ville' onChange={this.onFiltersChange}
-                                                    value={this.state.residence}/>
-                                        <Form.Select title='Genre' label='Genre' name='genre' placeholder='Genre' onChange={this.onFiltersChange}
-                                            value={this.state.genre} options={[{key: 0, text: 'Tous', value: ''},
-                                            {key:1, text: 'Homme', value: 'Homme'},
-                                            {key: 2, text: 'Femme', value: 'Femme'}]}/>
-                                    </Form.Group>
-                                    <Form.Group widths={2}>
-                                        <Form.Select title='Mention de BAC' label='Mention de BAC' placeholder='Mention de BAC' name='mentionbac'
-                                                       options={mentionsbac} onChange={this.onFiltersChange} value={this.state.mentionbac}/>
-                                        <Form.Select title='Type de BAC' label='Type de BAC' placeholder='Type de BAC' name="typebac" onChange={this.onFiltersChange}
-                                                            options={this.formatOptions(this.state.typesbac)} value={this.state.typebac} />
+                                            <Form.Input title='Ville de résidence' label='Ville de Residence' name='residence' placeholder='Ville' onChange={this.onFiltersChange}
+                                                value={this.state.residence} />
+                                            <Form.Select title='Genre' label='Genre' name='genre' placeholder='Genre' onChange={this.onFiltersChange}
+                                                value={this.state.genre} options={[{ key: 0, text: 'Tous', value: '' },
+                                                { key: 1, text: 'Homme', value: 'Homme' },
+                                                { key: 2, text: 'Femme', value: 'Femme' }]} />
+                                        </Form.Group>
+                                        <Form.Group widths={2}>
+                                            <Form.Select title='Mention de BAC' label='Mention de BAC' placeholder='Mention de BAC' name='mentionbac'
+                                                options={mentionsbac} onChange={this.onFiltersChange} value={this.state.mentionbac} />
+                                            <Form.Select title='Type de BAC' label='Type de BAC' placeholder='Type de BAC' name="typebac" onChange={this.onFiltersChange}
+                                                options={this.formatOptions(this.state.typesbac)} value={this.state.typebac} />
 
-                                    </Form.Group>
-                                    <Form.Group widths={2}>
+                                        </Form.Group>
+                                        <Form.Group widths={2}>
 
-                                      <Form.Select title='Diplôme Superieur' label='Diplôme Superieur' placeholder='Tous' name='diplome'
-                                                   options={this.formatOptions(this.state.diplomes)} onChange={this.onFiltersChange}
-                                                    value={ this.state.diplome }/>
+                                            <Form.Select title='Diplôme Superieur' label='Diplôme Superieur' placeholder='Tous' name='diplome'
+                                                options={this.formatOptions(this.state.diplomes)} onChange={this.onFiltersChange}
+                                                value={this.state.diplome} />
 
 
-                                          <Form.Select title='Diplôme Superieur' label='Durée de formation' placeholder='Tous'
-                                                        name="dureeformation" options={dureesformation} onChange={this.onFiltersChange}
-                                                        value={this.state.dureeformation}/>
-                                    </Form.Group>
-                                </Grid.Column>
-                                <Grid.Column width={8}>
-                                    <Grid.Row>
-                                        <Table basic='very' celled collapsing>
-                                            <Table.Body>
-                                              <Table.Row>
-                                                  <Table.Cell>
-                                                        <Header as='h4'>Préinscrits</Header>
-                                                    </Table.Cell>
-                                                <Table.Cell>
-                                                    <Form.Checkbox label='Moyenne de formation' name='fields' value='moyformation'
-                                                               onChange={this.handleChange} />
-                                                </Table.Cell>
-                                                  <Table.Cell>
-                                                    <Form.Checkbox label='Moyenne Excel' name='fields' value='excel'
-                                                                   onChange={this.handleChange}/>
-                                                  </Table.Cell>
-                                                  <Table.Cell>
-                                                    <Form.Checkbox label='Mentions de BAC' name='fields' value='mentionbac'
-                                                               onChange={this.handleChange}/>
-                                                  </Table.Cell>
-                                                  <Table.Cell>
-                                                    <Form.Checkbox label='Types de BAC' name='fields' value='typebac'
-                                                               onChange={this.handleChange}/>
-                                                  </Table.Cell>
-                                              </Table.Row>
-                                                <Table.Row>
-                                                    <Table.Cell>
-                                                        <Header as='h4'>Séléctionnés</Header>
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                    <Form.Checkbox label='Moyenne de formation' name='fields' value='selmoyformation'
-                                                               onChange={this.handleChange} />
-                                                </Table.Cell>
-                                                  <Table.Cell>
-                                                    <Form.Checkbox label='Moyenne Excel' name='fields' value='selexcel'
-                                                                   onChange={this.handleChange}/>
-                                                  </Table.Cell>
-                                                  <Table.Cell>
-                                                    <Form.Checkbox label='Mentions de BAC' name='fields' value='selmentionbac'
-                                                               onChange={this.handleChange}/>
-                                                  </Table.Cell>
-                                                  <Table.Cell>
-                                                    <Form.Checkbox label='Types de BAC' name='fields' value='seltypebac'
-                                                               onChange={this.handleChange}/>
-                                                  </Table.Cell>
-                                                </Table.Row>
-                                                <Table.Row>
-                                                    <Table.Cell>
-                                                        <Header as='h4'>Séléctionnés</Header>
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        <Form.Select label='Moyenne de modules par Année' multiple
-                                                                   onChange={this.moduleChange}
-                                                                     options={modules}
-                                                        />
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        <Form.Checkbox label='Mention diplome par année' name='fields' value='diplomeannee'
-                                                                   onChange={this.handleChange} />
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                        </Table>
-                                    </Grid.Row>
-                                    <Grid.Row>
-                                        <Grid.Column>
-                                            <Form.Field>
-                                                <Button type="submit" primary loading={this.state.loading}>Envoyer</Button>
-                                            </Form.Field>
-                                        </Grid.Column>
-                                    </Grid.Row>
-                                </Grid.Column>
+                                            <Form.Select title='Diplôme Superieur' label='Durée de formation' placeholder='Tous'
+                                                name="dureeformation" options={dureesformation} onChange={this.onFiltersChange}
+                                                value={this.state.dureeformation} />
+                                        </Form.Group>
+                                    </Grid.Column>
+                                    <Grid.Column width={8}>
+                                        <Grid.Row>
+                                            <Table basic='very' celled collapsing>
+                                                <Table.Body>
+                                                    <Table.Row>
+                                                        <Table.Cell>
+                                                            <Header as='h4'>Préinscrits</Header>
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Moyenne de formation' name='fields' value='moyformation'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Moyenne Excel' name='fields' value='excel'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Mentions de BAC' name='fields' value='mentionbac'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Types de BAC' name='fields' value='typebac'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                    </Table.Row>
+                                                    <Table.Row>
+                                                        <Table.Cell>
+                                                            <Header as='h4'>Séléctionnés</Header>
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Moyenne de formation' name='fields' value='selmoyformation'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Moyenne Excel' name='fields' value='selexcel'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Mentions de BAC' name='fields' value='selmentionbac'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Types de BAC' name='fields' value='seltypebac'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                    </Table.Row>
+                                                    <Table.Row>
+                                                        <Table.Cell>
+                                                            <Header as='h4'>Séléctionnés</Header>
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Select label='Moyenne de modules par Année' multiple
+                                                                onChange={this.moduleChange}
+                                                                options={modules}
+                                                            />
+                                                        </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Mention diplome par année' name='fields' value='diplomeannee'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
+                                                    </Table.Row>
+                                                </Table.Body>
+                                            </Table>
+                                        </Grid.Row>
+                                        <Grid.Row>
+                                            <Grid.Column>
+                                                <Form.Field>
+                                                    <Button type="submit" primary loading={this.state.loading}>Envoyer</Button>
+                                                </Form.Field>
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                    </Grid.Column>
                                 </Grid.Row>
                             </Grid>
                         </Form>
@@ -335,25 +348,25 @@ class Rapport extends Component {
 
                 </Grid>
                 <Modal dimmer='blurring' size='large' open={this.state.open} onClose={this.close}>
-                  <Modal.Header>Rapport</Modal.Header>
-                  <Modal.Content >
-                    <Modal.Description>
-                      <RapportResult ref='rpt' reportResult={this.state.reportResult} listDescription={this.state.listDescription}
-                                    preinscrit={this.state.preinscSelected} selectionne={this.state.selectSelected}/>
-                    </Modal.Description>
-                  </Modal.Content>
-                  <Modal.Actions>
-                    <Button color='black' onClick={this.close}>
-                      Fermer
+                    <Modal.Header>Rapport</Modal.Header>
+                    <Modal.Content >
+                        <Modal.Description>
+                            <RapportResult ref='rpt' reportResult={this.state.reportResult} listDescription={this.state.listDescription}
+                                preinscrit={this.state.preinscSelected} selectionne={this.state.selectSelected} />
+                        </Modal.Description>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color='black' onClick={this.close}>
+                            Fermer
                     </Button>
 
-                      <ReactToPrint
-                    trigger={() => <Button primary icon='print' onClick={this.print}>
-                      Sauvegarder
+                        <ReactToPrint
+                            trigger={() => <Button primary icon='print' onClick={this.print}>
+                                Sauvegarder
                     </Button>}
-                    content={() => this.refs.rpt}
-                  />
-                  </Modal.Actions>
+                            content={() => this.refs.rpt}
+                        />
+                    </Modal.Actions>
                 </Modal>
 
 
@@ -362,4 +375,10 @@ class Rapport extends Component {
     }
 }
 
-export default Rapport;
+const mapStateToProps = state => {
+    return {
+        token: state.token
+    };
+};
+
+export default connect(mapStateToProps)(Rapport);
