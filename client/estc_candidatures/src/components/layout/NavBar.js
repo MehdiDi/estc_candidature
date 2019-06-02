@@ -5,19 +5,26 @@ import { Menu, Segment } from "semantic-ui-react";
 import Classes from './NavBar.module.css';
 
 class NavBar extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeItem: 'Statistics'
+    }
+  }
 
-  state = { activeItem: 'home' }
+  componentDidMount() {
+    if (this.props.history.location.pathname === '/machinelearnings')
+      this.setState({ activeItem: 'Machine Learning' })
+  }
 
   handleItemClick = (e, { name }) => {
     this.setState({ activeItem: name });
-    if (name === "Statistics") {
+    if (name === "Statistics")
       this.props.history.push('statistics');
-    }
-    else if (name === "Machine Learning") {
+    else if (name === "Machine Learning")
       this.props.history.push('machinelearnings');
-    } else {
+    else
       this.props.history.push('logout');
-    }
   }
   render() {
     const { activeItem } = this.state
