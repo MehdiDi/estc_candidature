@@ -7,6 +7,11 @@ from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
+from .query_generators import *
+from .utils.pg_database import dictfetchall
+from .models import Candidat, DiplomeSup, Module, Elementmodule, Passer
+from .ml.ml_methods import *
+
 
 class CustomAuthToken(ObtainAuthToken):
 
@@ -86,6 +91,7 @@ def format_data(result, key):
     return values, counts
 
 
+
 class StatisticView(APIView):
 
     def post(self, request):
@@ -95,8 +101,8 @@ class StatisticView(APIView):
         try:
             count_column = request.data['operation_column']
             columns.remove(count_column)
-            sql = create_aggregation_sql(
-                columns, filters, count_column, 'donneescandidat()', 'count')
+            sql = create_aggregation_sql(columns, filters, count_column, 'donneescandidat()', 'count', False)
+
         except Exception as e:
             sql = create_sql_candidats(columns, filters)
             print("Exception: " + str(e))
@@ -151,34 +157,6 @@ class ModuleStatisticsView(APIView):
             'notes': notes,
             'corr': corr
         })
-
-
-def get_table_data_joined(key):
-    tables = {
-        'excel': {'col': 'moyenne', 'table': 'calculermoyenne'},
-        'concours': {'col': 'moyenneconcours', 'table': 'resultat'},
-        'elconcours': {'col': 'note', 'table': 'passer'},
-        'moyenneannee': {'col': 'moyenneannee', 'table': 'moyannee_candidat()'},
-        'elmodule': {'col': 'note', 'table': 'elements_candidat()'},
-        'module': {'col': 'notemodule', 'table': 'modules_candidat2()'},
-        'moysemestre': {'col': 'moyennesemestre', 'table': 'resultatsemestre'}
-    }
-
-    return tables[key]
-
-
-def get_table_data(key):
-    tables = {
-        'excel': {'col': 'moyenne', 'table': 'calculermoyenne'},
-        'concours': {'col': 'moyenneconcours', 'table': 'resultat'},
-        'elconcours': {'col': 'note', 'table': 'passer'},
-        'moyenneannee': {'col': 'moyenneannee', 'table': 'resultatannee'},
-        'elmodule': {'col': 'note', 'table': 'obtenirelement'},
-        'module': {'col': 'notemodule', 'table': 'obtenirmodule'},
-        'moysemestre': {'col': 'moyennesemestre', 'table': 'resultatsemestre'}
-    }
-
-    return tables[key]
 
 
 class PrecandidatStatistics(APIView):
@@ -236,7 +214,7 @@ class FiltersData(APIView):
     def get(self, request):
         diplomes = DiplomeSup.objects.all().values('libelle').distinct()
         typesbac = Candidat.objects.all().values('typebac').distinct()
-        modules = Module.objects.all().values('codemodule', 'libellemodule')
+        modules = Module.objects.all().values('codemodule', 'libellemodule').distinct()
         data = {
             'diplomes': [d['libelle'] for d in diplomes if d['libelle'] is not None],
             'typesbac': [typebac['typebac'] for typebac in typesbac if typebac['typebac'] is not None],
@@ -257,7 +235,7 @@ class NotesStatistic(APIView):
         table_alias = table[:2]
         join = table + ' ' + table_alias + ' INNER JOIN donneescandidat() c ON ' + table_alias + '.codecandidat = c.codecandidat '
 
-        sql = create_aggregation_sql(['anneecandidature'], filters, column, join, op)
+        sql = create_aggregation_sql(['anneecandidature'], filters, column, join, op, False)
 
         cursor = connection.cursor()
         cursor.execute(sql)
@@ -280,49 +258,281 @@ class NotesStatistic(APIView):
         return Response({'result': data})
 
 
-def create_notes_select(column, target_column, target_table):
-    sql = "SELECT " + column + ", "
-    sql += target_column + ' as ' + target_column
-    sql += " FROM modules_candidat() mc " + \
-           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + target_table + '.codecandidat'
 
-    return sql
+class RapportCandidat(APIView):
+
+    def post(self, request):
+        flt = request.data['filters']
+        fields = request.data['fields']
+
+        filters = {}
+        if len(flt) != 0:
+            for k in flt.keys():
+                key = 'don.{}'.format(k)
+                filters[key] = flt[k]
+
+        return_data = {}
+
+        sql = create_aggregation_sql('', {}, 'codecandidat', 'candidats', 'count', False)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+
+        nb_candidats = dictfetchall(cursor)
+
+        return_data['nb_candidats'] = nb_candidats[0]['codecandidat']
+
+        filters_string = create_filters(filters)
+
+        if 'moyformation' in fields:
+            col = get_table_data('moyformation')['col']
+            table = get_table_data('moyformation')['table']
+
+            sql = create_aggregation_sql('', filters, col, table, 'avg', True)
+
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            moyformation = res[0][col]
+            return_data['moyformation'] = moyformation
+
+        if 'excel' in fields:
+            col = get_table_data('excel')['col']
+            table = get_table_data('excel')['table']
+
+            sql = create_aggregation_sql('', filters, col, table, 'avg', True)
+
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            excel = res[0][col]
+            return_data['excel'] = excel
+
+        if 'mentionbac' in fields:
+            sql = create_aggregation_sql(['mentionbac'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'mentionbac')
+            return_data['mentionbac'] = {'labels': labels, 'data': data}
+
+        if 'typebac' in fields:
+            sql = create_aggregation_sql(['typebac'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'typebac')
+            return_data['typebac'] = {'labels': labels, 'data': data}
+
+        if 'selmoyformation' in fields:
+            col = get_table_data('moyformation')['col']
+            sql = "SELECT avg({}) as {} FROM candidat_diplome_sup c " \
+                  "INNER JOIN donneescandidat() don ON don.codecandidat=c.codecandidat " \
+                  "INNER JOIN estselectionne es ON es.codecandidat=c.codecandidat".format(col, col)
+            sql += filters_string
+
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            moyformation = res[0][col]
+            return_data['selmoyformation'] = moyformation
+
+        if 'selexcel' in fields:
+            col = get_table_data('excel')['col']
+
+            sql = "SELECT avg({}) as {} FROM calculermoyenne c " \
+                  "INNER JOIN donneescandidat() don ON don.codecandidat=c.codecandidat " \
+                  "INNER JOIN estselectionne es ON es.codecandidat=c.codecandidat".format(col, col)
+
+            sql += filters_string
+
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            excel = res[0][col]
+            return_data['selexcel'] = excel
+
+        if 'selmentionbac' in fields:
+            sql = create_aggregation_sql(['mentionbac'], filters, 'estselectionne.codecandidat', 'estselectionne', 'count', True)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'mentionbac')
+            return_data['selmentionbac'] = {'labels': labels, 'data': data}
+
+        if 'seltypebac' in fields:
+            sql = create_aggregation_sql(['typebac'], filters, 'estselectionne.codecandidat', 'estselectionne', 'count', True)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'typebac')
+            return_data['seltypebac'] = {'labels': labels, 'data': data}
+
+        if 'modules' in request.data and len(request.data['modules']) != 0:
+            modules = request.data['modules']
+            flt = filters.copy()
+            flt['m.codemodule '] = ('in ' + str(tuple(modules)) if len(modules) > 1 else modules[0])
+
+            del flt['don.anneecandidature']
+            sql = "SELECT avg(notemodule) as nb, libellemodule, anneecandidature " \
+                  "FROM obtenirmodule o INNER JOIN donneescandidat() don on don.codecandidat=o.codecandidat " \
+                  "INNER JOIN module m ON o.codemodule=m.codemodule "
+            sql += create_filters(flt)
+            sql += " GROUP BY libellemodule, anneecandidature ORDER BY libellemodule, anneecandidature"
+            print(sql)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            labels, data = format_data(res, 'nb')
+
+            return_data['moduleannee'] = {'labels': labels, 'data': data}
+
+        if 'diplomeannee' in fields:
+            sql = create_aggregation_sql(['anneecandidature'], filters, 'mentionannee', 'resultatannee', 'count', True)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'mentionannee')
+            return_data['moduleannee'] = {'labels': labels, 'data': data}
+
+        sql = "SELECT count(don.codecandidat) as nb from donneescandidat() don "
+        sql += create_filters(filters)
+
+        cursor.execute(sql)
+
+        res = dictfetchall(cursor)
 
 
-def create_corr_select(column, target_column, target_table):
-    sql = "SELECT corr(" + column + ", " + target_column + ") as corr "
+        candidats_preinscrits = res[0]['nb']
+        return_data['preinscrit'] = candidats_preinscrits
 
-    sql += " FROM modules_candidat() mc " + \
-           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + \
-        target_table + '.codecandidat'
+        sql = create_generic_count_sql('codecandidat', 'estselectionne', 'donneescandidat()')
+        sql += filters_string
+        cursor.execute(sql)
+        res = dictfetchall(cursor)
+        candidats_selectionne = res[0]['nb']
+        return_data['preselect'] = candidats_selectionne
 
-    return sql
+        sql = create_generic_count_sql('codecandidat', 'resultat', 'donneescandidat()')
+        sql += filters_string
+        cursor.execute(sql)
+        res = dictfetchall(cursor)
+        passe_concours = res[0]['nb']
+        return_data['passe_concours'] = passe_concours
 
+        sql = create_aggregation_sql(['estadmis.codecandidat'], filters, 'listeadmission', 'estadmis', '', True)
+        cursor.execute(sql)
+        res = dictfetchall(cursor)
 
-def create_sql(columns, target_columns, table, target_table):
-    sql = "SELECT " + table[0] + "." + columns + ',' + \
-        target_table[:2] + "." + target_columns + " as target "
-    sql += " FROM " + table + ' ' + table[0] + \
-           ' INNER JOIN ' + target_table + " " + target_table[:2] + ' ON ' + table[0] + '.codecandidat = ' \
-           + target_table[:2] + '.codecandidat'
-
-    return sql
-
-
-def create_sql_corr(column, target_column, table, target_table):
-    sql = "SELECT corr(" + table[0] + "." + column + ", " + \
-        target_table[:2] + '.' + target_column + ") as corr "
-    sql += " FROM " + table + ' ' + table[0] + \
-           ' INNER JOIN ' + target_table + " " + target_table[:2] + ' ON ' + table[0] + '.codecandidat = ' \
-           + target_table[:2] + '.codecandidat'
-
-    return sql
+        nb_principal = 0
+        nb_attent = 0
 
 
-def create_filters(filters):
-    return ('' if len(filters) == 0 else " WHERE "
+        for row in res:
 
-                                         + ''.join(' AND '.join(k + v if contains_operator(v)
-                                                                else k + " ILIKE '%" + v + "%' " for k, v in
-                                                                filters.items())))
+
+            if row['listeadmission'] == 'p':
+                nb_principal += 1
+
+            else:
+                nb_attent += 1
+
+
+        return_data['admis'] = {'nb_principal': nb_principal, 'nb_attent': nb_attent}
+
+
+        return Response({'result': return_data})
+
+
+class PredictCandidats(APIView):
+    def post(self, request):
+        algo = request.data['algorithm']
+        features = request.data['features']
+        params = request.data['params']
+        target = request.data['target']
+        cols = []
+        tables = []
+
+        candidats_data = ('genre', 'mentionbac', 'typebac', 'age', 'residence', 'dureeformation')
+
+        for f in features:
+
+            if f in candidats_data:
+                cols.append('don.' + f)
+                if 'donneescandidat()' not in tables:
+                    tables.append('donneescandidat()')
+            else:
+                # Pour le libelle de diplome jointure de 2 tables
+                if f == 'libelle':
+                    cols.append(f)
+                    tables.append('candidat_diplome_sup')
+                    tables.append('diplome_sup')
+                else:
+                    cols.append(get_table_data(f)['col'])
+                    table = get_table_data(f)['table']
+                    if table not in tables:
+                        tables.append(table)
+        cols.append(target)
+        table = get_table_data(target)['table']
+
+        if table not in tables:
+            tables.append(table)
+
+        sql = select_multiple_join(cols, tables)
+
+        df = pd.read_sql(sql, connection)
+
+        t_df = transform(df)
+        for i, col in enumerate(cols):
+            split = col.split('.')
+            cols[i] = split[1] if len(split) > 1 else split[0]
+        if algo == 'decision_tree':
+            model, p = decision_tree(t_df, cols, target)
+        elif algo == 'random_forest':
+            model, p = random_forest(t_df, cols, target, int(params['nb_arbres']))
+        elif algo == 'svm':
+            model, p = svm(t_df, cols, target, params['kernel'])
+        elif algo == 'naive_bayes':
+            model, p = naive_bayes(t_df, cols, target)
+        elif algo == 'mlr':
+            model, p = mlr(t_df, cols, target)
+            print(p)
+
+        candidat_data = request.data['candidat']
+        values = dict()
+
+        # structurer les donnees dans values pour creer un dataframe et obtenir les valeurs str, int, float
+        for i, f in enumerate(features):
+            if f != target:
+                v = candidat_data[f]
+                val = float(v) if isfloat(v) else int(v) if isint(v) else v
+                values[cols[i]] = val
+        #creer le dataframe pour l'encodage des variables categoriques
+        data = pd.DataFrame([values])
+        t_data = transform(data)
+
+        # avoir la liste des données pour la prediction
+        vals = []
+        for i in t_data.iloc[0]:
+            vals.append(i)
+        pred = model.predict([vals])
+        val = 0
+
+        if target == 'mentionannee':
+            for men in mention_codes:
+                if men['code'] == pred:
+                    val = men['text']
+                    break
+        else:
+            val = pred
+
+        return Response({'prediction': val, 'precision': p})
+
+
+
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
+
+def isint(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
 

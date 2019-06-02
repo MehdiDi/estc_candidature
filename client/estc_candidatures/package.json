@@ -6,6 +6,9 @@
     "axios": "^0.18.0",
     "chart.js": "^2.8.0",
     "chartjs-plugin-datalabels": "^0.6.0",
+    "html2canvas": "^1.0.0-rc.1",
+    "jquery": "^3.4.1",
+    "jspdf": "^1.5.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.3",
@@ -36,5 +39,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "react-to-print": "^2.1.2"
   }
 }

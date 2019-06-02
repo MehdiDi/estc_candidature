@@ -12,16 +12,15 @@ class App extends Component {
       <div> 
              <MachineLearning />
       </div>
-      /*<div className="App">  {console.log(this.props.auth)}
+      <div className="App">  {console.log(this.props.auth)}
         <Switch>
           <Route path="/" exact component={Login} />
           {this.props.auth ? <Route path="/statistics" exact component={Statistics} /> : <Redirect to="/" />}
+          {this.props.auth ? <Route path='/predict' exact component={MachineLearning} /> : <Redirect to="/" />}
         </Switch>
-    </div>*/
+    </div>
     );
-    
   }
-
 }
 
 const mapStateToProps = state => {

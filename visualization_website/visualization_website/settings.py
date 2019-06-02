@@ -85,8 +85,10 @@ DATABASES = {
         'NAME': 'estc_candidatures',
         'USER': 'postgres',
         'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '',
+
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+
     }
 }
 

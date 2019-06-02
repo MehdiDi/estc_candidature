@@ -16,8 +16,8 @@ import {
 } from "semantic-ui-react";
 import Filters from "./Filters";
 import axios from "axios"
-import Chart from 'chart.js'
-// import {options} from "./ChartOptions";
+import Chart  from 'chart.js'
+
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const column_choices = [
@@ -98,13 +98,19 @@ class Candidats extends Component {
     };
 
     onOptionChange = (ev, el) => {
+
+      this.setState({[el.name]: el.value},() =>{
+
+      if(el.name === 'selected_columns') {
+
+          const options = el.options;
+          const group_columns = this.state.group_columns;
+          group_columns.length = 1;
+        
         this.setState({ [el.name]: el.value }, () => {
 
             if (el.name === 'selected_columns') {
 
-                const options = el.options;
-
-                this.state.group_columns.length = 1;
 
                 let opts = [
                     {
@@ -117,6 +123,7 @@ class Candidats extends Component {
                     this.setState({ count_column: null });
                 }
 
+
                 options.map(opt => {
                     if (this.state.selected_columns.indexOf(opt.value) > -1) {
                         opts.push(
@@ -127,6 +134,7 @@ class Candidats extends Component {
                             }
                         );
                     }
+                    return null;
                 });
                 this.setState({ group_columns: opts });
             }
@@ -216,17 +224,21 @@ class Candidats extends Component {
                         formatter: (value, ctx) => {
                             let sum = 0;
                             let dataArr = ctx.chart.data.datasets[0].data;
+
                             dataArr.map(data => {
                                 sum += data;
                             });
                             let percentage = (value * 100 / sum).toFixed(2) + "%";
+
                             return percentage;
                         },
                         color: '#fff',
                     }
+
                 },
 
             };
+
         else {
             chartData['options'] = {
                 plugins: {
@@ -239,7 +251,7 @@ class Candidats extends Component {
         }
 
         const chart = new Chart(ctx, chartData);
-        console.log(chart.options);
+
         chart.update();
         crt.chart = chart;
         crt.number = (function () {
@@ -337,6 +349,7 @@ class Candidats extends Component {
                         <Grid.Row textAlign='center'>
 
                             {this.state.chart.chart &&
+
                                 <Statistic size='huge' style={styleStats}  >
                                     <Statistic.Label >Total</Statistic.Label>
                                     <Statistic.Value>{this.state.chart.number}</Statistic.Value>
