@@ -165,7 +165,7 @@ class MachineLearning extends Component {
         };
         console.log(this.state.candidats);
         axios.post('http://localhost:8000/predict/', postData)
-            .then(resp => this.setState({ resultat: resp.data.prediction }))
+            .then(resp => this.setState({ resultat: resp.data.prediction, precision: resp.data.precision }))
             .catch(err => console.log(err));
         this.setState({ resultatShow: true })
     };
@@ -293,6 +293,8 @@ class MachineLearning extends Component {
                         {this.state.resultatShow ? <Form.Field>
                             <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
                                 {target} {'"' + this.state.resultat + '"'}</Header>
+                            <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
+                              Pourcentage de Précision est : {'"' + this.state.precision + '"'}</Header>
                         </Form.Field> : null}
                     </Form>
                 </Segment>
