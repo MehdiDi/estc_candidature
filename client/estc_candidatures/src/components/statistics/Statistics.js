@@ -11,6 +11,7 @@ import PreselectionStatistics from "./PreselectionStatistics";
 import MoyStatistics from "./MoyStatistics";
 import { isNull } from 'util';
 import NavBar from '../layout/NavBar';
+import Footer from '../layout/Footer';
 
 class Statistics extends Component {
     constructor(props) {
@@ -45,7 +46,6 @@ class Statistics extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-
                 <Grid stretched style={{
                     marginTop: 0,
                     backgroundColor: '#FFF'
