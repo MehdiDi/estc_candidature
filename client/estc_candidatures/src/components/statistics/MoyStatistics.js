@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
-<<<<<<< HEAD
-import { Grid, Label, Form, Button, Segment, Header, Icon } from "semantic-ui-react";
-=======
-
 import { Grid, Label, Form, Button, Segment, Header, Icon } from "semantic-ui-react";
 
->>>>>>> master
 import Filters from "./Filters";
 import axios from "axios";
 import Chart from "chart.js";
@@ -191,19 +186,6 @@ class MoyStatistics extends Component {
             fields.push({ field, filters: datafilters });
 
             this.setState({ filters: {}, fields, labels });
-
-<<<<<<< HEAD
-            const { data } = axios({
-                method: 'post',
-                url: 'http://localhost:8000/notes/',
-                data: postData,
-                headers: { 'Authorization': `Token ${this.props.token}` }
-            }).then(resp => {
-                this.addLineToChart(this.chart, resp.data.result, title, this.randomizeColors(1)[0], id);
-            });
-
-=======
->>>>>>> master
 
             const { data } = axios({
                 method: 'post',
@@ -391,11 +373,8 @@ class MoyStatistics extends Component {
                         </Form>
                     </Grid.Row>
                 </Grid>
-<<<<<<< HEAD
             </React.Fragment>
-=======
-            </div>
->>>>>>> master
+
         );
     }
 }

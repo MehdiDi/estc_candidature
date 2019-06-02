@@ -277,16 +277,9 @@ class Candidats extends Component {
 
         return (
             <React.Fragment>
-<<<<<<< HEAD
                 <Dimmer active={this.state.loading}>
                     <Loader size='small'>
                         Chargement..
-=======
-                <Segment>
-                    <Dimmer active={this.state.loading}>
-                        <Loader size='small'>
-                            Chargement..
->>>>>>> master
                     </Loader>
                 </Dimmer>
                 <Form>
@@ -303,8 +296,6 @@ class Candidats extends Component {
                                 <Form.Group>
                                     <Checkbox onChange={this.onToggle.bind(this)} name="count_enabled" toggle label="Compter " />
                                 </Form.Group>
-
-<<<<<<< HEAD
                                 <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column" onChange={this.onOptionChange.bind(this)}
                                     selection options={this.state.group_columns} />
                             </Segment>
@@ -366,76 +357,7 @@ class Candidats extends Component {
 
                     </Grid.Row>
                 </Grid>
-=======
-                                <Segment>
-                                    <Form.Group>
-                                        <Checkbox onChange={this.onToggle.bind(this)} name="count_enabled" toggle label="Compter " />
-                                    </Form.Group>
 
-                                    <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column" onChange={this.onOptionChange.bind(this)}
-                                        selection options={this.state.group_columns} />
-                                </Segment>
-                            </Grid.Column>
-                            <Grid.Column width={10}>
-                                <Filters onChange={this.onFiltersChange.bind(this)}
-                                    typesbac={this.state.typesbac} diplomes={this.state.diplomes} />
-                            </Grid.Column>
-                        </Grid>
-
-                        <Form.Group>
-                            <Header as='h4'>Choisir type de graph</Header>
-                        </Form.Group>
-                        <Form.Field>
-                            <Radio
-                                label=''
-                                name='chart_type'
-                                value='pie'
-                                checked={this.state.kind === 'pie'}
-                                onChange={this.handleChange.bind(this)}
-
-                            />{<Icon size='big' color='teal' name='pie chart' />}
-
-                        </Form.Field>
-                        <Form.Field>
-                            <Radio
-                                label=''
-                                name='chart_type'
-                                value='bar'
-                                checked={this.state.kind === 'bar'}
-                                onChange={this.handleChange.bind(this)}
-
-                            />{<Icon size='big' color='teal' name='bar chart' />}
-
-                        </Form.Field>
-                        <Form.Field>
-                            <Button size='medium' color='teal' type='submit' onClick={this.onSubmit.bind(this)}>
-                                Tracer le graph
-                                </Button>
-                        </Form.Field>
-                    </Form>
-                    <Button style={{ margin: '10px 0 0' }}
-                        icon='download'
-                        onClick={this.saveChart.bind(this)} />
-                    <Grid>
-                        <Grid.Row>
-                            <canvas id="chart">
-
-                            </canvas>
-                        </Grid.Row>
-                        <Grid.Row textAlign='center'>
-
-                            {this.state.chart.chart &&
-
-                                <Statistic size='huge' style={styleStats}  >
-                                    <Statistic.Label >Total</Statistic.Label>
-                                    <Statistic.Value>{this.state.chart.number}</Statistic.Value>
-                                </Statistic>
-                            }
-
-                        </Grid.Row>
-                    </Grid>
-                </Segment>
->>>>>>> master
             </React.Fragment>
         )
     }

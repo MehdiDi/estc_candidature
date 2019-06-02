@@ -6,14 +6,11 @@
     "axios": "^0.18.0",
     "chart.js": "^2.8.0",
     "chartjs-plugin-datalabels": "^0.6.0",
-<<<<<<< HEAD
-    "lodash": "^4.17.11",
-    "radium": "^0.25.1",
-=======
     "html2canvas": "^1.0.0-rc.1",
     "jquery": "^3.4.1",
     "jspdf": "^1.5.3",
->>>>>>> master
+    "lodash": "^4.17.11",
+    "radium": "^0.25.1",
     "react": "^16.8.6",
     "react-csv-reader": "^1.2.2",
     "react-dom": "^16.8.6",

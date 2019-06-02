@@ -1,12 +1,8 @@
-from .utils.pg_database import dictfetchall
-from .models import Candidat, DiplomeSup, Module, Elementmodule, Passer
 from django.db import connection
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-
 from .query_generators import *
 from .utils.pg_database import dictfetchall
 from .models import Candidat, DiplomeSup, Module, Elementmodule, Passer
@@ -14,12 +10,12 @@ from .ml.ml_methods import *
 
 
 class CustomAuthToken(ObtainAuthToken):
-
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        print(user)
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
@@ -28,67 +24,6 @@ class CustomAuthToken(ObtainAuthToken):
             'expiresIn': 7200,
             'username': user.username
         })
-
-
-def contains_operator(string):
-    ops = ('=', '<', '>', '<=', '>=')
-    return string.startswith(ops)
-
-
-def create_sql_candidats(columns, filters):
-    select_cols = ''.join(','.join(col for col in columns))
-    sql = "SELECT " + select_cols + (',' if len(columns) != 0 else '') \
-          + " COUNT(codecandidat) as count FROM donneescandidat() " + \
-          ('' if len(filters) == 0 else "WHERE "
-                                        + ''.join(' AND '.join(k + v if contains_operator(v)
-                                                               else k + " ILIKE '%" + v + "%'" for k, v in
-                                                               filters.items())))
-    sql += " GROUP BY " + select_cols if len(columns) != 0 else ''
-
-    sql += " ORDER BY " + \
-        ','.join(col for col in columns) if len(columns) != 0 else ''
-
-    return sql
-
-
-def create_aggregation_sql(columns, filters, count_column, table, op):
-    select_cols = ','.join(columns)
-
-    sql = "SELECT " + select_cols + (',' if len(columns) != 0 else '')
-    if op == 'count':
-        sql += 'COUNT(DISTINCT ' + count_column + ') as ' + count_column
-    elif op == 'avg':
-        sql += 'AVG(' + count_column + ') as ' + count_column
-    elif op == 'max':
-        sql += 'MAX(' + count_column + ') as ' + count_column
-    else:
-        sql += count_column + ' as ' + count_column
-
-    sql += " FROM " + table + \
-           ('' if len(filters) == 0 else " WHERE "
-                                         + ''.join(' AND '.join(k + v if contains_operator(v)
-                                                                else k + " ILIKE '%" + v + "%' " for k, v in
-                                                                filters.items())))
-    if op in ('count', 'avg', 'max', 'min'):
-
-        sql += " GROUP BY " + select_cols
-    sql += " ORDER BY " + ','.join(columns) if len(columns) != 0 else ''
-    return sql
-
-
-def format_data(result, key):
-    values = []
-    counts = []
-
-    for data in result:
-        counts.append(data[key])
-        val = ', '.join(str(v) if v is not None else 'null' for k,
-                        v in data.items() if k != key)
-        data.items()
-        values.append(val)
-
-    return values, counts
-
 
 
 class StatisticView(APIView):
@@ -235,12 +170,8 @@ class NotesStatistic(APIView):
         join = table + ' ' + table_alias + ' INNER JOIN donneescandidat() c ON ' + \
             table_alias + '.codecandidat = c.codecandidat '
 
-<<<<<<< HEAD
-        sql = create_aggregation_sql(
-            ['anneecandidature'], filters, column, join, op)
-=======
+
         sql = create_aggregation_sql(['anneecandidature'], filters, column, join, op, False)
->>>>>>> master
 
         cursor = connection.cursor()
         cursor.execute(sql)
@@ -262,16 +193,6 @@ class NotesStatistic(APIView):
 
         return Response({'result': data})
 
-
-<<<<<<< HEAD
-def create_notes_select(column, target_column, target_table):
-    sql = "SELECT " + column + ", "
-    sql += target_column + ' as ' + target_column
-    sql += " FROM modules_candidat() mc " + \
-           ' INNER JOIN ' + target_table + ' ON mc.codecandidat = ' + \
-        target_table + '.codecandidat'
-=======
->>>>>>> master
 
 class RapportCandidat(APIView):
 
@@ -424,11 +345,6 @@ class RapportCandidat(APIView):
         passe_concours = res[0]['nb']
         return_data['passe_concours'] = passe_concours
 
-<<<<<<< HEAD
-                                         + ''.join(' AND '.join(k + v if contains_operator(v)
-                                                                else k + " ILIKE '%" + v + "%' " for k, v in
-                                                                filters.items())))
-=======
         sql = create_aggregation_sql(['estadmis.codecandidat'], filters, 'listeadmission', 'estadmis', '', True)
         cursor.execute(sql)
         res = dictfetchall(cursor)
@@ -436,20 +352,13 @@ class RapportCandidat(APIView):
         nb_principal = 0
         nb_attent = 0
 
-
         for row in res:
-
-
             if row['listeadmission'] == 'p':
                 nb_principal += 1
-
             else:
                 nb_attent += 1
 
-
         return_data['admis'] = {'nb_principal': nb_principal, 'nb_attent': nb_attent}
-
-
         return Response({'result': return_data})
 
 
@@ -538,7 +447,6 @@ class PredictCandidats(APIView):
         return Response({'prediction': val, 'precision': p})
 
 
-
 def isfloat(value):
     try:
         float(value)
@@ -547,12 +455,9 @@ def isfloat(value):
         return False
 
 
-
 def isint(value):
     try:
         int(value)
         return True
     except ValueError:
         return False
-
->>>>>>> master
