@@ -1,6 +1,8 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import Candidats from "./Candidats";
-import {Grid, Segment} from "semantic-ui-react";
+
+import { Grid, Segment } from "semantic-ui-react";
+
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
@@ -12,6 +14,9 @@ class Statistics extends Component {
         super(props);
         this.state = {
             activeItem: 'Rapport'
+            activeItem: 'Candidats',
+            show: false,
+
         }
 
     }
@@ -23,14 +28,15 @@ class Statistics extends Component {
         const { activeItem } = this.state;
         let categoryStatistics;
 
-        if(activeItem==='Candidats')
+        if (activeItem === 'Candidats')
             categoryStatistics = <Candidats />;
-        else if(activeItem === 'Préselection')
+        else if (activeItem === 'Préselection')
             categoryStatistics = <PreselectionStatistics />;
         else if (activeItem === 'Aprés Selection')
             categoryStatistics = <EtudiantStatistics />;
         else if (activeItem === 'Notes')
             categoryStatistics = <MoyStatistics />;
+
         else if (activeItem === 'Rapport')
             categoryStatistics = <Rapport />
 

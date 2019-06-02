@@ -2,25 +2,30 @@ import React from 'react'
 import { Dropdown, Form } from 'semantic-ui-react'
 
 const renderLabel = label => ({
-  color: 'blue',
-  content: `${label.text}`,
-  icon: 'check',
+    color: 'blue',
+    content: `${label.text}`,
+    icon: 'check',
 });
 
 class SelectOptions extends React.Component {
 
+
+    constructor(props) {
+        super(props)
+    }
 
     onOptionChange = (ev, el) => {
         this.props.onChange(ev, el);
 
     };
 
-    render(){
+
+    render() {
+
         return (
             <Form.Field>
-                <label>{ this.props.placeholder }</label>
+                <label>{this.props.placeholder}</label>
                 <Dropdown
-
                     multiple
                     selection
                     width={16}

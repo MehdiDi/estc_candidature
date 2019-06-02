@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from . import views
 
@@ -11,4 +12,5 @@ urlpatterns = [
     path('notes/', views.NotesStatistic.as_view(), name='notes'),
     path('rapport/', views.RapportCandidat.as_view(), name='rapport'),
     path('predict/', views.PredictCandidats.as_view(), name='predict'),
+    path('api/token/', views.CustomAuthToken.as_view(), name="api-token"),
 ]
