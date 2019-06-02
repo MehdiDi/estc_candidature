@@ -6,6 +6,7 @@
     .FontSize {
         font-size:13px;
     }
+<<<<<<< HEAD
 }
 
 .Active {
@@ -14,4 +15,6 @@
     font-style: italic;
     font-size: 1.3rem;
     font-weight: bold
+=======
+>>>>>>> master
 }
