@@ -33,7 +33,6 @@ class App extends Component {
     return (
       <div className="App">
         {/*<Container>*/}
-        <NavBar />
         {routes}
         {/*</Container>*/}
       </div>
