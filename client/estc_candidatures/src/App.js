@@ -1,18 +1,29 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import 'chart.js';
 import Statistics from "./components/statistics/Statistics";
-import { Route, BrowserRouter as Router } from "react-router-dom";
-import MachineLearning from "./components/machine_learning/MachineLearning";
+import MachineLearning from "./components/machine_learning/MachineLearning.js";
 
-
-
-function App() {
-  return (
-    <Router className="App">
-        <Route path='/statistics' component={Statistics} />
-        <Route path='/predict' component={MachineLearning} />
-    </Router>
-  );
+import Login from './views/Login/Login';
+import { connect } from 'react-redux';
+class App extends Component {
+  render() {
+    return (
+      <div className="App">  {console.log(this.props.auth)}
+        <Switch>
+          <Route path="/" exact component={Login} />
+          {this.props.auth ? <Route path="/statistics" exact component={Statistics} /> : <Redirect to="/" />}
+          {this.props.auth ? <Route path='/predict' exact component={MachineLearning} /> : <Redirect to="/" />}
+        </Switch>
+    </div>
+    );
+  }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    auth: state.token !== null
+  };
+};
+
+export default connect(mapStateToProps, null)(App);

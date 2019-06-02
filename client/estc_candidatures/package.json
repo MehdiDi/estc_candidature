@@ -11,9 +11,12 @@
     "jspdf": "^1.5.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-redux": "^7.0.3",
     "react-router-dom": "^5.0.0",
     "react-scripts": "3.0.0",
     "react-semantic-ui": "^0.2.0",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
     "semantic-ui-react": "^0.86.0"
   },
   "scripts": {
