@@ -294,7 +294,7 @@ class MachineLearning extends Component {
                             <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
                                 {target} {'"' + this.state.resultat + '"'}</Header>
                             <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
-                              Pourcentage de Précision est : {'"' + this.state.precision + '"'}</Header>
+                              Précision est : {'"' + this.state.precision + '"'}</Header>
                         </Form.Field> : null}
                     </Form>
                 </Segment>

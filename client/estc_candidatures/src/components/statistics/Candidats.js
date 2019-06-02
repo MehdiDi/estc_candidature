@@ -99,48 +99,50 @@ class Candidats extends Component {
 
     onOptionChange = (ev, el) => {
 
-      this.setState({[el.name]: el.value},() =>{
+      this.setState({[el.name]: el.value},() => {
 
-      if(el.name === 'selected_columns') {
+          if (el.name === 'selected_columns') {
 
-          const options = el.options;
-          const group_columns = this.state.group_columns;
-          group_columns.length = 1;
-        
-        this.setState({ [el.name]: el.value }, () => {
+              const options = el.options;
+              const group_columns = this.state.group_columns;
+              group_columns.length = 1;
 
-            if (el.name === 'selected_columns') {
+              this.setState({[el.name]: el.value}, () => {
 
-
-                let opts = [
-                    {
-                        key: -1,
-                        text: "Aucun",
-                        value: "-1"
-                    }
-                ];
-                if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
-                    this.setState({ count_column: null });
-                }
+                  if (el.name === 'selected_columns') {
 
 
-                options.map(opt => {
-                    if (this.state.selected_columns.indexOf(opt.value) > -1) {
-                        opts.push(
-                            {
-                                key: opt.value,
-                                text: opt.text,
-                                value: opt.value
-                            }
-                        );
-                    }
-                    return null;
-                });
-                this.setState({ group_columns: opts });
-            }
-        });
+                      let opts = [
+                          {
+                              key: -1,
+                              text: "Aucun",
+                              value: "-1"
+                          }
+                      ];
+                      if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
+                          this.setState({count_column: null});
+                      }
 
-    };
+
+                      options.map(opt => {
+                          if (this.state.selected_columns.indexOf(opt.value) > -1) {
+                              opts.push(
+                                  {
+                                      key: opt.value,
+                                      text: opt.text,
+                                      value: opt.value
+                                  }
+                              );
+                          }
+                          return null;
+                      });
+                      this.setState({group_columns: opts});
+                  }
+              });
+
+          }
+      });
+      };
 
     onFiltersChange = (e, el) => {
 

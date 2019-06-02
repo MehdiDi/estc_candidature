@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'core.apps.CoreConfig',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -84,8 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'estc_candidatures',
         'USER': 'postgres',
-        'PASSWORD': 'root',
-
+        'PASSWORD': '123123',
         'HOST': '127.0.0.1',
         'PORT': '5432',
 
@@ -141,5 +139,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-CORS_ORIGIN_WHITELIST = 'http://localhost:3000',
