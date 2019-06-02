@@ -2,20 +2,43 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import 'chart.js';
 import Statistics from "./components/statistics/Statistics";
-import MachineLearning from "./components/machine_learning/MachineLearning.js";
+
 
 import Login from './views/Login/Login';
+import Logout from './views/Login/Logout/Logout';
 import { connect } from 'react-redux';
+import * as actions from './store/actions/index'
+import MachineLearning from './components/machine_learning/MachineLearning'
+
+
 class App extends Component {
+  componentDidMount() {
+    this.props.onTry();
+  }
   render() {
-    return (
-      <div className="App">  {console.log(this.props.auth)}
+
+    let routes = (
+      <Switch>
+        <Route path="/" exact component={Login} />
+      </Switch>
+    );
+    if (this.props.auth) {
+      routes = (
         <Switch>
-          <Route path="/" exact component={Login} />
-          {this.props.auth ? <Route path="/statistics" exact component={Statistics} /> : <Redirect to="/" />}
-          {this.props.auth ? <Route path='/predict' exact component={MachineLearning} /> : <Redirect to="/" />}
+          <Route path="/logout" component={Logout} />
+          <Route path="/statistics" component={Statistics} />
+          <Route path="/machinelearning" component={MachineLearning} />
+          <Redirect to="/statistics" />
         </Switch>
-    </div>
+      );
+    }
+    return (
+      <div className="App">
+        {/*<Container>*/}
+        {routes}
+        {/*</Container>*/}
+      </div>
+
     );
   }
 }
@@ -26,4 +49,11 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, null)(App);
+const mapDispatchToProps = dispatch => {
+  return {
+    onTry: () => dispatch(actions.authCheckState())
+  };
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import { Grid, Label, Form, Button, Segment, Header, Icon } from "semantic-ui-react";
 
 import Filters from "./Filters";
@@ -188,7 +187,6 @@ class MoyStatistics extends Component {
 
             this.setState({ filters: {}, fields, labels });
 
-
             const { data } = axios({
                 method: 'post',
                 url: 'http://localhost:8000/notes/',
@@ -282,7 +280,7 @@ class MoyStatistics extends Component {
         });
 
         return (
-            <div>
+            <React.Fragment>
                 <Segment placeholder>
                     <Button as='a' color='teal' id='downloadImage' download='chart.png' href='#' onClick={this.onDownload}
                         content='Telecharger' icon='download' labelPosition='right' />
@@ -375,7 +373,8 @@ class MoyStatistics extends Component {
                         </Form>
                     </Grid.Row>
                 </Grid>
-            </div>
+            </React.Fragment>
+
         );
     }
 }

@@ -187,7 +187,7 @@ class EtudiantStatistics extends Component {
         ));
 
         return (
-            <>
+            <React.Fragment>
                 <Form method='GET' onSubmit={this.onSubmit.bind(this)}>
                     <Grid columns={2}>
                         <Grid.Column>
@@ -268,7 +268,7 @@ class EtudiantStatistics extends Component {
                         <Graph chart="chart_etudiants" />
                     </Grid.Row>
                 </Grid>
-            </>
+            </React.Fragment>
         );
     }
 }
