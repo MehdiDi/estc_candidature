@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import RapportResult from "./RapportResult";
 import ReactToPrint from 'react-to-print';
-import {connect} from "react-redux";
 
 
 const anneeOptions = [

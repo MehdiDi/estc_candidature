@@ -3,7 +3,6 @@ import classes from './Login.module.css';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Form, Label } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
 import Input from '../../components/Input/Input';
 import * as actions from '../../store/actions/index';
 
@@ -87,9 +86,7 @@ class Login extends Component {
     }
     updatedOrderFrom[id] = updatedFormElement;
     let formIsValid = false;
-    if (updatedOrderFrom['username'].value === "abdelaziz" && updatedOrderFrom['password'].value === "123123") {
-      formIsValid = true;
-    }
+
 
     this.setState({ loginForm: updatedOrderFrom, formIsValid: formIsValid });
   }

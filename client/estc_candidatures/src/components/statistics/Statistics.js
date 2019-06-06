@@ -49,13 +49,11 @@ class Statistics extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <Grid stretched style={{
+                <Grid stackable stretched style={{
                     marginTop: 0,
                     backgroundColor: '#FFF'
                 }}>
-                    <Grid.Column width={3} style={{
-                        minHeight: '100vh'
-                    }}>
+                    <Grid.Column width={3} >
                         <Menu vertical compact style={styles}>
                             <Menu.Item
 

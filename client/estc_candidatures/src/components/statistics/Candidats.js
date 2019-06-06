@@ -103,20 +103,8 @@ class Candidats extends Component {
 
               const options = el.options;
               const group_columns = this.state.group_columns;
-              // group_columns.length = 1;
+                group_columns.length = 1;
 
-
-                const options = el.options;
-
-                this.state.group_columns.length = 1;
-
-                let opts = [
-                    {
-                        key: -1,
-                        text: "Aucun",
-                        value: "-1"
-                    }
-                ];
                 if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
                     this.setState({ count_column: null });
                 }
@@ -230,7 +218,7 @@ class Candidats extends Component {
                         formatter: (value, ctx) => {
                             let sum = 0;
                             let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => {
+                            dataArr.forEach(data => {
                                 sum += data;
                             });
                             let percentage = (value * 100 / sum).toFixed(2) + "%";

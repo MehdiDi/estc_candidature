@@ -1,6 +1,5 @@
-import _ from "lodash";
 import React, { Component } from "react";
-import { Redirect, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { Menu, Segment } from "semantic-ui-react";
 import Classes from './NavBar.module.css';
 
