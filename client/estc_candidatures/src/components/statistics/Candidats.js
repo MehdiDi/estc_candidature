@@ -18,6 +18,7 @@ import Filters from "./Filters";
 import axios from "axios"
 import Chart  from 'chart.js'
 
+
 const column_choices = [
     {
         key: 0,
@@ -93,7 +94,7 @@ class Candidats extends Component {
     };
 
     onOptionChange = (ev, el) => {
-        try{
+        
         console.log(el);
 
       this.setState({[el.name]: el.value},() => {
@@ -104,10 +105,21 @@ class Candidats extends Component {
               const group_columns = this.state.group_columns;
               // group_columns.length = 1;
 
-              this.setState({[el.name]: el.value}, () => {
 
-                  if (el.name === 'selected_columns') {
+                const options = el.options;
 
+                this.state.group_columns.length = 1;
+
+                let opts = [
+                    {
+                        key: -1,
+                        text: "Aucun",
+                        value: "-1"
+                    }
+                ];
+                if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
+                    this.setState({ count_column: null });
+                }
 
                       let opts = [
                           {
@@ -135,12 +147,10 @@ class Candidats extends Component {
                       this.setState({group_columns: opts});
                   }
               });
-          }
-      });
-      }catch(e) {
-            console.log(e);
-        }
-      };
+          
+      }
+      
+
 
     onFiltersChange = (e, el) => {
 
@@ -220,21 +230,17 @@ class Candidats extends Component {
                         formatter: (value, ctx) => {
                             let sum = 0;
                             let dataArr = ctx.chart.data.datasets[0].data;
-
                             dataArr.map(data => {
                                 sum += data;
                             });
                             let percentage = (value * 100 / sum).toFixed(2) + "%";
-
                             return percentage;
                         },
                         color: '#fff',
                     }
-
                 },
 
             };
-
         else {
             chartData['options'] = {
                 plugins: {
@@ -247,7 +253,7 @@ class Candidats extends Component {
         }
 
         const chart = new Chart(ctx, chartData);
-
+        console.log(chart.options);
         chart.update();
         crt.chart = chart;
         crt.number = (function () {
@@ -293,6 +299,7 @@ class Candidats extends Component {
                                 <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column"
                                              onChange={this.onOptionChange.bind(this)}
                                              selection options={this.state.group_columns} />
+
                             </Segment>
                         </Grid.Column>
                         <Grid.Column width={10}>
@@ -352,7 +359,6 @@ class Candidats extends Component {
 
                     </Grid.Row>
                 </Grid>
-
             </React.Fragment>
         )
     }
