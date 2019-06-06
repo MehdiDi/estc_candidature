@@ -33,20 +33,14 @@ class EtudiantStatistics extends Component {
     }
 
     async componentDidMount() {
-        const data = await axios({
-            method: 'get',
-            url: 'http://localhost:8000/modules',
-            headers: { 'Authorization': `Token ${this.props.token}` }
-        });;;
-
+        const data = await axios.get('http://localhost:8000/modules',
+            { 'Authorization': `Token ${this.props.token}` }
+        );
 
         this.setState({ modules: data.data.modules });
 
-        const filterdata = await axios({
-            method: 'get',
-            url: 'http://localhost:8000/filters',
-            headers: { 'Authorization': `Token ${this.props.token}` }
-        });
+        const filterdata = await axios.get('http://localhost:8000/filters',
+             { 'Authorization': `Token ${this.props.token}` });
 
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes });
     }
@@ -98,13 +92,8 @@ class EtudiantStatistics extends Component {
         const postData = { column: this.state.column, target: this.state.target, filters: this.state.filters };
         this.setState({ loading: true });
         try {
-            const { data } = await axios({
-                method: 'post',
-                url: 'http://localhost:8000/modules/',
-                data: postData,
-                headers: { 'Authorization': `Token ${this.props.token}` }
-            });
-
+            const { data } = await axios.post('http://localhost:8000/modules/',postData,
+                { 'Authorization': `Token ${this.props.token}` });
 
             const ctx = document.getElementById("chart_etudiants").getContext('2d');
 

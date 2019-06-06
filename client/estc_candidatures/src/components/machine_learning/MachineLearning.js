@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Select, Input, Segment, Form, Radio, Header, Button, Grid, Dropdown, Message } from 'semantic-ui-react'
 import axios from 'axios'
-import Classes from "../machine_learning/styles.css"
 
 let params;
 const renderLabel = label => ({
@@ -256,7 +255,7 @@ class MachineLearning extends Component {
                                     </Segment>
                                 </Form.Field>
                                 <Form.Field>
-                                    <Button style={{ margin: "5px" }} loading={this.state.loading} color='teal' type='submit'>
+                                    <Button loading={this.state.loading} color='teal' type='submit'>
                                         Envoyer </Button>
                                 </Form.Field>
                             </Grid.Column> : null}
@@ -291,9 +290,9 @@ class MachineLearning extends Component {
                                 </Button> : null}
                         </Form.Field>
                         {this.state.resultatShow ? <Form.Field>
-                            <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
+                            <Header as="h2" color='blue' >
                                 {target} {'"' + this.state.resultat + '"'}</Header>
-                            <Header as="h2" color='blue' style={{ 'font-family': "Times New Roman" }} >
+                            <Header as="h2" color='blue' >
                               Précision est : {'"' + this.state.precision + '"'}</Header>
                         </Form.Field> : null}
                     </Form>

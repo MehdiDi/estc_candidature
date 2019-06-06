@@ -111,7 +111,7 @@ def create_corr_select(column, target_column, target_table):
 
 
 def create_sql(column, target_column, table, target_table):
-    sql = "SELECT " + table[0] + "." + column + ',' + table[0] + "." + target_column + " as target "
+    sql = "SELECT " + table[0] + "." + column + ',' + target_table[:3] + "." + target_column + " as target "
     sql += " FROM " + table + ' ' + table[0] + \
            ' INNER JOIN ' + target_table + " " + target_table[:3] + ' ON ' + table[0] + '.codecandidat = ' \
            + target_table[:3] + '.codecandidat'

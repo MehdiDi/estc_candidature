@@ -18,8 +18,6 @@ import Filters from "./Filters";
 import axios from "axios"
 import Chart  from 'chart.js'
 
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-
 const column_choices = [
     {
         key: 0,
@@ -83,11 +81,8 @@ class Candidats extends Component {
     async componentDidMount() {
         console.log(this.props.token);
         // eslint-disable-next-line no-native-reassign
-        const { data } = await axios({
-            method: 'get',
-            url: 'http://localhost:8000/filters',
-            headers: { 'Authorization': `Token ${this.props.token}` }
-        });
+        const { data } = await axios.get('http://localhost:8000/filters',
+            { 'Authorization': `Token ${this.props.token}` });
         this.setState({ typesbac: data.typesbac, diplomes: data.diplomes });
     }
 
@@ -98,6 +93,8 @@ class Candidats extends Component {
     };
 
     onOptionChange = (ev, el) => {
+        try{
+        console.log(el);
 
       this.setState({[el.name]: el.value},() => {
 
@@ -105,7 +102,7 @@ class Candidats extends Component {
 
               const options = el.options;
               const group_columns = this.state.group_columns;
-              group_columns.length = 1;
+              // group_columns.length = 1;
 
               this.setState({[el.name]: el.value}, () => {
 
@@ -122,8 +119,7 @@ class Candidats extends Component {
                       if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
                           this.setState({count_column: null});
                       }
-
-
+                      console.log(options);
                       options.map(opt => {
                           if (this.state.selected_columns.indexOf(opt.value) > -1) {
                               opts.push(
@@ -139,9 +135,11 @@ class Candidats extends Component {
                       this.setState({group_columns: opts});
                   }
               });
-
           }
       });
+      }catch(e) {
+            console.log(e);
+        }
       };
 
     onFiltersChange = (e, el) => {
@@ -190,13 +188,9 @@ class Candidats extends Component {
             postData['count_column'] = this.state.count_column;
         }
 
-        const { data } = await axios({
-            method: 'post',
-            url: 'http://localhost:8000',
-            data: postData,
-            headers: { 'Authorization': `Token ${this.props.token}` }
-        });
-        //axios.post("http://localhost:8000", postData)
+        const { data } = await axios.post('http://localhost:8000',postData,
+            { 'Authorization': `Token ${this.props.token}` });
+
         const ctx = document.getElementById("chart").getContext('2d');
 
 
@@ -296,8 +290,9 @@ class Candidats extends Component {
                                 <Form.Group>
                                     <Checkbox onChange={this.onToggle.bind(this)} name="count_enabled" toggle label="Compter " />
                                 </Form.Group>
-                                <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column" onChange={this.onOptionChange.bind(this)}
-                                    selection options={this.state.group_columns} />
+                                <Form.Select disabled={!this.state.count_enabled} placeholder='Compter..' name="count_column"
+                                             onChange={this.onOptionChange.bind(this)}
+                                             selection options={this.state.group_columns} />
                             </Segment>
                         </Grid.Column>
                         <Grid.Column width={10}>

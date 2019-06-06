@@ -36,21 +36,18 @@ class PreselectionStatistics extends Component {
     }
 
     async componentDidMount() {
-        const { data } = await axios({
-            method: 'get',
-            url: 'http://localhost:8000/preselect/',
-            headers: { 'Authorization': `Token ${this.props.token}` }
-        });
+        const { data } = await axios.get('http://localhost:8000/preselect/',
+            {'Authorization': `Token ${this.props.token}`}
+        );
 
 
         this.setState({ modules: data.modules, elconcours: data.elconcours, elmodules: data.elmodules });
 
 
-        const filterdata = await axios({
-            method: 'get',
-            url: 'http://localhost:8000/filters/',
-            headers: { 'Authorization': `Token ${this.props.token}` }
-        });
+        const filterdata = await axios.get(
+            'http://localhost:8000/filters/',
+            { 'Authorization': `Token ${this.props.token}` }
+        );
 
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes });
 
@@ -114,12 +111,9 @@ class PreselectionStatistics extends Component {
                 'target': this.state.target
             };
 
-            const { data } = await axios({
-                method: 'post',
-                url: 'http://localhost:8000/preselect/',
-                data: postData,
-                headers: { 'Authorization': `Token ${this.props.token}` }
-            });
+            const { data } = await axios.post('http://localhost:8000/preselect/', postData,
+                {'Authorization': `Token ${this.props.token}`}
+            );
             this.setState({ loading: false });
 
             const ctx = document.getElementById("chart_etudiants").getContext('2d');
@@ -200,11 +194,12 @@ class PreselectionStatistics extends Component {
         ));
         const elmodules = this.state.elmodules.map(el => (
             {
-                key: el.codeelementemodule,
+                key: el.codeelementmodule,
                 text: el.libelleelementmodule,
-                value: el.codeelementemodule
+                value: el.codeelementmodule
             }
         ));
+        console.log(elmodules);
         const modules = this.state.modules.map(el => (
             {
                 key: el.codemodule,

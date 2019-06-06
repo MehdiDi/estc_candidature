@@ -3,6 +3,7 @@ import {Button, Form, Grid, Header, Modal, Table} from "semantic-ui-react";
 import axios from 'axios';
 import RapportResult from "./RapportResult";
 import ReactToPrint from 'react-to-print';
+import {connect} from "react-redux";
 
 
 const anneeOptions = [
@@ -102,9 +103,12 @@ class Rapport extends Component {
         }
     }
     async componentDidMount() {
-        const filterdata = await axios.get('http://localhost:8000/filters/');
+
+        const filterdata =
+            await axios.get('http://localhost:8000/filters/',{ 'Authorization': `Token ${this.props.token}`});
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes,
-            modules: filterdata.data.modules});
+                    modules: filterdata.data.modules});
+
     }
 
     formatOptions  = (values) => {
@@ -362,4 +366,10 @@ class Rapport extends Component {
     }
 }
 
-export default Rapport;
+const mapStateToProps = state => {
+    return {
+        token: state.token
+    };
+};
+
+export default connect(mapStateToProps)(Rapport);

@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Grid, Label, Form, Button, Segment, Header, Icon } from "semantic-ui-react";
+import {Grid, Label, Form, Button, Segment, Header, Icon, Loader, Dimmer} from "semantic-ui-react";
 
 import Filters from "./Filters";
 import axios from "axios";
 import Chart from "chart.js";
 import { connect } from 'react-redux';
+import $ from 'jquery';
+
 const style = {
     list_buttons: {
         width: '100%',
@@ -24,7 +26,8 @@ class MoyStatistics extends Component {
             elmodules: [],
             filters: {},
             labels: [],
-            op: 'avg'
+            op: 'avg',
+            loading: false
 
         }
 
@@ -32,18 +35,13 @@ class MoyStatistics extends Component {
 
     async componentDidMount() {
         try {
-            const filterdata = await axios({
-                method: 'get',
-                url: 'http://localhost:8000/filters',
-                headers: { 'Authorization': `Token ${this.props.token}` }
-            });
-            const { data } = await axios({
-                method: 'get',
-                url: 'http://localhost:8000/preselect',
-                headers: { 'Authorization': `Token ${this.props.token}` }
-            });
-            console.log('filterdata', filterdata);
-            console.log('ddaata', data);
+            const filterdata = await axios.get('http://localhost:8000/filters',
+                { 'Authorization': `Token ${this.props.token}` }
+            );
+            const { data } = await axios.get('http://localhost:8000/preselect',
+                { 'Authorization': `Token ${this.props.token}` }
+            );
+
 
             this.setState({
                 typesbac: filterdata.data.typesbac, modules: data.modules, diplomes: filterdata.data.diplomes,
@@ -62,7 +60,7 @@ class MoyStatistics extends Component {
     randomizeColors = (n) => {
         let colors = [];
 
-        var letters = '0123456789ABCDEF'.split('');
+        const letters = '0123456789ABCDEF'.split('');
 
         for (let i = 0; i < n; i++) {
             colors[i] = '#';
@@ -151,6 +149,7 @@ class MoyStatistics extends Component {
     index = 0;
 
     onClick = (e, el) => {
+        this.setState({loading: true});
         this.refs.filters.clearFilters();
         const field = el.field;
         const value = el.value;
@@ -187,13 +186,20 @@ class MoyStatistics extends Component {
 
             this.setState({ filters: {}, fields, labels });
 
-            const { data } = axios({
-                method: 'post',
-                url: 'http://localhost:8000/notes/',
-                data: postData,
-                headers: { 'Authorization': `Token ${this.props.token}` }
-            }).then(resp => {
+            axios.post('http://localhost:8000/notes/', postData,
+                { 'Authorization': `Token ${this.props.token}`})
+                .then(resp => {
                 this.addLineToChart(this.chart, resp.data.result, title, this.randomizeColors(1)[0], id);
+                this.setState({loading: false});
+                const hash = '#downloadImage';
+                $('html, body').animate({
+                    scrollTop: $(hash).offset().top
+
+                    }, 250, function(){
+
+                    // Add hash (#) to URL when done scrolling (default click behavior)
+                    window.location.hash = hash;
+                });
             });
         }
     };
@@ -280,7 +286,12 @@ class MoyStatistics extends Component {
         });
 
         return (
-            <React.Fragment>
+            <React.Fragment style={{scrollBehavior: 'smooth'}}>
+                <Dimmer active={this.state.loading}>
+                    <Loader size='small'>
+                        Chargement..
+                    </Loader>
+                </Dimmer>
                 <Segment placeholder>
                     <Button as='a' color='teal' id='downloadImage' download='chart.png' href='#' onClick={this.onDownload}
                         content='Telecharger' icon='download' labelPosition='right' />
@@ -292,6 +303,9 @@ class MoyStatistics extends Component {
                         <Form>
                             <Grid stackable>
                                 <Grid.Column width={9}>
+                                    <Label.Group>
+                                        {labels}
+                                    </Label.Group>
                                     <Form.Field>
                                         <Form.Select label='Opération:' fluid options={
                                             [
@@ -299,9 +313,7 @@ class MoyStatistics extends Component {
                                                 { key: 2, text: 'Majorant', value: 'max' },
                                             ]} name='op' onChange={this.onOpChange} selected={'avg'} />
                                     </Form.Field>
-                                    <Label.Group>
-                                        {labels}
-                                    </Label.Group>
+
                                     <Form.Group inline>
                                         <Form.Field>
                                             <Button
