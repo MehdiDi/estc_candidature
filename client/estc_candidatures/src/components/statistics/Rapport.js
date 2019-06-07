@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import RapportResult from "./RapportResult";
 import ReactToPrint from 'react-to-print';
+import Chart from "chart.js";
 
 
 const anneeOptions = [
@@ -108,6 +109,8 @@ class Rapport extends Component {
             await axios.get('http://localhost:8000/filters/',{ 'Authorization': `Token ${this.props.token}`});
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes,
                     modules: filterdata.data.modules});
+        Chart.plugins.clear();
+
 
 
     }

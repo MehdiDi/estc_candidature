@@ -49,7 +49,10 @@ class MoyStatistics extends Component {
                 elmodules: data.elmodules
             });
 
-            this.initChart(data.annees)
+            this.initChart(data.annees);
+            Chart.plugins.clear();
+
+
         } catch (err) {
             alert(err);
         }

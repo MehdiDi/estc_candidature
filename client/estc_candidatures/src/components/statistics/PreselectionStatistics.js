@@ -50,6 +50,8 @@ class PreselectionStatistics extends Component {
         );
 
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes });
+        Chart.plugins.clear();
+
 
 
     }

@@ -16,7 +16,7 @@ import {
 } from "semantic-ui-react";
 import Filters from "./Filters";
 import axios from "axios"
-import Chart  from 'chart.js'
+import ChartComp from "./ChartComp";
 
 
 const column_choices = [
@@ -80,7 +80,7 @@ class Candidats extends Component {
     }
 
     async componentDidMount() {
-        console.log(this.props.token);
+
         // eslint-disable-next-line no-native-reassign
         const { data } = await axios.get('http://localhost:8000/filters',
             { 'Authorization': `Token ${this.props.token}` });
@@ -94,8 +94,7 @@ class Candidats extends Component {
     };
 
     onOptionChange = (ev, el) => {
-        
-        console.log(el);
+
 
       this.setState({[el.name]: el.value},() => {
 
@@ -119,7 +118,7 @@ class Candidats extends Component {
                       if (this.state.selected_columns.indexOf(this.state.count_column) === -1) {
                           this.setState({count_column: null});
                       }
-                      console.log(options);
+
                       options.map(opt => {
                           if (this.state.selected_columns.indexOf(opt.value) > -1) {
                               opts.push(
@@ -189,70 +188,74 @@ class Candidats extends Component {
         const { data } = await axios.post('http://localhost:8000',postData,
             { 'Authorization': `Token ${this.props.token}` });
 
-        const ctx = document.getElementById("chart").getContext('2d');
+        // const ctx = document.getElementById("chart").getContext('2d');
 
-
-        let crt = this.state.chart;
-        if (crt.chart !== null) {
-            crt.chart.clear();
-            crt.chart.destroy();
-
-        }
-        let chartData = {
-            type: this.state.kind,
-            data: {
-                labels: data.labels,
-                datasets: [{
-
-                    data: data.counts,
-                    backgroundColor: this.randomizeColors(data.counts.length)
-
-                }]
-            },
-
-        };
-        if (this.state.kind === 'pie')
-            chartData['options'] = {
-                plugins: {
-                    datalabels: {
-                        formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.forEach(data => {
-                                sum += data;
-                            });
-                            let percentage = (value * 100 / sum).toFixed(2) + "%";
-                            return percentage;
-                        },
-                        color: '#fff',
-                    }
-                },
-
-            };
-        else {
-            chartData['options'] = {
-                plugins: {
-                    datalabels: {
-                        formatter: {}
-                    },
-
-                }
-            }
-        }
-
-        const chart = new Chart(ctx, chartData);
-        console.log(chart.options);
-        chart.update();
-        crt.chart = chart;
-        crt.number = (function () {
-            let n = 0;
-            for (let i = 0; i < data.counts.length; i++)
-                n += data.counts[i];
-            return n;
-        })();
-
-
-        this.setState({ loading: false, chart: crt });
+        this.setState({showChart: true, labels: data.labels, data: data.counts})
+        //
+        // let crt = this.state.chart;
+        // if (crt.chart !== null) {
+        //     crt.chart.clear();
+        //     crt.chart.destroy();
+        //
+        // }
+        // let chartData = {
+        //     type: this.state.kind,
+        //     data: {
+        //         labels: data.labels,
+        //         datasets: [{
+        //
+        //             data: data.counts,
+        //             backgroundColor: this.randomizeColors(data.counts.length)
+        //
+        //         }]
+        //     },
+        //
+        // };
+        // if (this.state.kind === 'pie'){
+        //     chartData['options'] = {
+        //         plugins: {
+        //             datalabels: {
+        //                 formatter: (value, ctx) => {
+        //                     let sum = 0;
+        //                     let dataArr = ctx.chart.data.datasets[0].data;
+        //                     dataArr.forEach(data => {
+        //                         sum += data;
+        //                     });
+        //                     let percentage = (value * 100 / sum).toFixed(2) + "%";
+        //                     return percentage;
+        //                 },
+        //                 color: '#fff',
+        //             }
+        //         },
+        //     };
+        // }
+        // else {
+        //     chartData['options'] = {
+        //         plugins: {
+        //             datalabels: {
+        //                 formatter: {}
+        //             },
+        //
+        //         },
+        //         legend: {
+        //             visible: false
+        //         }
+        //     }
+        // }
+        //
+        // const chart = new Chart(ctx, chartData);
+        // chart.update();
+        // crt.chart = chart;
+        // crt.number = (function () {
+        //     let n = 0;
+        //     for (let i = 0; i < data.counts.length; i++)
+        //         n += data.counts[i];
+        //     return n;
+        // })();
+        //
+        //
+        this.refs.chart.updateChart();
+        this.setState({ loading: false});
 
     };
     saveChart = () => {
@@ -332,9 +335,9 @@ class Candidats extends Component {
                     onClick={this.saveChart.bind(this)} />
                 <Grid>
                     <Grid.Row>
-                        <canvas id="chart">
-
-                        </canvas>
+                        {this.state.showChart && <ChartComp randomize data={{labels: this.state.labels, data: this.state.data}}
+                                    kind={this.state.kind} ref='chart' legend={this.state.kind === 'pie'}/>
+                        }
                     </Grid.Row>
                     <Grid.Row textAlign='center'>
 

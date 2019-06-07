@@ -34,9 +34,7 @@ class App extends Component {
     }
     return (
       <div className="App">
-        {/*<Container>*/}
         {routes}
-        {/*</Container>*/}
       </div>
 
     );

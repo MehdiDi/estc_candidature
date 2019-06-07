@@ -173,7 +173,7 @@ export default class RapportResult extends React.Component {
 
                             {Object.keys(reportResult).indexOf('typebac') > -1 &&
                             <Grid.Column >
-                                <ChartComp kind='horizontalBar'
+                                <ChartComp kind='horizontalBar' hideLabel
                                            data={{labels: reportResult.typebac.labels, data: reportResult.typebac.data}}/>
                             </Grid.Column>
                             }
@@ -190,7 +190,7 @@ export default class RapportResult extends React.Component {
 
                         {Object.keys(reportResult).indexOf('seltypebac') > -1 &&
                             <Grid.Column >
-                                <ChartComp kind='horizontalBar'
+                                <ChartComp kind='horizontalBar' hideLabel
                                            data={{labels: reportResult.seltypebac.labels, data: reportResult.seltypebac.data}}/>
                             </Grid.Column>
                         }

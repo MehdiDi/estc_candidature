@@ -31,8 +31,7 @@ class Statistics extends Component {
         let categoryStatistics;
         var styles = {
             backgroundColor: '#FFF',
-            minHeight: '100%',
-            minWidth: '100%',
+
             marginTop: '-1rem',
         };
 
@@ -51,31 +50,32 @@ class Statistics extends Component {
                 <NavBar />
                 <Grid stackable stretched style={{
                     marginTop: 0,
-                    backgroundColor: '#FFF'
+                    backgroundColor: '#FFF',
+                    minlength: '100%'
                 }}>
                     <Grid.Column width={3} >
                         <Menu vertical compact style={styles}>
                             <Menu.Item
 
                                 name='Candidats'
-                                classNames={`${activeItem === 'Candidats' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
+                                className={`${activeItem === 'Candidats' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
                                 onClick={this.handleItemClick} />
                             <Menu.Item
                                 name='Préselection'
                                 className={`${activeItem === 'Préselection' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
                                 onClick={this.handleItemClick} />
                             <Menu.Item
-                                classNames={`${activeItem === 'Aprés Selection' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
+                                className={`${activeItem === 'Aprés Selection' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
                                 name='Aprés Selection'
                                 onClick={this.handleItemClick}
                             />
                             <Menu.Item
-                                classNames={`${activeItem === 'Notes' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
+                                className={`${activeItem === 'Notes' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
                                 name='Notes'
                                 onClick={this.handleItemClick}
                             />
                             <Menu.Item
-                                classNames={`${activeItem === 'Rapport' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
+                                className={`${activeItem === 'Rapport' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
                                 name='Rapport'
                                 onClick={this.handleItemClick}
                             />

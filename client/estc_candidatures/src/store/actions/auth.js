@@ -51,7 +51,6 @@ export const auth = (username, password) => {
         };
 
         axios.post('http://127.0.0.1:8000/api/token/', authData).then(res => {
-            console.log(res.data);
             const expirationDate = new Date(new Date().getTime() + res.data.expiresIn * 1000)
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('username', res.data.username);
@@ -69,7 +68,6 @@ export const auth = (username, password) => {
 export const authCheckState = () => {
     return dispatch => {
         const token = localStorage.getItem('token');
-        console.log(token);
         if (!token) {
             dispatch(logout());
         } else {
