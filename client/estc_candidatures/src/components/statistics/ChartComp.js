@@ -42,7 +42,7 @@ class ChartComp extends Component {
             },
             legend: {display: this.props.legend}
         };
-        // chartData['options'] = options;
+
         const data = this.props.data.data;
         Chart.plugins.clear();
 
@@ -50,13 +50,13 @@ class ChartComp extends Component {
         Chart.plugins.register({
             id: 'p1',
   afterDatasetsDraw: function(chartInstance, easing) {
-    // To only draw at the end of animation, check for easing === 1
+
     var ctx = chartInstance.chart.ctx;
     chartInstance.data.datasets.forEach(function(dataset, i) {
       var meta = chartInstance.getDatasetMeta(i);
       if (!meta.hidden) {
         meta.data.forEach(function(element, index) {
-          // Draw the text in black, with the specified font
+
           ctx.fillStyle = kind === 'pie'? '#f1f1f1' : 'black';
           const fontSize = 16;
           const fontStyle = 'bold';
@@ -75,7 +75,6 @@ class ChartComp extends Component {
           else {
               dataString = dataset.data[index].toString();
           }
-          // Make sure alignment settings are correct
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           const padding = 5;
