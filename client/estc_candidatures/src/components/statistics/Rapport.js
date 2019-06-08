@@ -109,10 +109,6 @@ class Rapport extends Component {
             await axios.get('http://localhost:8000/filters/',{ 'Authorization': `Token ${this.props.token}`});
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes,
                     modules: filterdata.data.modules});
-        Chart.plugins.clear();
-
-
-
     }
 
     formatOptions = (values) => {

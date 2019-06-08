@@ -43,7 +43,6 @@ class EtudiantStatistics extends Component {
              { 'Authorization': `Token ${this.props.token}` });
 
         this.setState({ typesbac: filterdata.data.typesbac, diplomes: filterdata.data.diplomes });
-        Chart.plugins.clear();
     }
 
 

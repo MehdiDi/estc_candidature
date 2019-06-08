@@ -50,7 +50,7 @@ class MoyStatistics extends Component {
             });
 
             this.initChart(data.annees);
-            Chart.plugins.clear();
+            // Chart.plugins.clear();
 
 
         } catch (err) {
@@ -244,9 +244,7 @@ class MoyStatistics extends Component {
     };
     onDownload = (e, el) => {
         const link = document.getElementById(el.id);
-        const url = document.getElementById('chart').toDataURL('image/png');
-        link.href = url;
-
+        link.href = document.getElementById('chart').toDataURL('image/png');
     };
     clearFilters = () => {
 

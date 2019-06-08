@@ -4,7 +4,7 @@ import SelectOptions from "./SelectOptions";
 import {
     Button,
     Checkbox,
-    Dimmer,
+    Dimmer, Divider,
     Form,
     Grid,
     Header,
@@ -135,7 +135,7 @@ class Candidats extends Component {
                   }
               });
           
-      }
+      };
       
 
 
@@ -169,7 +169,9 @@ class Candidats extends Component {
         return colors;
     };
 
-    handleChange = (e, { value }) => this.setState({ kind: value });
+    handleChange = (e, { value }) => {
+        this.setState({ kind: value });
+    };
 
     async onSubmit(e) {
         e.preventDefault();
@@ -188,81 +190,15 @@ class Candidats extends Component {
         const { data } = await axios.post('http://localhost:8000',postData,
             { 'Authorization': `Token ${this.props.token}` });
 
-        // const ctx = document.getElementById("chart").getContext('2d');
 
         this.setState({showChart: true, labels: data.labels, data: data.counts})
-        //
-        // let crt = this.state.chart;
-        // if (crt.chart !== null) {
-        //     crt.chart.clear();
-        //     crt.chart.destroy();
-        //
-        // }
-        // let chartData = {
-        //     type: this.state.kind,
-        //     data: {
-        //         labels: data.labels,
-        //         datasets: [{
-        //
-        //             data: data.counts,
-        //             backgroundColor: this.randomizeColors(data.counts.length)
-        //
-        //         }]
-        //     },
-        //
-        // };
-        // if (this.state.kind === 'pie'){
-        //     chartData['options'] = {
-        //         plugins: {
-        //             datalabels: {
-        //                 formatter: (value, ctx) => {
-        //                     let sum = 0;
-        //                     let dataArr = ctx.chart.data.datasets[0].data;
-        //                     dataArr.forEach(data => {
-        //                         sum += data;
-        //                     });
-        //                     let percentage = (value * 100 / sum).toFixed(2) + "%";
-        //                     return percentage;
-        //                 },
-        //                 color: '#fff',
-        //             }
-        //         },
-        //     };
-        // }
-        // else {
-        //     chartData['options'] = {
-        //         plugins: {
-        //             datalabels: {
-        //                 formatter: {}
-        //             },
-        //
-        //         },
-        //         legend: {
-        //             visible: false
-        //         }
-        //     }
-        // }
-        //
-        // const chart = new Chart(ctx, chartData);
-        // chart.update();
-        // crt.chart = chart;
-        // crt.number = (function () {
-        //     let n = 0;
-        //     for (let i = 0; i < data.counts.length; i++)
-        //         n += data.counts[i];
-        //     return n;
-        // })();
-        //
-        //
+
         this.refs.chart.updateChart();
         this.setState({ loading: false});
 
     };
-    saveChart = () => {
-        const canvas = document.getElementById("chart");
-        const d = canvas.toDataURL("image/png");
-        const w = window.open('about:blank', 'image from canvas');
-        w.document.write("<img src='" + d + "' alt='from canvas'/>");
+    saveChart = (e, el) => {
+        this.refs.chart.downloadChart(e, el);
     };
     render() {
 
@@ -330,9 +266,14 @@ class Candidats extends Component {
                                 </Button>
                     </Form.Field>
                 </Form>
-                <Button style={{ margin: '10px 0 0', width: '5%' }}
-                    icon='download'
-                    onClick={this.saveChart.bind(this)} />
+                {this.state.showChart &&
+                <div>
+                    <Divider/>
+                        <Button as='a' color='teal' id='downloadImage' download='chart.png' href='#' onClick={this.saveChart}
+                            content='Telecharger' icon='download' labelPosition='right' />
+                    <Divider />
+                </div>
+                    }
                 <Grid>
                     <Grid.Row>
                         {this.state.showChart && <ChartComp randomize data={{labels: this.state.labels, data: this.state.data}}
