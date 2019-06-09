@@ -4,8 +4,6 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import RapportResult from "./RapportResult";
 import ReactToPrint from 'react-to-print';
-import Chart from "chart.js";
-
 
 const anneeOptions = [
     {
@@ -152,10 +150,8 @@ class Rapport extends Component {
     };
 
     onFiltersChange = (e, el) => {
-
         const filters = Object.assign({}, this.state.filters);
         const listDescription = this.state.listDescription;
-
 
         const val = el.value;
         const name = el.name;
@@ -187,7 +183,6 @@ class Rapport extends Component {
         const fields = this.state.fields;
         const filters = this.state.filters;
         this.setState({ loading: true });
-        // sir allah
 
         axios({
             method: 'post',
@@ -199,6 +194,7 @@ class Rapport extends Component {
             headers: { 'Authorization': `Token ${this.props.token}` }
         }).then(resp => {
             this.setState({ reportResult: resp.data.result, open: true, loading: false })
+            console.log(resp.data);
 
         }).catch(err => {
             console.log("Error!! " + err);
@@ -214,14 +210,6 @@ class Rapport extends Component {
     };
 
     render() {
-
-        const modules = this.state.modules.map(el => (
-            {
-                key: el.codemodule,
-                text: el.libellemodule,
-                value: el.codemodule
-            }
-        ));
 
         return (
             <div style={{ padding: '10px' }} >
@@ -314,16 +302,10 @@ class Rapport extends Component {
                                                     </Table.Row>
                                                     <Table.Row>
                                                         <Table.Cell>
-                                                            <Header as='h4'>Séléctionnés</Header>
+                                                            <Header as='h4'>Autres</Header>
                                                         </Table.Cell>
                                                         <Table.Cell>
-                                                            <Form.Select label='Moyenne de modules par Année' multiple
-                                                                onChange={this.moduleChange}
-                                                                options={modules}
-                                                            />
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            <Form.Checkbox label='Mention diplome par année' name='fields' value='diplomeannee'
+                                                            <Form.Checkbox label='Diplomes' name='fields' value='seldiplome'
                                                                 onChange={this.handleChange} />
                                                         </Table.Cell>
                                                     </Table.Row>
@@ -344,7 +326,7 @@ class Rapport extends Component {
                     </Grid.Row>
 
                 </Grid>
-                <Modal dimmer='blurring' size='large' open={this.state.open} onClose={this.close}>
+                <Modal dimmer='blurring' size='fullscreen' open={this.state.open} onClose={this.close}>
                     <Modal.Header>Rapport</Modal.Header>
                     <Modal.Content >
                         <Modal.Description>
@@ -358,9 +340,11 @@ class Rapport extends Component {
                     </Button>
 
                         <ReactToPrint
-                            trigger={() => <Button primary icon='print' onClick={this.print}>
-                                Sauvegarder
-                    </Button>}
+                            trigger={() =>
+                                <Button primary icon='print' onClick={this.print}>
+                                    Sauvegarder
+                                </Button>
+                            }
                             content={() => this.refs.rpt}
                         />
                     </Modal.Actions>

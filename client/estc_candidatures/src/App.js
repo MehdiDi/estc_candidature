@@ -9,6 +9,7 @@ import Logout from './views/Login/Logout/Logout';
 import { connect } from 'react-redux';
 import * as actions from './store/actions/index'
 import MachineLearning from './components/machine_learning/MachineLearning'
+import NavBar from "./components/layout/NavBar";
 
 
 class App extends Component {
@@ -27,13 +28,14 @@ class App extends Component {
         <Switch>
           <Route path="/logout" component={Logout} />
           <Route path="/statistics" component={Statistics} />
-          <Route path="/machinelearning" component={MachineLearning} />
+          <Route path="/predict" component={MachineLearning} />
           <Redirect to="/statistics" />
         </Switch>
       );
     }
     return (
       <div className="App">
+        <NavBar />
         {routes}
       </div>
 

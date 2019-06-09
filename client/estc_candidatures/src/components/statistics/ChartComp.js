@@ -37,7 +37,7 @@ class ChartComp extends Component {
             console.log(data);
         }
 
-        const color  = /*kind === 'pie' ? '#f1f1f1' :*/ 'black';
+        const color  = kind === 'pie' ? '#fff' : 'black';
 
         const chartData = {
         type: this.props.kind,
@@ -108,7 +108,7 @@ class ChartComp extends Component {
     preparePieData (data, labels, total) {
         data.forEach(function(value, index) {
             const v = Math.round((value / total) * 100);
-            if( value <= 0.01 * total){
+            if(v === 0){
                 data.splice(index, 1);
                 labels.splice(index, 1);
             }

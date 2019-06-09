@@ -1,5 +1,5 @@
 import React from 'react';
-import {Divider, Grid, Header, List, Statistic} from "semantic-ui-react";
+import {Container, Divider, Grid, Header, List, Segment, Statistic} from "semantic-ui-react";
 import ChartComp from "./ChartComp";
 
 
@@ -35,6 +35,7 @@ export default class RapportResult extends React.Component {
 
     return (
         <>
+        <Container>
 
             <Grid style={{padding: '15px'}} stackable>
                 <Grid.Row>
@@ -170,7 +171,6 @@ export default class RapportResult extends React.Component {
                                 <ChartComp kind='pie' legend data={{labels: reportResult.mentionbac.labels, data: reportResult.mentionbac.data}}/>
                             </Grid.Column>
                             }
-
                             {Object.keys(reportResult).indexOf('typebac') > -1 &&
                             <Grid.Column >
                                 <ChartComp kind='horizontalBar' hideLabel
@@ -180,7 +180,7 @@ export default class RapportResult extends React.Component {
                     </Grid.Row>
 
 
-                    {statsSelect && <Header as='h2'style={{marginTop: '150px'}} >Séléctionnés</Header>}
+                    {statsSelect && <Header as='h2'style={{marginTop: '140px'}} >Séléctionnés</Header>}
                     <Grid.Row columns={2} >
                         {Object.keys(reportResult).indexOf('selmentionbac') > -1 &&
                             <Grid.Column >
@@ -203,8 +203,25 @@ export default class RapportResult extends React.Component {
                             </Grid.Column>
                         }
                     </Grid.Row>
+                    <Grid.Row columns={1} style={{marginTop: '-10px'}}>
 
+                        {Object.keys(reportResult).indexOf('seldiplome') > -1 &&
+                        <Grid.Column width={8}>
+                            <Header as='h2'>
+                                Diplômes
+                            </Header>
+                                <Segment placeholder>
+                                    <ChartComp kind='horizontalBar' randomize hideLabel
+                                               data={{
+                                                   labels: reportResult.seldiplome.labels,
+                                                   data: reportResult.seldiplome.data
+                                               }}/>
+                                </Segment>
+                        </Grid.Column>
+                        }
+                    </Grid.Row>
             </Grid>
+            </Container>
 
         </>
     )

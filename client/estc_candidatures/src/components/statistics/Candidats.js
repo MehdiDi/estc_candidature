@@ -4,7 +4,7 @@ import SelectOptions from "./SelectOptions";
 import {
     Button,
     Checkbox,
-    Dimmer, Divider,
+    Dimmer,
     Form,
     Grid,
     Header,
@@ -266,19 +266,20 @@ class Candidats extends Component {
                                 </Button>
                     </Form.Field>
                 </Form>
-                {this.state.showChart &&
-                <div>
-                    <Divider/>
-                        <Button as='a' color='teal' id='downloadImage' download='chart.png' href='#' onClick={this.saveChart}
-                            content='Telecharger' icon='download' labelPosition='right' />
-                    <Divider />
-                </div>
-                    }
+
                 <Grid>
-                    <Grid.Row>
-                        {this.state.showChart && <ChartComp randomize data={{labels: this.state.labels, data: this.state.data}}
-                                    kind={this.state.kind} ref='chart' legend={this.state.kind === 'pie'}/>
-                        }
+
+                    <Grid.Row style={{marginTop: '50px'}}>
+                            {this.state.showChart &&
+                        <Grid.Column>
+                                {/*<Segment placeholder>*/}
+                                    <Button as='a' color='teal' id='downloadImage' download='chart.png' href='#' onClick={this.saveChart}
+                            content='Telecharger' icon='download' labelPosition='right' />
+                                    <ChartComp randomize data={{labels: this.state.labels, data: this.state.data}}
+                                            kind={this.state.kind} ref='chart' legend={this.state.kind === 'pie'}/>
+                                {/*</Segment>*/}
+                        </Grid.Column>
+                            }
                     </Grid.Row>
                     <Grid.Row textAlign='center'>
 

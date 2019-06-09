@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import Candidats from "./Candidats";
 
 import { Grid } from "semantic-ui-react";
-import classes from './Statistics.module.css';
 import Radium from 'radium';
 import EtudiantStatistics from "./EtudiantStatistics";
 import Menu from "semantic-ui-react/dist/commonjs/collections/Menu";
 import PreselectionStatistics from "./PreselectionStatistics";
 import MoyStatistics from "./MoyStatistics";
-import NavBar from '../layout/NavBar';
-import Rapport from './Rapport'
+import Rapport from './Rapport';
+import classes from '../layout/NavBar.module.css';
 
 
 class Statistics extends Component {
@@ -26,14 +25,9 @@ class Statistics extends Component {
     };
 
     render() {
-        const updatedClasses = [classes.FontSize, classes.Active]
+        // const updatedClasses = [classes.FontSize, classes.Active]
         const { activeItem } = this.state;
         let categoryStatistics;
-        var styles = {
-            backgroundColor: '#FFF',
-
-            marginTop: '-1rem',
-        };
 
         if (activeItem === 'Candidats')
             categoryStatistics = <Candidats />;
@@ -47,44 +41,49 @@ class Statistics extends Component {
             categoryStatistics = <Rapport />;
         return (
             <React.Fragment>
-                <NavBar />
-                <Grid stackable stretched style={{
-                    marginTop: 0,
-                    backgroundColor: '#FFF',
-                    minlength: '100%'
-                }}>
-                    <Grid.Column width={3} >
-                        <Menu vertical compact style={styles}>
-                            <Menu.Item
 
-                                name='Candidats'
-                                className={`${activeItem === 'Candidats' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
-                                onClick={this.handleItemClick} />
-                            <Menu.Item
-                                name='Préselection'
-                                className={`${activeItem === 'Préselection' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
-                                onClick={this.handleItemClick} />
-                            <Menu.Item
-                                className={`${activeItem === 'Aprés Selection' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
-                                name='Aprés Selection'
-                                onClick={this.handleItemClick}
-                            />
-                            <Menu.Item
-                                className={`${activeItem === 'Notes' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
-                                name='Notes'
-                                onClick={this.handleItemClick}
-                            />
-                            <Menu.Item
-                                className={`${activeItem === 'Rapport' ? updatedClasses : updatedClasses[0]} ${classes.FontSize}`}
-                                name='Rapport'
-                                onClick={this.handleItemClick}
-                            />
+                <Grid stackable stretched style={{minHeight: '100vh'}}>
+                    <Grid.Column width={3} >
+                        <Menu vertical compact className={classes.navbar}>
+                            <Menu.Item>
+                                <Menu.Header>
+                                    Statistiques
+                                </Menu.Header>
+                                <Menu.Item
+                                    name='Candidats'
+                                    active={activeItem === 'Candidats'}
+                                    onClick={this.handleItemClick} />
+
+
+                                <Menu.Item
+                                    active={activeItem === 'Notes'}
+                                    name='Notes'
+                                    onClick={this.handleItemClick}
+                                />
+                                <Menu.Item
+                                    active={activeItem === 'Rapport'}
+                                    name='Rapport'
+                                    onClick={this.handleItemClick}
+                                />
+                            </Menu.Item>
+                            <Menu.Item>
+                                <Menu.Header>
+                                    Corrélations
+                                </Menu.Header>
+                                <Menu.Item
+                                    name='Préselection'
+                                    active={activeItem === 'Préselection'}
+                                    onClick={this.handleItemClick} />
+                                    <Menu.Item
+                                    active={activeItem === 'Aprés Selection'}
+                                    name='Aprés Selection'
+                                    onClick={this.handleItemClick}/>
+                            </Menu.Item>
+
                         </Menu>
                     </Grid.Column>
 
-                    <Grid.Column width={13} style={{
-                        backgroundColor: '#FFF'
-                    }}>
+                    <Grid.Column width={13} >
                         {categoryStatistics}
                     </Grid.Column>
                 </Grid>

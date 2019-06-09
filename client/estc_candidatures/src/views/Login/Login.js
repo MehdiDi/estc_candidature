@@ -92,6 +92,7 @@ class Login extends Component {
   }
 
   render() {
+
     let redirect = null
     if (this.props.auth) {
       redirect = <Redirect to="/statistics" />
@@ -116,8 +117,8 @@ class Login extends Component {
         {redirect}
         <div className={classes.Login} style={this.state.style}>
           <Form className={classesUi.join(' ')} onSubmit={this.submitHundler}>
-            <h2>Login</h2>
-            <p>Connectez-vous à votre compte</p>
+            <h2>Authentification</h2>
+            <p >Connectez-vous à votre compte</p>
             {errorMessage}
             {fromElementsArray.map(formElement => (
               <Form.Field key={formElement.id}>

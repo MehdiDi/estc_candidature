@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { withRouter } from 'react-router-dom';
-import { Menu, Segment } from "semantic-ui-react";
-import Classes from './NavBar.module.css';
+import {Link} from 'react-router-dom';
+import {Icon, Menu} from "semantic-ui-react";
+import classes from './NavBar.module.css';
+import {connect} from "react-redux";
 
 class NavBar extends Component {
   constructor(props) {
@@ -11,43 +12,45 @@ class NavBar extends Component {
     }
   }
 
-  componentDidMount() {
-    if (this.props.history.location.pathname === '/machinelearnings')
-      this.setState({ activeItem: 'Machine Learning' })
-  }
-
   handleItemClick = (e, { name }) => {
     this.setState({ activeItem: name });
-    if (name === "Statistics")
-      this.props.history.push('statistics');
-    else if (name === "Machine Learning")
-      this.props.history.push('machinelearnings');
-    else
-      this.props.history.push('logout');
-  }
+  };
   render() {
-    const { activeItem } = this.state
-    const segmentStyle = {
-      backgroundColor: '#00b5ad'
-    }
+    const { activeItem } = this.state;
+
     return (
-      <div className={Classes.NavBar} >
-        <Segment inverted style={{backgroundColor: "#008080",}}>
-          <Menu size='small' pointing secondary inverted style={{ segmentStyle ,borderWidth: 0}}  >
-            <Menu.Item name='Statistics' active={activeItem === 'Statistics'} onClick={this.handleItemClick} style={{fontSize: 16}}/>
-            <Menu.Item
-              name='Machine Learning'
-              active={activeItem === 'Machine Learning'}
-              onClick={this.handleItemClick} style={{fontSize: 16}}
-            />
+      <>
+          <Menu size='small' icon='labeled' className={classes.navbar} color='teal'>
+            <Menu.Item as={Link} to='/statistcs'  name='Statistics' active={activeItem === 'Statistics'}
+                       onClick={this.handleItemClick}>
+              <Icon name='chart line'/>
+              Statistiques
+            </Menu.Item>
+            <Menu.Item as={Link} to='/predict'
+              name='Prédiction' color='teal'
+              active={activeItem === 'Prédiction'}
+              onClick={this.handleItemClick} >
+              <Icon name='student' />
+              Prédiction
+            </Menu.Item>
             <Menu.Menu position='right'>
-              <Menu.Item name='Logout' onClick={this.handleItemClick} style={{fontSize: 16}}/>
+              <Menu.Item as={Link} to={this.props.token === null? "/" : "/logout"} color='teal'
+                         name={this.props.token === null? "Authentification" : "Déconnecter"}
+                         onClick={this.handleItemClick} >
+                  <Icon name='log out' />
+                  {this.props.token === null? "S'authentifier" : "Déconnexion"}
+              </Menu.Item>
             </Menu.Menu>
           </Menu>
-        </Segment>
-      </div>
+      </>
     );
   }
 }
+const mapStateToProps = state => {
+    return {
+        token: state.token
+    };
+};
 
-export default withRouter(NavBar);
+
+export default connect(mapStateToProps)(NavBar);

@@ -9,6 +9,7 @@ const initialState = {
     typebac: '',
     diplome: '',
     dureeformation: '',
+    genre: '',
 };
 
 class Filters extends Component {
@@ -109,7 +110,12 @@ class Filters extends Component {
 
                     <Form.Input label='Ville de Residence' name='residence' placeholder='Ville' onChange={this.handleChange}
                         value={this.state.residence} />
+                    <Form.Select label='Genre' name='genre' onChange={this.handleChange}
+                                 options={[{key: 0, text:"Tous", value:""},
+                                     {key: 1, text:'Homme', value:'Homme'}, {key: 2, text: 'Femme', value:'Femme'}]}
+                        value={this.state.genre} />
                 </Form.Group>
+
                 <Form.Group widths={2}>
                     <Form.Select label='Mention de BAC' placeholder='Mention de BAC' name='mentionbac'
                         options={this.mentionsbac} onChange={this.handleChange} value={this.state.mentionbac} />

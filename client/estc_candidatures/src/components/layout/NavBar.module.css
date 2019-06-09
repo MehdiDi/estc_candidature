@@ -1,7 +1,5 @@
-.NavBar {
-    background-color: #008080;
-}
+.navbar {
+    border-radius: 0 !important;
 
-.Segement {
-    background-color: #00b5ad;
+    box-shadow: none !important;
 }

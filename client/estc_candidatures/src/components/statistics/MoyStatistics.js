@@ -6,6 +6,7 @@ import axios from "axios";
 import Chart from "chart.js";
 import { connect } from 'react-redux';
 import $ from 'jquery';
+import classes from './DImmerStyle.css'
 
 const style = {
     list_buttons: {
@@ -288,7 +289,7 @@ class MoyStatistics extends Component {
 
         return (
             <React.Fragment style={{scrollBehavior: 'smooth'}}>
-                <Dimmer active={this.state.loading}>
+                <Dimmer active={this.state.loading} className={classes.dimmerStyle}>
                     <Loader size='small'>
                         Chargement..
                     </Loader>

@@ -15,7 +15,7 @@ class CustomAuthToken(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        print(user)
+
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
@@ -75,7 +75,7 @@ class ModuleStatisticsView(APIView):
 
         sql = create_notes_select(column, target, target_table)
         sql += create_filters(filters)
-        print(sql)
+
         cursor = connection.cursor()
         cursor.execute(sql)
         rows = dictfetchall(cursor)
@@ -129,7 +129,7 @@ class PrecandidatStatistics(APIView):
 
         sql = create_sql(column, target, table, target_table)
         sql += create_filters(filters)
-        print(sql)
+
         cursor = connection.cursor()
         cursor.execute(sql)
         rows = dictfetchall(cursor)
@@ -303,19 +303,27 @@ class RapportCandidat(APIView):
             data, labels = format_data(res, 'typebac')
             return_data['seltypebac'] = {'labels': labels, 'data': data}
 
+        if 'seldiplome' in fields:
+            sql = create_aggregation_sql(
+                ['diplome'], filters, 'codecandidat', 'donneescandidat() don', 'count', False)
+
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'diplome')
+            return_data['seldiplome'] = {'labels': labels, 'data': data}
+
         if 'modules' in request.data and len(request.data['modules']) != 0:
             modules = request.data['modules']
             flt = filters.copy()
             flt['m.codemodule '] = (
                 'in ' + str(tuple(modules)) if len(modules) > 1 else modules[0])
 
-            del flt['don.anneecandidature']
+            del flt['anneecandidature']
             sql = "SELECT avg(notemodule) as nb, libellemodule, anneecandidature " \
                   "FROM obtenirmodule o INNER JOIN donneescandidat() don on don.codecandidat=o.codecandidat " \
                   "INNER JOIN module m ON o.codemodule=m.codemodule "
             sql += create_filters(flt)
             sql += " GROUP BY libellemodule, anneecandidature ORDER BY libellemodule, anneecandidature"
-            print(sql)
             cursor.execute(sql)
             res = dictfetchall(cursor)
             labels, data = format_data(res, 'nb')
@@ -372,7 +380,7 @@ class RapportCandidat(APIView):
 
         return_data['admis'] = {
             'nb_principal': nb_principal, 'nb_attent': nb_attent}
-        print(return_data)
+
         return Response({'result': return_data})
 
 
@@ -430,7 +438,7 @@ class PredictCandidats(APIView):
             model, p = naive_bayes(t_df, cols, target)
         elif algo == 'mlr':
             model, p = mlr(t_df, cols, target)
-            print(p)
+
 
         candidat_data = request.data['candidat']
         values = dict()
