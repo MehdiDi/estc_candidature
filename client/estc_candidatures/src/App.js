@@ -33,6 +33,13 @@ class App extends Component {
         </Switch>
       );
     }
+    else {
+        routes = (
+            <Switch>
+                <Route path='/' component={Login}/>
+            </Switch>
+        )
+    }
     return (
       <div className="App">
         <NavBar />

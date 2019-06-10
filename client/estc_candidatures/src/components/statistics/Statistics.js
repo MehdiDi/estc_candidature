@@ -39,9 +39,9 @@ class Statistics extends Component {
             categoryStatistics = <MoyStatistics />;
         else if (activeItem === 'Rapport')
             categoryStatistics = <Rapport />;
+
         return (
             <React.Fragment>
-
                 <Grid stackable stretched style={{minHeight: '100vh'}}>
                     <Grid.Column width={3} >
                         <Menu vertical compact className={classes.navbar}>
@@ -88,6 +88,7 @@ class Statistics extends Component {
                     </Grid.Column>
                 </Grid>
             </React.Fragment >
+
 
         );
     }

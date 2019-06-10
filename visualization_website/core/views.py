@@ -312,6 +312,14 @@ class RapportCandidat(APIView):
             data, labels = format_data(res, 'diplome')
             return_data['seldiplome'] = {'labels': labels, 'data': data}
 
+        if 'selmentiongl' in fields:
+            sql = create_aggregation_sql(
+                ['mentionannee'], filters, 'don.codecandidat', 'resultatannee', 'count', True)
+            cursor.execute(sql)
+            res = dictfetchall(cursor)
+            data, labels = format_data(res, 'mentionannee')
+            return_data['selmentiongl'] = {'labels': labels, 'data': data}
+
         if 'modules' in request.data and len(request.data['modules']) != 0:
             modules = request.data['modules']
             flt = filters.copy()

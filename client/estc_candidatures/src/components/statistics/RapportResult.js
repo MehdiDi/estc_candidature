@@ -219,6 +219,20 @@ export default class RapportResult extends React.Component {
                                 </Segment>
                         </Grid.Column>
                         }
+                        {Object.keys(reportResult).indexOf('selmentiongl') > -1 &&
+                        <Grid.Column width={8}>
+                            <Header as='h2'>
+                                Mention Année GLAASRI
+                            </Header>
+                                <Segment placeholder>
+                                    <ChartComp end kind='bar'  hideLabel
+                                               data={{
+                                                   labels: reportResult.selmentiongl.labels,
+                                                   data: reportResult.selmentiongl.data
+                                               }}/>
+                                </Segment>
+                        </Grid.Column>
+                        }
                     </Grid.Row>
             </Grid>
             </Container>

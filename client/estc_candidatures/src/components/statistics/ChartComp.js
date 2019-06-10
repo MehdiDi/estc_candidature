@@ -42,10 +42,9 @@ class ChartComp extends Component {
         const chartData = {
         type: this.props.kind,
         data: {
-            labels: this.props.data.labels,
-
+            labels,
             datasets: [{
-                data: this.props.data.data,
+                data,
                 backgroundColor: (this.props.randomize ? this.randomizeColors(this.props.data.data.length):
                         ['#f1c40f', '#16a085', '#e74c3c', '#2ecc71', '#9980FA', '#D980FA', '#833471', '#ED4C67']),
         datalabels: {
@@ -86,6 +85,10 @@ class ChartComp extends Component {
 
             legend: {display: this.props.legend}
         };
+        // const end = this.props.end;
+        // if(end ){
+        //     chartData.options.scales.yAxes[0].ticks.max = (data => Math.max(...data)) + 3;
+        // }
 
         const chart = new Chart(ctx, chartData);
 

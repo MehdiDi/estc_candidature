@@ -308,6 +308,10 @@ class Rapport extends Component {
                                                             <Form.Checkbox label='Diplomes' name='fields' value='seldiplome'
                                                                 onChange={this.handleChange} />
                                                         </Table.Cell>
+                                                        <Table.Cell>
+                                                            <Form.Checkbox label='Mention Année GLAASRI' name='fields' value='selmentiongl'
+                                                                onChange={this.handleChange} />
+                                                        </Table.Cell>
                                                     </Table.Row>
                                                 </Table.Body>
                                             </Table>
