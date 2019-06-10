@@ -25,7 +25,7 @@ SECRET_KEY = 'kts*xx48s4s5qk_s*fps&s7wq-54i*zjeq_kr3o=!6-&yt)yaz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['estc_candidature.herokuapp.com', '127.0.0.1:8000']
 
 
 # Application definition
@@ -144,4 +144,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-CORS_ORIGIN_WHITELIST = 'http://localhost:3000',
+CORS_ORIGIN_WHITELIST = 'estc_candidature.herokuapp.com'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
