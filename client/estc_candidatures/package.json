@@ -9,7 +9,7 @@
     "html2canvas": "^1.0.0-rc.1",
     "jquery": "^3.4.1",
     "jspdf": "^1.5.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "radium": "^0.25.1",
     "react": "^16.8.6",
     "react-csv-reader": "^1.2.2",
